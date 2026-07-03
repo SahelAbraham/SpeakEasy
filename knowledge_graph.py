@@ -67,18 +67,28 @@ def assign_tracks(driver, user_id, track_id):
             )
         )
 
-def log_session(driver, user_id, session_id, overall_score, duration_seconds):
+def log_session(driver, user_id, session_id, overall_score, duration_seconds,
+                 speech_rate_wpm=None, filler_total=None):
     with driver.session(database=os.getenv("NEO4J_DATABASE")) as session:
         session.execute_write(
             lambda tx: tx.run("""
                 MATCH (u:User {user_id: $user_id})
-                CREATE(s: Session{session_id: $session_id,overall_score: $overall_score,duration_seconds: $duration_seconds,timestamp: timestamp()})
+                CREATE (s:Session {
+                    session_id: $session_id,
+                    overall_score: $overall_score,
+                    duration_seconds: $duration_seconds,
+                    speech_rate_wpm: $speech_rate_wpm,
+                    filler_total: $filler_total,
+                    timestamp: timestamp()
+                })
                 CREATE (u)-[:HAS_SESSION]->(s)
             """,
-            user_id = user_id,
-            session_id = session_id,
-            overall_score = overall_score,
-            duration_seconds = duration_seconds
+            user_id=user_id,
+            session_id=session_id,
+            overall_score=overall_score,
+            duration_seconds=duration_seconds,
+            speech_rate_wpm=speech_rate_wpm,
+            filler_total=filler_total
             )
         )
 
