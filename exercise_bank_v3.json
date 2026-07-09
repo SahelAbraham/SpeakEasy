@@ -1,0 +1,1204 @@
+{
+  "exercise_bank": [
+    {
+      "id": "COG001",
+      "title": "Word Category Sort",
+      "track": "Cognition",
+      "instructions": "Here is a category: fruits. Say as many fruits as you can in one minute."
+    },
+    {
+      "id": "COG002",
+      "title": "Memory Chain",
+      "track": "Cognition",
+      "instructions": "Read these three items and remember them: apple, chair, drum. Look away, say them back in order, then add one more item of your own."
+    },
+    {
+      "id": "COG003",
+      "title": "Odd One Out",
+      "track": "Cognition",
+      "instructions": "Read these four words: apple, banana, carrot, orange. Say which one does not belong with the others and explain why."
+    },
+    {
+      "id": "COG004",
+      "title": "Follow the Steps",
+      "track": "Cognition",
+      "instructions": "Read these three steps: clap your hands, say your name, then touch your knee. Perform them out loud in that exact order."
+    },
+    {
+      "id": "COG005",
+      "title": "What Changed",
+      "track": "Cognition",
+      "instructions": "Look at three objects near you for ten seconds. Close your eyes and move one out of sight. Open your eyes and say which one is missing."
+    },
+    {
+      "id": "COG006",
+      "title": "Number Reverse",
+      "track": "Cognition",
+      "instructions": "Read this number sequence: 3, 9, 2, 7. Say the numbers back out loud in reverse order."
+    },
+    {
+      "id": "COG007",
+      "title": "Story Recall",
+      "track": "Cognition",
+      "instructions": "Read this short story: Maya packed a red umbrella before leaving for the park because the sky looked cloudy. Now say who the story is about, what she packed, and why."
+    },
+    {
+      "id": "COG008",
+      "title": "Sequence the Day",
+      "track": "Cognition",
+      "instructions": "Put these daily events in the correct order and say them out loud: eating breakfast, waking up, brushing teeth, going to school."
+    },
+    {
+      "id": "COG009",
+      "title": "Category Switch",
+      "track": "Cognition",
+      "instructions": "Name as many animals as you can for thirty seconds. Then switch and name as many fruits as you can for the next thirty seconds."
+    },
+    {
+      "id": "COG010",
+      "title": "Find the Rule",
+      "track": "Cognition",
+      "instructions": "Look at this number pattern: 2, 4, 6, 8. Say what number comes next and explain the rule you used."
+    },
+    {
+      "id": "COG011",
+      "title": "Two-Step Directions",
+      "track": "Cognition",
+      "instructions": "Touch your nose, then say your own name out loud, in that exact order."
+    },
+    {
+      "id": "COG012",
+      "title": "Word Association Chain",
+      "track": "Cognition",
+      "instructions": "Starting with the word ocean, say five words in a row where each new word connects to the one before it."
+    },
+    {
+      "id": "COG013",
+      "title": "Remember the List",
+      "track": "Cognition",
+      "instructions": "Read this grocery list: milk, bread, eggs, apples, cheese. Look away and say as many items as you can remember."
+    },
+    {
+      "id": "COG014",
+      "title": "Spot the Difference",
+      "track": "Cognition",
+      "instructions": "Read these two descriptions of a kitchen: Version 1 has a red kettle on the counter and two chairs at the table. Version 2 has a blue kettle on the counter and three chairs at the table. Say what is different between them."
+    },
+    {
+      "id": "COG015",
+      "title": "Mental Math Warmup",
+      "track": "Cognition",
+      "instructions": "Solve this in your head and say the answer out loud: what is seven plus five?"
+    },
+    {
+      "id": "COG016",
+      "title": "Categorize and Explain",
+      "track": "Cognition",
+      "instructions": "Read these words: apple, car, banana, truck. Sort them into two groups and explain your reasoning out loud."
+    },
+    {
+      "id": "COG017",
+      "title": "Delayed Recall",
+      "track": "Cognition",
+      "instructions": "Read this fact: the capital of France is Paris. Say it out loud twice, then wait a moment and say it again from memory without looking back."
+    },
+    {
+      "id": "COG018",
+      "title": "Which Comes First",
+      "track": "Cognition",
+      "instructions": "Say which happens first and explain why: planting a seed, or watering a plant that has already grown."
+    },
+    {
+      "id": "COG019",
+      "title": "Attention to a Word",
+      "track": "Cognition",
+      "instructions": "Read this paragraph out loud: The cat sat on the mat. The dog ran past the cat. The bird watched from the tree. Then say how many times the word 'the' appears in it."
+    },
+    {
+      "id": "COG020",
+      "title": "Working Memory Sentence",
+      "track": "Cognition",
+      "instructions": "Read this sentence: The blue bicycle was leaning against the old wooden fence near the garden. Now, without looking back, say what color the bicycle was."
+    },
+    {
+      "id": "COG021",
+      "title": "Problem Solving Scenario",
+      "track": "Cognition",
+      "instructions": "Think out loud through this problem: what would you do if you lost your house key while no one else was home?"
+    },
+    {
+      "id": "COG022",
+      "title": "Categorical Fluency",
+      "track": "Cognition",
+      "instructions": "Say as many things as you can that are red in one minute."
+    },
+    {
+      "id": "COG023",
+      "title": "Multi-Step Recipe Recall",
+      "track": "Cognition",
+      "instructions": "Read these steps: spread the peanut butter, add the jelly, then put the two slices of bread together. Say the steps back in order from memory."
+    },
+    {
+      "id": "COG024",
+      "title": "Visual Memory Snapshot",
+      "track": "Cognition",
+      "instructions": "Look closely at an object near you for five seconds. Close your eyes and describe it out loud from memory in as much detail as you can."
+    },
+    {
+      "id": "COG025",
+      "title": "Logical Sequencing",
+      "track": "Cognition",
+      "instructions": "Put these steps in the correct order and say them out loud: dry your hands, wash your hands, turn off the tap."
+    },
+    {
+      "id": "COG026",
+      "title": "Item Pairing Recall",
+      "track": "Cognition",
+      "instructions": "Say three pairs of related items, such as sock and shoe, and explain out loud why each pair goes together."
+    },
+    {
+      "id": "COG027",
+      "title": "Focus While Distracted",
+      "track": "Cognition",
+      "instructions": "Say the days of the week in order out loud while tapping your hand on a surface the whole time without losing your place."
+    },
+    {
+      "id": "COG028",
+      "title": "Time Orientation Check",
+      "track": "Cognition",
+      "instructions": "Say today's day of the week, the month, and roughly what time of day it is right now."
+    },
+    {
+      "id": "COG029",
+      "title": "Cause and Effect",
+      "track": "Cognition",
+      "instructions": "Say out loud what would happen if you left a bowl of ice cream out in the sun."
+    },
+    {
+      "id": "COG030",
+      "title": "Number Sequence Recall",
+      "track": "Cognition",
+      "instructions": "Read this sequence: 5, 1, 8, 3, 6. Say the numbers back out loud in the exact same order."
+    },
+    {
+      "id": "COG031",
+      "title": "Planning a Task",
+      "track": "Cognition",
+      "instructions": "Describe out loud, step by step, how you would plan a simple birthday party."
+    },
+    {
+      "id": "COG032",
+      "title": "Word Definition Retrieval",
+      "track": "Cognition",
+      "instructions": "Read this word: generous. Say its definition out loud without using the word itself."
+    },
+    {
+      "id": "COG033",
+      "title": "Shifting Attention Task",
+      "track": "Cognition",
+      "instructions": "For thirty seconds, name objects near you by their color. Then for the next thirty seconds, name the same objects by their shape instead."
+    },
+    {
+      "id": "COG034",
+      "title": "Prospective Memory Prompt",
+      "track": "Cognition",
+      "instructions": "Remember to say the word banana out loud at the very end of your next response, after everything else you say."
+    },
+    {
+      "id": "COG035",
+      "title": "Estimating Quantities",
+      "track": "Cognition",
+      "instructions": "Look around and pick a group of similar objects nearby, like books or pens. Estimate how many there are, then count them and say out loud whether your guess was close."
+    },
+    {
+      "id": "COG036",
+      "title": "Following Complex Directions",
+      "track": "Cognition",
+      "instructions": "Read these four steps in order: stand up, say your favorite color, sit back down, then clap once. Perform all four steps out loud."
+    },
+    {
+      "id": "COG037",
+      "title": "Inference Practice",
+      "track": "Cognition",
+      "instructions": "Read this scenario: Sam walked in soaking wet and holding a dripping umbrella. Say what you think most likely happened outside, and explain your reasoning."
+    },
+    {
+      "id": "COG038",
+      "title": "Simon Says Listening",
+      "track": "Cognition",
+      "instructions": "Read these instructions, but only perform the ones that start with 'Simon says': 1) Simon says touch your ear. 2) Clap your hands. 3) Simon says say your name out loud. Say out loud which actions you performed."
+    },
+    {
+      "id": "COG039",
+      "title": "Recall the Reason",
+      "track": "Cognition",
+      "instructions": "Read this short story: Leo gave his umbrella to a stranger even though it started to rain on his walk home. Say why you think Leo made that choice."
+    },
+    {
+      "id": "COG040",
+      "title": "Verbal Fluency Letter Game",
+      "track": "Cognition",
+      "instructions": "Say as many words as you can that start with the letter S in one minute."
+    },
+    {
+      "id": "COG041",
+      "title": "Mental Flexibility Sorting",
+      "track": "Cognition",
+      "instructions": "Name five objects near you. Sort them into groups by color and say the groups out loud, then re-sort the same objects by size and say the new groups."
+    },
+    {
+      "id": "COG042",
+      "title": "Short Term Recall Numbers",
+      "track": "Cognition",
+      "instructions": "Read this number sequence: 4, 8, 1, 6. Say the numbers back out loud immediately in the same order."
+    },
+    {
+      "id": "COG043",
+      "title": "Planning Ahead Task",
+      "track": "Cognition",
+      "instructions": "Describe out loud what you would need to pack for an overnight trip, and in what order you would pack it."
+    },
+    {
+      "id": "COG044",
+      "title": "Attention to Detail Reading",
+      "track": "Cognition",
+      "instructions": "Read this paragraph out loud: The green car parked next to the red house had one flat tire. Then say one detail from the paragraph that stood out to you."
+    },
+    {
+      "id": "COG045",
+      "title": "Comparing Two Items",
+      "track": "Cognition",
+      "instructions": "Compare a bicycle and a car out loud, naming two ways they are similar and two ways they are different."
+    },
+    {
+      "id": "COG046",
+      "title": "Task Switching Drill",
+      "track": "Cognition",
+      "instructions": "Count up by twos out loud from zero to twenty, then immediately count down by threes out loud from thirty."
+    },
+    {
+      "id": "COG047",
+      "title": "Everyday Problem Solving",
+      "track": "Cognition",
+      "instructions": "Say out loud what you would do if you were at a store and could not find an item you needed."
+    },
+    {
+      "id": "COG048",
+      "title": "Reasoning Riddle",
+      "track": "Cognition",
+      "instructions": "Solve this riddle out loud: I have keys but no locks, I have space but no room. What am I?"
+    },
+    {
+      "id": "COG049",
+      "title": "Memory for Names",
+      "track": "Cognition",
+      "instructions": "Read these three names: Priya, Marcus, and Elena. Look away and say all three names back from memory."
+    },
+    {
+      "id": "COG050",
+      "title": "Organizing Information",
+      "track": "Cognition",
+      "instructions": "Read these words: dog, spoon, cat, fork, hamster, plate. Group them into logical categories out loud and explain your groupings."
+    },
+    {
+      "id": "SPE001",
+      "title": "Balloon Breaths",
+      "track": "Speech",
+      "instructions": "Take a slow deep breath in like blowing up a balloon, then say 'I can speak slowly and clearly' as you let it out evenly."
+    },
+    {
+      "id": "SPE002",
+      "title": "Bounce the Ball Syllables",
+      "track": "Speech",
+      "instructions": "Say each syllable out loud like you are bouncing a ball: wa-ter-mel-on, but-ter-fly, el-e-phant."
+    },
+    {
+      "id": "SPE003",
+      "title": "Slow Motion Reader",
+      "track": "Speech",
+      "instructions": "Read this sentence out loud like a robot in slow motion: The. Big. Dog. Ran. Fast. Then say it again at a normal, clear pace."
+    },
+    {
+      "id": "SPE004",
+      "title": "Dragon Breaths",
+      "track": "Speech",
+      "instructions": "Take a big breath in like a dragon about to breathe fire, then say 'I am a strong speaker' slowly as you let it out."
+    },
+    {
+      "id": "SPE005",
+      "title": "Pre-Talk Breath Reset",
+      "track": "Speech",
+      "instructions": "Breathe in for three seconds and out for four, then say your name and one fact about yourself out loud."
+    },
+    {
+      "id": "SPE006",
+      "title": "No Filler Recap",
+      "track": "Speech",
+      "instructions": "Say out loud what you did yesterday without using um, uh, or like. Pause silently instead whenever you need a moment."
+    },
+    {
+      "id": "SPE007",
+      "title": "Easy Onset Practice",
+      "track": "Speech",
+      "instructions": "Say these sentences starting with a gentle stretched first sound instead of a hard stop: Hhhello, how are you. Iiit was a good day."
+    },
+    {
+      "id": "SPE008",
+      "title": "Comma Breathing",
+      "track": "Speech",
+      "instructions": "Read this paragraph out loud, taking a visible pause and breath at every comma: The morning sun rose slowly, the birds began to sing, and the town woke up quietly."
+    },
+    {
+      "id": "SPE009",
+      "title": "Metronome Reading",
+      "track": "Speech",
+      "instructions": "Read this sentence out loud, placing equal timing on each word like a steady beat: I walk to the store every single day."
+    },
+    {
+      "id": "SPE010",
+      "title": "Unscripted Topic Talk",
+      "track": "Speech",
+      "instructions": "Talk out loud for ninety seconds about your morning routine, focusing on staying calm and paced."
+    },
+    {
+      "id": "SPE011",
+      "title": "Ship or Sheep",
+      "track": "Speech",
+      "instructions": "Say these word pairs out loud, making each one sound clearly distinct: ship - sheep, chip - cheap, sip - seep."
+    },
+    {
+      "id": "SPE012",
+      "title": "Snake Sounds",
+      "track": "Speech",
+      "instructions": "Make a long ssssss sound out loud for five seconds, then say sun, sand, snake, soup."
+    },
+    {
+      "id": "SPE013",
+      "title": "Red Rabbit Run",
+      "track": "Speech",
+      "instructions": "Say this three times out loud: Red rabbit runs around. Say it a little faster each time while staying clear."
+    },
+    {
+      "id": "SPE014",
+      "title": "Thumbs Up Thursday",
+      "track": "Speech",
+      "instructions": "Say these words out loud, placing your tongue gently between your teeth for the th sound: thumb, think, three, Thursday."
+    },
+    {
+      "id": "SPE015",
+      "title": "Lion or Line",
+      "track": "Speech",
+      "instructions": "Say these pairs out loud, listening for the L sound at the start: lion - line, light - night, low - flow."
+    },
+    {
+      "id": "SPE016",
+      "title": "Silly Sally",
+      "track": "Speech",
+      "instructions": "Say this three times out loud: Silly Sally sells seashells. Start slow, then speed up carefully."
+    },
+    {
+      "id": "SPE017",
+      "title": "Sound Story",
+      "track": "Speech",
+      "instructions": "Tell a short story out loud using as many S words as you can, such as sun, snake, sandwich, and swim."
+    },
+    {
+      "id": "SPE018",
+      "title": "Funny Fox",
+      "track": "Speech",
+      "instructions": "Say these words out loud, feeling your top teeth touch your bottom lip: fox, fun, fish, five, village, voice."
+    },
+    {
+      "id": "SPE019",
+      "title": "Think or Sink",
+      "track": "Speech",
+      "instructions": "Say these pairs out loud: think - sink, three - free, thank - sank."
+    },
+    {
+      "id": "SPE020",
+      "title": "Really Clearly",
+      "track": "Speech",
+      "instructions": "Say this three times out loud at increasing speed: Really red lorries rolled down really long roads."
+    },
+    {
+      "id": "SPE021",
+      "title": "Text to Talk",
+      "track": "Speech",
+      "instructions": "Say this out loud as clearly as you would type it: I am on my way, be there in five minutes."
+    },
+    {
+      "id": "SPE022",
+      "title": "Sentence Final S",
+      "track": "Speech",
+      "instructions": "Say these sentences out loud, emphasizing the final S sound: The cats chase the rats. She wears dresses to classes."
+    },
+    {
+      "id": "SPE023",
+      "title": "Very or Wary",
+      "track": "Speech",
+      "instructions": "Say these pairs out loud: very - wary, vine - wine, vest - west."
+    },
+    {
+      "id": "SPE024",
+      "title": "Six Slippery Snails",
+      "track": "Speech",
+      "instructions": "Say this three times out loud: Six slippery snails slid slowly seaward. Go slow, then speed up carefully."
+    },
+    {
+      "id": "SPE025",
+      "title": "R vs L Pair Drill",
+      "track": "Speech",
+      "instructions": "Say these word pairs out loud: right - light, road - load, rip - lip, correct - collect."
+    },
+    {
+      "id": "SPE026",
+      "title": "Thirty Three Thieves",
+      "track": "Speech",
+      "instructions": "Say this three times out loud at increasing speed: Thirty-three thieves thought they thrilled the throne throughout Thursday."
+    },
+    {
+      "id": "SPE027",
+      "title": "Peter Piper Advanced",
+      "track": "Speech",
+      "instructions": "Say this three times out loud at increasing speed, keeping every P crisp: Peter Piper picked a peck of pickled peppers."
+    },
+    {
+      "id": "SPE028",
+      "title": "F and V Contrast",
+      "track": "Speech",
+      "instructions": "Say these pairs out loud, feeling your top teeth on your bottom lip: fan - van, feel - veal, fast - vast, fine - vine."
+    },
+    {
+      "id": "SPE029",
+      "title": "Stress Shift Challenge",
+      "track": "Speech",
+      "instructions": "Say these word pairs out loud, noticing the stress shift: RE-cord vs re-CORD, PRE-sent vs pre-SENT."
+    },
+    {
+      "id": "SPE030",
+      "title": "Natural Linking",
+      "track": "Speech",
+      "instructions": "Say these phrases out loud as one smooth connected sound: turn it off, kind of, I don't know."
+    },
+    {
+      "id": "SPE031",
+      "title": "Cluster Practice",
+      "track": "Speech",
+      "instructions": "Say these consonant clusters out loud slowly: str in street, spl in splash, thr in three, str in strong."
+    },
+    {
+      "id": "SPE032",
+      "title": "Emphasis Changes Meaning",
+      "track": "Speech",
+      "instructions": "Say this sentence out loud four times, stressing a different word each time: I never said she took it."
+    },
+    {
+      "id": "SPE033",
+      "title": "Clear and Quick",
+      "track": "Speech",
+      "instructions": "Describe your weekend plans out loud in under thirty seconds, keeping every word fully clear."
+    },
+    {
+      "id": "SPE034",
+      "title": "Sentence-Per-Breath",
+      "track": "Speech",
+      "instructions": "Say this sentence out loud, then pause and take a new breath: I am learning to speak smoothly. Now say the next sentence on a new breath: I feel calm and clear."
+    },
+    {
+      "id": "SPE035",
+      "title": "Paced Paragraph Reading",
+      "track": "Speech",
+      "instructions": "Read this paragraph out loud at a deliberately slow, even pace: The morning sun rose slowly over the quiet city. People began their day, walking calmly to work."
+    },
+    {
+      "id": "SPE036",
+      "title": "Diaphragmatic Breathing Drill",
+      "track": "Speech",
+      "instructions": "Inhale deeply through your nose for four seconds, hold for two, then say this full sentence as you exhale over six seconds: I can speak with a calm, steady voice."
+    },
+    {
+      "id": "SPE037",
+      "title": "Filler-Free Minute",
+      "track": "Speech",
+      "instructions": "Speak out loud for one minute about your day without using filler words, pausing silently instead when needed."
+    },
+    {
+      "id": "SPE038",
+      "title": "Pause at Punctuation",
+      "track": "Speech",
+      "instructions": "Read this paragraph out loud, pausing visibly at every comma and full stop: Last weekend, I went to the mall with my friends. We had lunch, watched a movie, and walked around for hours."
+    },
+    {
+      "id": "SPE039",
+      "title": "Clap and Talk",
+      "track": "Speech",
+      "instructions": "Say this sentence out loud, clapping once on every word: I like to play outside. Then say it again a little slower."
+    },
+    {
+      "id": "SPE040",
+      "title": "Question Ping Pong",
+      "track": "Speech",
+      "instructions": "Take a breath, then answer this question slowly and out loud: What is your favourite colour?"
+    },
+    {
+      "id": "SPE041",
+      "title": "Vowel Zoo",
+      "track": "Speech",
+      "instructions": "Say each vowel sound out loud with its animal cue: A as in cat, E as in elephant, I as in iguana, O as in octopus, U as in umbrella."
+    },
+    {
+      "id": "SPE042",
+      "title": "Smooth Talker",
+      "track": "Speech",
+      "instructions": "Say this phrase out loud as one smooth flow without stopping between words: I want to go to the park."
+    },
+    {
+      "id": "SPE043",
+      "title": "Question or Statement",
+      "track": "Speech",
+      "instructions": "Say this sentence out loud as a statement, then as a question: You like ice cream. Notice how your voice rises for the question."
+    },
+    {
+      "id": "SPE044",
+      "title": "Vowel Contrast Drill",
+      "track": "Speech",
+      "instructions": "Say these pairs out loud: ship - sheep, bit - beat, full - fool, bed - bad."
+    },
+    {
+      "id": "SPE045",
+      "title": "Photograph Stress Drill",
+      "track": "Speech",
+      "instructions": "Say these words out loud, placing stress on the correct syllable: PHO-to-graph, pho-TOG-ra-pher, pho-to-GRAPH-ic."
+    },
+    {
+      "id": "SPE046",
+      "title": "Baseline Clarity Passage",
+      "track": "Speech",
+      "instructions": "Read this passage out loud at a natural pace: Yesterday I walked to the store and bought some fresh bread and vegetables."
+    },
+    {
+      "id": "SPE047",
+      "title": "Group Intro Practice",
+      "track": "Speech",
+      "instructions": "Say out loud an introduction of yourself to an imaginary group, including your name and one hobby."
+    },
+    {
+      "id": "SPE048",
+      "title": "Read With Feeling",
+      "track": "Speech",
+      "instructions": "Read this sentence out loud with natural rise and fall in your voice: I honestly cannot believe that happened. That is the most surprising thing I have heard all week."
+    },
+    {
+      "id": "SPE049",
+      "title": "Slow Read Relay",
+      "track": "Speech",
+      "instructions": "Read this sentence out loud at half your normal speed: Yesterday I went to school and had a really interesting class about history. Then say it again at normal speed, keeping the same clarity."
+    },
+    {
+      "id": "SPE050",
+      "title": "Animal Race",
+      "track": "Speech",
+      "instructions": "Say each animal name out loud slowly, one syllable at a time, like walking it across the room: Tor-toise. Tur-key. Pen-guin. Cro-co-dile."
+    },
+    {
+      "id": "LAN001",
+      "title": "Synonym Swap",
+      "track": "Language",
+      "instructions": "Read this word: happy. Say a synonym out loud, a word that means almost the same thing."
+    },
+    {
+      "id": "LAN002",
+      "title": "Antonym Match",
+      "track": "Language",
+      "instructions": "Read this word: hot. Say its opposite out loud."
+    },
+    {
+      "id": "LAN003",
+      "title": "Describe the Object",
+      "track": "Language",
+      "instructions": "Pick an object near you and describe it out loud using at least four different adjectives."
+    },
+    {
+      "id": "LAN004",
+      "title": "Build a Sentence",
+      "track": "Language",
+      "instructions": "Read these three words: dog, umbrella, quickly. Use all three in one grammatically correct sentence out loud."
+    },
+    {
+      "id": "LAN005",
+      "title": "Fix the Sentence",
+      "track": "Language",
+      "instructions": "Read this sentence: She go to the store yesterday. Say the corrected version out loud."
+    },
+    {
+      "id": "LAN006",
+      "title": "Past, Present, Future",
+      "track": "Language",
+      "instructions": "Read this verb: run. Say it out loud in the past, present, and future tense."
+    },
+    {
+      "id": "LAN007",
+      "title": "Compare Two Things",
+      "track": "Language",
+      "instructions": "Compare a chair and a box out loud using comparative language, such as 'The chair is bigger than the box.'"
+    },
+    {
+      "id": "LAN008",
+      "title": "Category Naming",
+      "track": "Language",
+      "instructions": "Name five items out loud that belong in this category: kitchen tools."
+    },
+    {
+      "id": "LAN009",
+      "title": "Retell the Story",
+      "track": "Language",
+      "instructions": "Read this short story: Maya packed a red umbrella before leaving for the park because the sky looked cloudy. Retell it out loud in your own words using complete sentences."
+    },
+    {
+      "id": "LAN010",
+      "title": "Ask a Question",
+      "track": "Language",
+      "instructions": "Read this statement: The movie starts at seven. Turn it into a question out loud that could get that statement as an answer."
+    },
+    {
+      "id": "LAN011",
+      "title": "Sequencing Words",
+      "track": "Language",
+      "instructions": "Describe out loud how to make a sandwich, using sequencing words like first, next, then, and finally."
+    },
+    {
+      "id": "LAN012",
+      "title": "Idiom Meaning",
+      "track": "Language",
+      "instructions": "Read this idiom: it's raining cats and dogs. Explain out loud what it really means."
+    },
+    {
+      "id": "LAN013",
+      "title": "Plural Practice",
+      "track": "Language",
+      "instructions": "Read these singular nouns: child, mouse, cat. Say the correct plural form of each one out loud."
+    },
+    {
+      "id": "LAN014",
+      "title": "Describe a Process",
+      "track": "Language",
+      "instructions": "Explain out loud, step by step, how you would tie your shoes."
+    },
+    {
+      "id": "LAN015",
+      "title": "Compound Sentences",
+      "track": "Language",
+      "instructions": "Read these two short sentences: I was hungry. I made a sandwich. Combine them into one longer sentence out loud using and, but, or because."
+    },
+    {
+      "id": "LAN016",
+      "title": "Vocabulary Expansion",
+      "track": "Language",
+      "instructions": "Read this simple word: big. Say a more advanced or specific word out loud that means something similar."
+    },
+    {
+      "id": "LAN017",
+      "title": "Answer Wh Questions",
+      "track": "Language",
+      "instructions": "Read this passage: On Saturday, Ben rode his bike to the lake and watched the sunset with his sister. Say out loud who, what, when, and where."
+    },
+    {
+      "id": "LAN018",
+      "title": "Story Prediction",
+      "track": "Language",
+      "instructions": "Read this story opening: The old wooden door creaked open, revealing a room no one had entered in years. Say out loud what you think will happen next."
+    },
+    {
+      "id": "LAN019",
+      "title": "Pronoun Practice",
+      "track": "Language",
+      "instructions": "Read this sentence: Sarah gave the book to Sarah's brother. Say the sentence out loud replacing the second 'Sarah' with the correct pronoun."
+    },
+    {
+      "id": "LAN020",
+      "title": "Explain a Word",
+      "track": "Language",
+      "instructions": "Read this word: umbrella. Explain its meaning out loud without saying the word itself."
+    },
+    {
+      "id": "LAN021",
+      "title": "Descriptive Storytelling",
+      "track": "Language",
+      "instructions": "Describe a place you love out loud using as much descriptive detail as you can."
+    },
+    {
+      "id": "LAN022",
+      "title": "Cause and Effect Sentences",
+      "track": "Language",
+      "instructions": "Read these two ideas: It started raining. We went inside. Combine them into one cause and effect sentence out loud using because or so."
+    },
+    {
+      "id": "LAN023",
+      "title": "Following a Recipe Aloud",
+      "track": "Language",
+      "instructions": "Read these steps: toast the bread, spread the butter, add the jam. Say the steps back out loud using sequencing language like first, next, and then."
+    },
+    {
+      "id": "LAN024",
+      "title": "Multiple Meaning Words",
+      "track": "Language",
+      "instructions": "Read this word: bat. Say two different meanings of this word out loud."
+    },
+    {
+      "id": "LAN025",
+      "title": "Making Comparisons",
+      "track": "Language",
+      "instructions": "Read these three sizes: small, medium, large. Use comparative and superlative forms to compare them out loud, such as small, smaller, smallest."
+    },
+    {
+      "id": "LAN026",
+      "title": "Story Sequencing",
+      "track": "Language",
+      "instructions": "Read these three events out of order: she ate breakfast, she woke up, she brushed her teeth. Say them out loud in the correct logical order."
+    },
+    {
+      "id": "LAN027",
+      "title": "Conversation Starters",
+      "track": "Language",
+      "instructions": "Say out loud how you would start a conversation with someone new, including a greeting and a question."
+    },
+    {
+      "id": "LAN028",
+      "title": "Categorization and Explanation",
+      "track": "Language",
+      "instructions": "Read these words: apple, hammer, banana, wrench. Sort them into categories out loud and explain your reasoning."
+    },
+    {
+      "id": "LAN029",
+      "title": "Figurative Language Spotting",
+      "track": "Language",
+      "instructions": "Read this sentence: Her smile was as bright as the sun. Say out loud whether it is a simile, a metaphor, or literal language, and explain why."
+    },
+    {
+      "id": "LAN030",
+      "title": "Expressing Opinions",
+      "track": "Language",
+      "instructions": "Say your opinion out loud on this topic and explain one reason why: should students have homework on weekends?"
+    },
+    {
+      "id": "LAN031",
+      "title": "Verb Tense Correction",
+      "track": "Language",
+      "instructions": "Read this sentence: Yesterday I go to the park. Say the corrected version out loud."
+    },
+    {
+      "id": "LAN032",
+      "title": "Descriptive Question Game",
+      "track": "Language",
+      "instructions": "Think of an object in your mind and give three descriptive clues about it out loud, without naming it."
+    },
+    {
+      "id": "LAN033",
+      "title": "Summarizing a Passage",
+      "track": "Language",
+      "instructions": "Read this passage: The team practiced every day for a month before the big game. On game day, they played their best and won by two points. Summarize it out loud in two or three sentences."
+    },
+    {
+      "id": "LAN034",
+      "title": "Using Prepositions",
+      "track": "Language",
+      "instructions": "Describe out loud where an object near you is located, using a preposition like on, under, next to, or between."
+    },
+    {
+      "id": "LAN035",
+      "title": "Making Requests Politely",
+      "track": "Language",
+      "instructions": "Say out loud a polite way to ask for something, such as 'Could I please have...'"
+    },
+    {
+      "id": "LAN036",
+      "title": "Story Elements",
+      "track": "Language",
+      "instructions": "Read this short story: Jamie found a lost puppy in the park and could not find its owner anywhere. Say out loud the character, the setting, and the problem."
+    },
+    {
+      "id": "LAN037",
+      "title": "Word Categorization Speed",
+      "track": "Language",
+      "instructions": "Read these words: rock, tree, chair, flower, table, bird. Sort them out loud into two categories, such as living and non-living."
+    },
+    {
+      "id": "LAN038",
+      "title": "Conjunction Practice",
+      "track": "Language",
+      "instructions": "Read these two sentences: I wanted to go outside. It was raining. Combine them out loud using a conjunction such as although, since, or unless."
+    },
+    {
+      "id": "LAN039",
+      "title": "Explaining a Rule",
+      "track": "Language",
+      "instructions": "Explain out loud, step by step, the rules of a simple game you know to someone who has never played it."
+    },
+    {
+      "id": "LAN040",
+      "title": "Descriptive Comparisons",
+      "track": "Language",
+      "instructions": "Describe out loud the difference between a cat and a tiger."
+    },
+    {
+      "id": "LAN041",
+      "title": "Sentence Expansion",
+      "track": "Language",
+      "instructions": "Read this short sentence: The dog ran. Say an expanded version of it out loud with more descriptive detail."
+    },
+    {
+      "id": "LAN042",
+      "title": "Listening for Details",
+      "track": "Language",
+      "instructions": "Read this passage: The blue car stopped outside the tall red brick building at exactly noon. Say out loud three specific details you noticed."
+    },
+    {
+      "id": "LAN043",
+      "title": "Making Predictions From Titles",
+      "track": "Language",
+      "instructions": "Read this story title: The Day the Lights Went Out. Say out loud what you think the story might be about."
+    },
+    {
+      "id": "LAN044",
+      "title": "Using Because and So",
+      "track": "Language",
+      "instructions": "Read this scenario: the ground was wet. Explain out loud why it might have happened using because, and what likely happened as a result using so."
+    },
+    {
+      "id": "LAN045",
+      "title": "Real-Life Directions",
+      "track": "Language",
+      "instructions": "Give directions out loud from your front door to your kitchen, using clear sequential language."
+    },
+    {
+      "id": "LAN046",
+      "title": "Explaining Feelings",
+      "track": "Language",
+      "instructions": "Read this scenario: a character just won first place in a competition. Describe out loud how they might be feeling and why."
+    },
+    {
+      "id": "LAN047",
+      "title": "Word Retrieval Warmup",
+      "track": "Language",
+      "instructions": "Say out loud the first word that comes to mind for each of these categories: an animal, a color, a food."
+    },
+    {
+      "id": "LAN048",
+      "title": "Building Descriptions with Senses",
+      "track": "Language",
+      "instructions": "Describe an object near you out loud using how it looks, feels, sounds, and smells."
+    },
+    {
+      "id": "LAN049",
+      "title": "Correcting Word Order",
+      "track": "Language",
+      "instructions": "Read this scrambled sentence: park the to went dog the. Say the words out loud in the correct order."
+    },
+    {
+      "id": "LAN050",
+      "title": "Two Truths and Explanation",
+      "track": "Language",
+      "instructions": "Say two true facts about yourself out loud and explain each one using complete, detailed sentences."
+    },
+    {
+      "id": "CON001",
+      "title": "Show and Tell",
+      "track": "Confidence",
+      "instructions": "Pick your favourite object nearby and say three things about it out loud. Take your time, there is no rush."
+    },
+    {
+      "id": "CON002",
+      "title": "Picture Detective",
+      "track": "Confidence",
+      "instructions": "Look around you and describe everything you can see out loud, like a detective finding clues."
+    },
+    {
+      "id": "CON003",
+      "title": "Pretend Phone Call",
+      "track": "Confidence",
+      "instructions": "Pretend you are calling a friend to invite them to your birthday party. Say out loud what you would tell them."
+    },
+    {
+      "id": "CON004",
+      "title": "Quick Questions",
+      "track": "Confidence",
+      "instructions": "Answer these out loud in full sentences: What is your favourite food? What do you like to do after school?"
+    },
+    {
+      "id": "CON005",
+      "title": "My Best Day Ever",
+      "track": "Confidence",
+      "instructions": "Tell a story out loud about the best day you ever had. Try to talk for at least one minute."
+    },
+    {
+      "id": "CON006",
+      "title": "Order at a Restaurant",
+      "track": "Confidence",
+      "instructions": "Pretend you are ordering your favourite food at a restaurant. Say out loud what you would tell the waiter."
+    },
+    {
+      "id": "CON007",
+      "title": "Make Up a Story",
+      "track": "Confidence",
+      "instructions": "Make up a story out loud about a superhero: who they are, what their power is, and what happened to them today."
+    },
+    {
+      "id": "CON008",
+      "title": "Favourite Things",
+      "track": "Confidence",
+      "instructions": "Answer out loud in full sentences: What is your favourite movie and why? What are you really good at?"
+    },
+    {
+      "id": "CON009",
+      "title": "Describe Your Space",
+      "track": "Confidence",
+      "instructions": "Look around your room and describe out loud what you see for thirty seconds, no script needed."
+    },
+    {
+      "id": "CON010",
+      "title": "Talking to a Teacher",
+      "track": "Confidence",
+      "instructions": "Practice out loud asking a teacher to explain something: 'Excuse me, I had a question about the homework.'"
+    },
+    {
+      "id": "CON011",
+      "title": "Hot Seat Questions",
+      "track": "Confidence",
+      "instructions": "Answer out loud, confidently: What are you proud of this year? What do you wish more people knew about you?"
+    },
+    {
+      "id": "CON012",
+      "title": "Tell Me About Something You Love",
+      "track": "Confidence",
+      "instructions": "Talk out loud for sixty seconds about a game, show, or hobby you love, as if recommending it to a friend."
+    },
+    {
+      "id": "CON013",
+      "title": "Class Presentation Practice",
+      "track": "Confidence",
+      "instructions": "Deliver out loud the opening thirty seconds of an imaginary school presentation on any topic you choose."
+    },
+    {
+      "id": "CON014",
+      "title": "Small Talk Warmup",
+      "track": "Confidence",
+      "instructions": "Answer these out loud naturally: How was your weekend? What have you been up to lately?"
+    },
+    {
+      "id": "CON015",
+      "title": "Unprepared Opinion",
+      "track": "Confidence",
+      "instructions": "Give your honest opinion out loud for sixty seconds without preparing: should school start later in the morning?"
+    },
+    {
+      "id": "CON016",
+      "title": "Saying No Confidently",
+      "track": "Confidence",
+      "instructions": "Practice out loud saying no politely but clearly, as if a friend asked you to do something you did not want to do."
+    },
+    {
+      "id": "CON017",
+      "title": "Describe What You See",
+      "track": "Confidence",
+      "instructions": "Describe a photo or scene around you out loud for thirty seconds without overthinking your wording."
+    },
+    {
+      "id": "CON018",
+      "title": "Mock Interview Question",
+      "track": "Confidence",
+      "instructions": "Answer out loud as if in a job interview: Tell me about yourself. Aim for sixty to ninety seconds."
+    },
+    {
+      "id": "CON019",
+      "title": "Asking for Something",
+      "track": "Confidence",
+      "instructions": "Practice out loud asking a coworker for help with a task, speaking clearly without over-apologizing."
+    },
+    {
+      "id": "CON020",
+      "title": "Unprepared Topic Talk",
+      "track": "Confidence",
+      "instructions": "Speak out loud for two minutes about a skill you would like to learn, without preparing in advance."
+    },
+    {
+      "id": "CON021",
+      "title": "Small Talk Starters",
+      "track": "Confidence",
+      "instructions": "Answer these out loud naturally: How was your weekend? and What do you do for work?"
+    },
+    {
+      "id": "CON022",
+      "title": "30 Second Pitch",
+      "track": "Confidence",
+      "instructions": "Say out loud a brief, confident introduction of yourself as if meeting a room of new colleagues."
+    },
+    {
+      "id": "CON023",
+      "title": "Difficult Question Practice",
+      "track": "Confidence",
+      "instructions": "Take a breath, then answer this out loud directly and confidently: What is your greatest weakness?"
+    },
+    {
+      "id": "CON024",
+      "title": "Tell Me Something Good",
+      "track": "Confidence",
+      "instructions": "Tell out loud about something positive that happened to you recently, taking your time."
+    },
+    {
+      "id": "CON025",
+      "title": "Compliment Practice",
+      "track": "Confidence",
+      "instructions": "Practice giving a genuine compliment out loud, as if the person were standing in front of you."
+    },
+    {
+      "id": "CON026",
+      "title": "Sharing an Opinion Respectfully",
+      "track": "Confidence",
+      "instructions": "Share an opinion out loud on this topic while acknowledging someone might disagree: is it better to read the book or watch the movie first?"
+    },
+    {
+      "id": "CON027",
+      "title": "Introducing a Friend",
+      "track": "Confidence",
+      "instructions": "Practice out loud introducing a friend to someone new, saying their name and one nice thing about them."
+    },
+    {
+      "id": "CON028",
+      "title": "Standing Up for Yourself",
+      "track": "Confidence",
+      "instructions": "Practice out loud a calm, clear response to someone interrupting you mid-conversation."
+    },
+    {
+      "id": "CON029",
+      "title": "Asking for Directions",
+      "track": "Confidence",
+      "instructions": "Practice out loud confidently asking a stranger for directions to a nearby place."
+    },
+    {
+      "id": "CON030",
+      "title": "Ordering Confidently",
+      "track": "Confidence",
+      "instructions": "Practice out loud placing a food order clearly and confidently without rushing or mumbling."
+    },
+    {
+      "id": "CON031",
+      "title": "Speaking Up in a Group",
+      "track": "Confidence",
+      "instructions": "Practice out loud sharing an idea, as if speaking up in a group meeting or class discussion."
+    },
+    {
+      "id": "CON032",
+      "title": "Handling a Compliment",
+      "track": "Confidence",
+      "instructions": "Practice out loud responding graciously to this compliment: 'You did such a great job on that.'"
+    },
+    {
+      "id": "CON033",
+      "title": "Apologizing Clearly",
+      "track": "Confidence",
+      "instructions": "Practice out loud a short, sincere apology for showing up late to meet a friend."
+    },
+    {
+      "id": "CON034",
+      "title": "Sharing Good News",
+      "track": "Confidence",
+      "instructions": "Practice out loud telling a friend some good news with enthusiasm in your voice."
+    },
+    {
+      "id": "CON035",
+      "title": "Disagreeing Politely",
+      "track": "Confidence",
+      "instructions": "Practice out loud politely disagreeing with this opinion: 'I think pizza is the best food ever.'"
+    },
+    {
+      "id": "CON036",
+      "title": "Answering Unexpectedly",
+      "track": "Confidence",
+      "instructions": "Answer this out loud right now, without any time to think first: What is one thing that made you smile this week?"
+    },
+    {
+      "id": "CON037",
+      "title": "Recounting an Achievement",
+      "track": "Confidence",
+      "instructions": "Talk out loud for thirty seconds about something you accomplished that you are proud of."
+    },
+    {
+      "id": "CON038",
+      "title": "Speaking to a Stranger",
+      "track": "Confidence",
+      "instructions": "Practice out loud a short, friendly exchange you might have with someone you just met."
+    },
+    {
+      "id": "CON039",
+      "title": "Presenting an Idea",
+      "track": "Confidence",
+      "instructions": "Pitch a simple idea out loud, like a weekend plan, as if trying to convince a friend to agree."
+    },
+    {
+      "id": "CON040",
+      "title": "Confident Body and Voice",
+      "track": "Confidence",
+      "instructions": "Say a short introduction out loud, focusing on a steady, clear, and confident tone of voice."
+    },
+    {
+      "id": "CON041",
+      "title": "Handling Interruptions",
+      "track": "Confidence",
+      "instructions": "Practice out loud calmly finishing your thought after being interrupted mid-sentence."
+    },
+    {
+      "id": "CON042",
+      "title": "Toast or Congratulations",
+      "track": "Confidence",
+      "instructions": "Practice out loud giving a short congratulatory message to a friend who just achieved something."
+    },
+    {
+      "id": "CON043",
+      "title": "Answering Under Pressure",
+      "track": "Confidence",
+      "instructions": "Take a breath, then answer this out loud calmly: What would you do if your plans suddenly changed?"
+    },
+    {
+      "id": "CON044",
+      "title": "Group Introduction",
+      "track": "Confidence",
+      "instructions": "Introduce yourself out loud to an imaginary new group, stating your name and one interest."
+    },
+    {
+      "id": "CON045",
+      "title": "Explaining a Mistake",
+      "track": "Confidence",
+      "instructions": "Practice out loud calmly explaining a small mistake you made and what you learned from it."
+    },
+    {
+      "id": "CON046",
+      "title": "Requesting Feedback",
+      "track": "Confidence",
+      "instructions": "Practice out loud asking someone for honest feedback on something you did."
+    },
+    {
+      "id": "CON047",
+      "title": "Voicing a Boundary",
+      "track": "Confidence",
+      "instructions": "Practice out loud calmly stating a personal boundary in a respectful but firm way."
+    },
+    {
+      "id": "CON048",
+      "title": "Celebrating Someone Else",
+      "track": "Confidence",
+      "instructions": "Practice out loud speaking warmly about a friend's or family member's recent success."
+    },
+    {
+      "id": "CON049",
+      "title": "Starting a Difficult Conversation",
+      "track": "Confidence",
+      "instructions": "Practice out loud the opening line of a conversation you have been putting off."
+    },
+    {
+      "id": "CON050",
+      "title": "Ending on a High Note",
+      "track": "Confidence",
+      "instructions": "Practice out loud a warm, confident goodbye at the end of a conversation or meeting."
+    }
+  ]
+}
