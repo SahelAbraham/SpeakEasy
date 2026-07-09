@@ -1,0 +1,9 @@
+Takes 5 starting values (for each track) + a list of exercise scores given in this format:
+
+[[Fluency Scores], [Articulation Scores], [Pronunciation Scores], [Confidence Scores], [Maintenance Scores]]
+
+If an area didn't have any scores (the user didn't take any recent tests in that area), the value corresponding to that track 
+takes a small decay penalty
+
+The RL model then allocates 10 exercises using the largest-remainder method, to each of the 5 tracks based on what it thinks
+the user should spend time practicing. The model favors high scores in weak areas, and penalizes neglecting weak areas
