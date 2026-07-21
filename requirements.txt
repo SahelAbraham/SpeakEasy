@@ -1,0 +1,8 @@
+fastapi
+python-dotenv
+neo4j
+openai-whisper
+numpy
+scipy
+fastdtw
+chromadb

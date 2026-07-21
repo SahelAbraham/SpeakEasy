@@ -1,6 +1,7 @@
 import uuid
 from knowledge_graph import driver, log_session, log_phoneme_score, update_weak_phonemes
 
+
 def record_session(driver, user_id, session_data):
     session_id = session_data.get("session_id") or str(uuid.uuid4())
 
@@ -12,6 +13,7 @@ def record_session(driver, user_id, session_data):
         duration_seconds=session_data["duration_seconds"],
         speech_rate_wpm=session_data.get("speech_rate_wpm"),
         filler_total=session_data.get("filler_total"),
+        embedding=session_data.get("embedding"),
     )
 
     for phoneme, score in session_data.get("phoneme_scores", {}).items():
@@ -28,5 +30,6 @@ if __name__ == "__main__":
         "duration_seconds": 42,
         "speech_rate_wpm": 110,
         "filler_total": 3,
+        "embedding": [0.12, 0.05, -0.33, 0.41],
         "phoneme_scores": {"/r/": 0.45, "/th/": 0.72},
     })

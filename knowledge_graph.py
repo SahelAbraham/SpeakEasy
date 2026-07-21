@@ -68,7 +68,7 @@ def assign_tracks(driver, user_id, track_id):
         )
 
 def log_session(driver, user_id, session_id, overall_score, duration_seconds,
-                 speech_rate_wpm=None, filler_total=None):
+                 speech_rate_wpm=None, filler_total=None, embedding=None):
     with driver.session(database=os.getenv("NEO4J_DATABASE")) as session:
         session.execute_write(
             lambda tx: tx.run("""
@@ -79,6 +79,7 @@ def log_session(driver, user_id, session_id, overall_score, duration_seconds,
                     duration_seconds: $duration_seconds,
                     speech_rate_wpm: $speech_rate_wpm,
                     filler_total: $filler_total,
+                    embedding: $embedding,
                     timestamp: timestamp()
                 })
                 CREATE (u)-[:HAS_SESSION]->(s)
@@ -88,9 +89,32 @@ def log_session(driver, user_id, session_id, overall_score, duration_seconds,
             overall_score=overall_score,
             duration_seconds=duration_seconds,
             speech_rate_wpm=speech_rate_wpm,
-            filler_total=filler_total
+            filler_total=filler_total,
+            embedding=embedding
             )
         )
+
+
+def get_recent_sessions(driver, user_id, limit=2):
+    """
+    Returns a user's most recent sessions (most recent first), each as a dict
+    with session_id, overall_score, timestamp, and embedding (or None if the
+    session predates embedding capture). Used by DTW/cosine progress comparison.
+    """
+    with driver.session(database=os.getenv("NEO4J_DATABASE")) as session:
+        result = session.run("""
+            MATCH (u:User {user_id: $user_id})-[:HAS_SESSION]->(s:Session)
+            RETURN s.session_id AS session_id,
+                   s.overall_score AS overall_score,
+                   s.timestamp AS timestamp,
+                   s.embedding AS embedding
+            ORDER BY s.timestamp DESC
+            LIMIT $limit
+        """,
+        user_id=user_id,
+        limit=limit
+        )
+        return [dict(record) for record in result]
 
 def log_phoneme_score(driver, session_id, phoneme_symbol, score_value):
     with driver.session(database=os.getenv("NEO4J_DATABASE")) as session:
