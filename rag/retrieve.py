@@ -10,10 +10,12 @@ def query_exercises(query_text, track=None, n_results=3):
     track so results stay relevant to the user's assigned track.
 
     track values must match whatever is stored in exercise_bank_v3.json's
-    "track" field exactly (currently: Cognition, Speech, Language, Confidence) —
-    NOT the Knowledge Graph's track_id scheme or the RL agent's skill areas,
-    which use different naming. These three lists don't line up yet; confirm
-    with the team which is canonical before treating this as final.
+    "track" field exactly (Cognition, Speech, Language, Confidence). The
+    Knowledge Graph's seed_tracks() now uses this same set of track_ids.
+    Sahel's RL agent (Sahel_RLModel branch) still uses a different 5-area
+    scheme (fluency, articulation, pronunciation, confidence, maintenance) —
+    that still needs reconciling with the team before RL output can drive
+    track-filtered retrieval directly.
     """
     where_filter = {"track": track} if track else None
 
