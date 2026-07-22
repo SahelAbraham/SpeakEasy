@@ -1,6 +1,8 @@
 import numpy as np
 from fastdtw import fastdtw
 from scipy.spatial.distance import cosine, euclidean
+from knowledge_graph import get_recent_sessions
+
 
 
 def compare_sessions(embedding_a, embedding_b):
@@ -46,7 +48,6 @@ def get_progress_between_sessions(driver, user_id):
     since it opens a live Neo4j connection on import — keeps compare_sessions()
     and the mock-embedding test below runnable with no DB connectivity.
     """
-    from knowledge_graph import get_recent_sessions
     sessions = get_recent_sessions(driver, user_id, limit=2)
 
     if len(sessions) < 2:
@@ -64,8 +65,6 @@ def get_progress_between_sessions(driver, user_id):
 
 
 if __name__ == "__main__":
-    # Rabiah's wav2vec pipeline isn't built yet, so test the comparison logic
-    # standalone with mock embeddings before wiring it to real sessions.
     rng = np.random.default_rng(seed=42)
     mock_older = rng.normal(size=32)
     mock_newer = mock_older + rng.normal(scale=0.1, size=32)  # slightly different, simulating improvement
