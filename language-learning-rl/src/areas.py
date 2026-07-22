@@ -1,9 +1,8 @@
 SKILL_AREAS = (
-    "fluency",
-    "articulation",
-    "pronunciation",
-    "confidence",
-    "maintenance",
+    "cognition",
+    "expressive_language",
+    "receptive_language",
+    "speech",
 )
 
 NUM_AREAS = len(SKILL_AREAS)

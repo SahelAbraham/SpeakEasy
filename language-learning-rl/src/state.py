@@ -14,7 +14,7 @@ def build_state_vector(
     """
     Encode user state for the policy network.
 
-    Features per area (5 areas -> 15 features total):
+    Features per area (4 areas -> 16 features total):
       - current proficiency
       - mean exercise score (0 if none completed)
       - normalized exercise count
