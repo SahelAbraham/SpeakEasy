@@ -38,12 +38,14 @@ def create_user(driver, user_id, phone_number, age_group, native_language):
         )
 
 def seed_tracks(tx):
+    # track_id matches the "track" field in exercise_bank_v3.json /
+    # exercise_bank_speech_language.json exactly, so KG and exercise bank
+    # queries never need a name-translation layer between them.
     tracks = [
-        ("articulation_child", "Articulation for children"),
-        ("articulation_adult", "Articulation for adults"),
-        ("adult_post_therapy", "Post-therapy maintenance"),
-        ("hearing_impaired",   "Hearing-impaired adaptation"),
-        ("confidence",         "Confidence and fluency"),
+        ("Cognition", "Cognitive-communication exercises"),
+        ("Speech",    "Motor speech, fluency, voice, and social pragmatic exercises"),
+        ("Language",  "Expressive and receptive language exercises"),
+        ("Confidence", "Confidence and fluency building"),
     ]
     for track_id, name in tracks:
         tx.run("""
