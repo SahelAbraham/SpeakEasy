@@ -118,7 +118,7 @@
       "track": "Language",
       "subcategory": "Receptive - Spoken",
       "modality": "spoken",
-      "instructions": "Listen to this instruction, then do it: touch your nose."
+      "instructions": "Listen to this instruction, then do it: fold this piece of paper in half."
     },
     {
       "id": "LAN-REC-SPK-002",
@@ -126,7 +126,7 @@
       "track": "Language",
       "subcategory": "Receptive - Spoken",
       "modality": "spoken",
-      "instructions": "Listen to this instruction, then do both parts in order: clap your hands, then touch your knee."
+      "instructions": "Listen to this instruction, then do both parts in order: pick up your phone, then set it down face down."
     },
     {
       "id": "LAN-REC-SPK-003",
@@ -134,7 +134,7 @@
       "track": "Language",
       "subcategory": "Receptive - Spoken",
       "modality": "spoken",
-      "instructions": "Listen to this instruction, then do all three parts in order: stand up, turn around once, then sit back down."
+      "instructions": "Listen to this instruction, then do all three parts in order: stand up, walk to the nearest door, then sit back down."
     },
     {
       "id": "LAN-REC-SPK-004",
@@ -158,7 +158,7 @@
       "track": "Language",
       "subcategory": "Receptive - Spoken",
       "modality": "spoken",
-      "instructions": "Listen to this instruction, then do it: put your hand under the table."
+      "instructions": "Listen to this instruction, then do it: place your keys under a book."
     },
     {
       "id": "LAN-REC-SPK-007",
@@ -182,7 +182,7 @@
       "track": "Language",
       "subcategory": "Receptive - Written",
       "modality": "written",
-      "instructions": "Read this instruction, then do it: tap the table three times."
+      "instructions": "Read this instruction, then do it: turn off a light switch near you."
     },
     {
       "id": "LAN-REC-WRT-002",
@@ -374,7 +374,7 @@
       "track": "Speech",
       "subcategory": "Social Pragmatic",
       "modality": "spoken",
-      "instructions": "Imagine a friend just lost their favorite toy. Say out loud how they probably feel, and explain why you think that."
+      "instructions": "Imagine a coworker just found out a project they worked hard on got cancelled. Say out loud how they probably feel, and explain why you think that."
     },
     {
       "id": "SPE-PRAG-004",
@@ -398,7 +398,7 @@
       "track": "Speech",
       "subcategory": "Social Pragmatic",
       "modality": "spoken",
-      "instructions": "Imagine some kids are playing a game at the park. Say out loud what you would say to politely ask to join in."
+      "instructions": "Imagine a group of coworkers are chatting in the break room. Say out loud what you would say to politely join the conversation."
     },
     {
       "id": "SPE-PRAG-007",
