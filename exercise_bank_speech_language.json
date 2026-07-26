@@ -118,7 +118,7 @@
       "track": "Language",
       "subcategory": "Receptive - Spoken",
       "modality": "spoken",
-      "instructions": "Listen to this instruction, then do it: fold this piece of paper in half."
+      "instructions": "Listen to this instruction: fold a piece of paper in half. Say out loud: is the paper bigger or smaller than before after folding it?"
     },
     {
       "id": "LAN-REC-SPK-002",
@@ -126,7 +126,7 @@
       "track": "Language",
       "subcategory": "Receptive - Spoken",
       "modality": "spoken",
-      "instructions": "Listen to this instruction, then do both parts in order: pick up your phone, then set it down face down."
+      "instructions": "Listen to this instruction: pick up your phone, then set it down face down. Say out loud: what do you do to the phone right after you pick it up?"
     },
     {
       "id": "LAN-REC-SPK-003",
@@ -134,7 +134,7 @@
       "track": "Language",
       "subcategory": "Receptive - Spoken",
       "modality": "spoken",
-      "instructions": "Listen to this instruction, then do all three parts in order: stand up, walk to the nearest door, then sit back down."
+      "instructions": "Listen to this instruction: stand up, walk to the nearest door, then sit back down. Say out loud: what is the last thing you do?"
     },
     {
       "id": "LAN-REC-SPK-004",
@@ -142,7 +142,7 @@
       "track": "Language",
       "subcategory": "Receptive - Spoken",
       "modality": "spoken",
-      "instructions": "Listen to this description: it is round, orange, and you peel it before eating it. Point to or name the object being described."
+      "instructions": "Listen to this description: it is round, orange, and you peel it before eating it. Say out loud what is being described."
     },
     {
       "id": "LAN-REC-SPK-005",
@@ -158,7 +158,7 @@
       "track": "Language",
       "subcategory": "Receptive - Spoken",
       "modality": "spoken",
-      "instructions": "Listen to this instruction, then do it: place your keys under a book."
+      "instructions": "Listen to this instruction: place your keys under a book. Say out loud: which object did you move, the keys or the book?"
     },
     {
       "id": "LAN-REC-SPK-007",
@@ -166,7 +166,7 @@
       "track": "Language",
       "subcategory": "Receptive - Spoken",
       "modality": "spoken",
-      "instructions": "Listen to this instruction, then do it: place one object behind another object near you."
+      "instructions": "Listen to this instruction: place a cup behind a plate. Say out loud: which object would you see first if you looked at them from the front?"
     },
     {
       "id": "LAN-REC-SPK-008",
@@ -182,7 +182,7 @@
       "track": "Language",
       "subcategory": "Receptive - Written",
       "modality": "written",
-      "instructions": "Read this instruction, then do it: turn off a light switch near you."
+      "instructions": "Read this instruction: turn off a light switch near you. Type your answer: will the room get darker or brighter?"
     },
     {
       "id": "LAN-REC-WRT-002",
@@ -190,7 +190,7 @@
       "track": "Language",
       "subcategory": "Receptive - Written",
       "modality": "written",
-      "instructions": "Read this instruction, then do both parts in order: pick up a pen, then set it down on your left."
+      "instructions": "Read this instruction: pick up a pen, then set it down on your left. Type your answer: what do you do to the pen right after you pick it up?"
     },
     {
       "id": "LAN-REC-WRT-003",
@@ -198,7 +198,7 @@
       "track": "Language",
       "subcategory": "Receptive - Written",
       "modality": "written",
-      "instructions": "Read this word: chair. Point to or find a matching object nearby."
+      "instructions": "Read this word: chair. Type one sentence describing what it is used for."
     },
     {
       "id": "LAN-REC-WRT-004",
@@ -206,7 +206,7 @@
       "track": "Language",
       "subcategory": "Receptive - Written",
       "modality": "written",
-      "instructions": "Read this description: it has four legs, a back, and people sit on it. Point to the object being described."
+      "instructions": "Read this description: it has four legs, a back, and people sit on it. Type the name of the object being described."
     },
     {
       "id": "LAN-REC-WRT-005",
@@ -214,7 +214,7 @@
       "track": "Language",
       "subcategory": "Receptive - Written",
       "modality": "written",
-      "instructions": "Read this instruction, then do it: place your hand between two objects on your desk."
+      "instructions": "Read this instruction: place a pen between two books on your desk. Type your answer: how many books end up next to the pen?"
     },
     {
       "id": "LAN-REC-WRT-006",
@@ -222,7 +222,7 @@
       "track": "Language",
       "subcategory": "Receptive - Written",
       "modality": "written",
-      "instructions": "Read these two sentences: Tom forgot his umbrella. It started to rain on his walk home. Answer out loud: what problem did Tom have?"
+      "instructions": "Read these two sentences: Tom forgot his umbrella. It started to rain on his walk home. Type your answer: what problem did Tom have?"
     },
     {
       "id": "SPE-MOTOR-001",
@@ -230,7 +230,7 @@
       "track": "Speech",
       "subcategory": "Motor Speech (Dysarthria)",
       "modality": "spoken",
-      "instructions": "Press your tongue firmly against the inside of your cheek, hold for three seconds, then relax. Repeat five times on each side."
+      "instructions": "Press your tongue firmly against the inside of your cheek, hold for three seconds, then relax. Repeat five times on each side, then say 'la la la' out loud three times."
     },
     {
       "id": "SPE-MOTOR-002",
