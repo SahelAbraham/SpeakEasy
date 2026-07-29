@@ -1,32 +1,31 @@
-import chromadb
+from rag.vector_store import get_collection
 
-client = chromadb.PersistentClient(path="rag/chroma_db")
-collection = client.get_collection("exercise_bank")
-
-
-def query_exercises(query_text, track=None, n_results=3):
-
-    where_filter = {"track": track} if track else None
-
-    results = collection.query(
-        query_texts=[query_text],
-        n_results=n_results,
-        where=where_filter
-    )
-    return results
+collection = get_collection()
 
 
-if __name__ == "__main__":
-    # Example: track-filtered query
-    results = query_exercises("memory exercise", track="Cognition", n_results=3)
-    print(results)
+def retrieve_exercises(query, track=None, n_results=3):
 
+    if track:
+        results = collection.query(
+            query_texts=[query],
+            where={"track": track},
+            n_results=n_results
+        )
+    else:
+        results = collection.query(
+            query_texts=[query],
+            n_results=n_results
+        )
 
-collection = client.get_collection("exercise_bank")
+    exercises = []
 
-results = collection.query(
-    query_texts=["memory exercise"],
-    n_results=3
-)
+    for i in range(len(results["ids"][0])):
 
-print(results)
+        exercises.append({
+            "id": results["ids"][0][i],
+            "title": results["metadatas"][0][i]["title"],
+            "track": results["metadatas"][0][i]["track"],
+            "instructions": results["documents"][0][i]
+        })
+
+    return exercises
