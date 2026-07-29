@@ -91,22 +91,23 @@ The `driver` object is created once and passed into every function — do not re
 
 ### `seed_tracks(tx)`
 
-Populates the five fixed `Track` nodes. Call this **once** at database setup — not per user.
+Populates the four fixed `Track` nodes. Call this **once** at database setup — not per user.
 
 ```python
 with driver.session(database=os.getenv("NEO4J_DATABASE")) as session:
     session.execute_write(seed_tracks)
 ```
 
-Available tracks:
+Available tracks — these `track_id` values match the `"track"` field in
+`exercise_bank_v3.json` / `exercise_bank_speech_language.json` exactly, so
+KG queries and exercise bank queries never need a name-translation layer:
 
 | `track_id` | `name` |
 |---|---|
-| `articulation_child` | Articulation for children |
-| `articulation_adult` | Articulation for adults |
-| `adult_post_therapy` | Post-therapy maintenance |
-| `hearing_impaired` | Hearing-impaired adaptation |
-| `confidence` | Confidence and fluency |
+| `Cognition` | Cognitive-communication exercises |
+| `Speech` | Motor speech, fluency, voice, and social pragmatic exercises |
+| `Language` | Expressive and receptive language exercises |
+| `Confidence` | Confidence and fluency building |
 
 ---
 
@@ -127,7 +128,7 @@ create_user(driver, "whatsapp:+16085551234", "+16085551234", "adult", "English")
 Draws the `ASSIGNED_TO` edge between a `User` and a `Track`. Both nodes must already exist — run `create_user` and `seed_tracks` first.
 
 ```python
-assign_tracks(driver, "whatsapp:+16085551234", "adult_post_therapy")
+assign_tracks(driver, "whatsapp:+16085551234", "Speech")
 ```
 
 **Called by:** Sahel's adaptive profile builder, after processing survey responses.

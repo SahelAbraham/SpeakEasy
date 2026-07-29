@@ -1,0 +1,484 @@
+{
+  "exercise_bank": [
+    {
+      "id": "LAN-EXP-SPK-001",
+      "title": "Count It Out",
+      "track": "Language",
+      "subcategory": "Expressive - Spoken",
+      "modality": "spoken",
+      "instructions": "Say the numbers out loud from 1 to 20, one at a time, at a steady pace."
+    },
+    {
+      "id": "LAN-EXP-SPK-002",
+      "title": "Days in Order",
+      "track": "Language",
+      "subcategory": "Expressive - Spoken",
+      "modality": "spoken",
+      "instructions": "Say the days of the week out loud in order, starting with Sunday."
+    },
+    {
+      "id": "LAN-EXP-SPK-003",
+      "title": "Months in Order",
+      "track": "Language",
+      "subcategory": "Expressive - Spoken",
+      "modality": "spoken",
+      "instructions": "Say the months of the year out loud in order, starting with January."
+    },
+    {
+      "id": "LAN-EXP-SPK-004",
+      "title": "Name What You See",
+      "track": "Language",
+      "subcategory": "Expressive - Spoken",
+      "modality": "spoken",
+      "instructions": "Look at an object near you right now. Say its name out loud, then say one word that describes it."
+    },
+    {
+      "id": "LAN-EXP-SPK-005",
+      "title": "Picture in Your Mind",
+      "track": "Language",
+      "subcategory": "Expressive - Spoken",
+      "modality": "spoken",
+      "instructions": "Picture a kitchen in your mind. Name out loud three objects you would expect to find there."
+    },
+    {
+      "id": "LAN-EXP-SPK-006",
+      "title": "Three Words, One Sentence",
+      "track": "Language",
+      "subcategory": "Expressive - Spoken",
+      "modality": "spoken",
+      "instructions": "Here are three words: dog, park, morning. Say one full sentence out loud that uses all three."
+    },
+    {
+      "id": "LAN-EXP-SPK-007",
+      "title": "Can't Find the Word",
+      "track": "Language",
+      "subcategory": "Expressive - Spoken",
+      "modality": "spoken",
+      "instructions": "Think of the word for the tool you use to cut paper. If it doesn't come right away, describe out loud what it does and what it looks like, then say the word."
+    },
+    {
+      "id": "LAN-EXP-SPK-008",
+      "title": "Category Rapid Fire",
+      "track": "Language",
+      "subcategory": "Expressive - Spoken",
+      "modality": "spoken",
+      "instructions": "Say out loud as many animals as you can in twenty seconds."
+    },
+    {
+      "id": "LAN-EXP-WRT-001",
+      "title": "Write the Numbers",
+      "track": "Language",
+      "subcategory": "Expressive - Written",
+      "modality": "written",
+      "instructions": "Write the numbers 1 through 20 in order, then read your list back out loud."
+    },
+    {
+      "id": "LAN-EXP-WRT-002",
+      "title": "Write the Days",
+      "track": "Language",
+      "subcategory": "Expressive - Written",
+      "modality": "written",
+      "instructions": "Write out the days of the week in order, starting with Sunday."
+    },
+    {
+      "id": "LAN-EXP-WRT-003",
+      "title": "Write the Months",
+      "track": "Language",
+      "subcategory": "Expressive - Written",
+      "modality": "written",
+      "instructions": "Write out the months of the year in order, starting with January."
+    },
+    {
+      "id": "LAN-EXP-WRT-004",
+      "title": "Describe It in Writing",
+      "track": "Language",
+      "subcategory": "Expressive - Written",
+      "modality": "written",
+      "instructions": "Look at an object near you. Write one sentence describing what it looks like and what it is used for."
+    },
+    {
+      "id": "LAN-EXP-WRT-005",
+      "title": "Build a Written Sentence",
+      "track": "Language",
+      "subcategory": "Expressive - Written",
+      "modality": "written",
+      "instructions": "Here are three words: quickly, umbrella, rain. Write one full sentence using all three."
+    },
+    {
+      "id": "LAN-EXP-WRT-006",
+      "title": "Write Then Add a Detail",
+      "track": "Language",
+      "subcategory": "Expressive - Written",
+      "modality": "written",
+      "instructions": "Write down the name of an object you can see right now. Underneath it, write one detail describing its color or shape."
+    },
+    {
+      "id": "LAN-REC-SPK-001",
+      "title": "One-Step Listen",
+      "track": "Language",
+      "subcategory": "Receptive - Spoken",
+      "modality": "spoken",
+      "instructions": "Listen to this instruction: fold a piece of paper in half. Say out loud: is the paper bigger or smaller than before after folding it?"
+    },
+    {
+      "id": "LAN-REC-SPK-002",
+      "title": "Two-Step Listen",
+      "track": "Language",
+      "subcategory": "Receptive - Spoken",
+      "modality": "spoken",
+      "instructions": "Listen to this instruction: pick up your phone, then set it down face down. Say out loud: what do you do to the phone right after you pick it up?"
+    },
+    {
+      "id": "LAN-REC-SPK-003",
+      "title": "Three-Step Listen",
+      "track": "Language",
+      "subcategory": "Receptive - Spoken",
+      "modality": "spoken",
+      "instructions": "Listen to this instruction: stand up, walk to the nearest door, then sit back down. Say out loud: what is the last thing you do?"
+    },
+    {
+      "id": "LAN-REC-SPK-004",
+      "title": "Find the Match",
+      "track": "Language",
+      "subcategory": "Receptive - Spoken",
+      "modality": "spoken",
+      "instructions": "Listen to this description: it is round, orange, and you peel it before eating it. Say out loud what is being described."
+    },
+    {
+      "id": "LAN-REC-SPK-005",
+      "title": "Yes or No Listen",
+      "track": "Language",
+      "subcategory": "Receptive - Spoken",
+      "modality": "spoken",
+      "instructions": "Listen to this sentence: The sun is cold at night. Say out loud whether that is true or false."
+    },
+    {
+      "id": "LAN-REC-SPK-006",
+      "title": "Where Is It",
+      "track": "Language",
+      "subcategory": "Receptive - Spoken",
+      "modality": "spoken",
+      "instructions": "Listen to this instruction: place your keys under a book. Say out loud: which object did you move, the keys or the book?"
+    },
+    {
+      "id": "LAN-REC-SPK-007",
+      "title": "Between and Behind",
+      "track": "Language",
+      "subcategory": "Receptive - Spoken",
+      "modality": "spoken",
+      "instructions": "Listen to this instruction: place a cup behind a plate. Say out loud: which object would you see first if you looked at them from the front?"
+    },
+    {
+      "id": "LAN-REC-SPK-008",
+      "title": "Listen and Answer",
+      "track": "Language",
+      "subcategory": "Receptive - Spoken",
+      "modality": "spoken",
+      "instructions": "Listen to these two sentences: Maria packed her bag. She was going on a trip. Answer out loud: what was Maria doing?"
+    },
+    {
+      "id": "LAN-REC-WRT-001",
+      "title": "Read and Do",
+      "track": "Language",
+      "subcategory": "Receptive - Written",
+      "modality": "written",
+      "instructions": "Read this instruction: turn off a light switch near you. Type your answer: will the room get darker or brighter?"
+    },
+    {
+      "id": "LAN-REC-WRT-002",
+      "title": "Read Two Steps",
+      "track": "Language",
+      "subcategory": "Receptive - Written",
+      "modality": "written",
+      "instructions": "Read this instruction: pick up a pen, then set it down on your left. Type your answer: what do you do to the pen right after you pick it up?"
+    },
+    {
+      "id": "LAN-REC-WRT-003",
+      "title": "Match the Word",
+      "track": "Language",
+      "subcategory": "Receptive - Written",
+      "modality": "written",
+      "instructions": "Read this word: chair. Type one sentence describing what it is used for."
+    },
+    {
+      "id": "LAN-REC-WRT-004",
+      "title": "Read and Point",
+      "track": "Language",
+      "subcategory": "Receptive - Written",
+      "modality": "written",
+      "instructions": "Read this description: it has four legs, a back, and people sit on it. Type the name of the object being described."
+    },
+    {
+      "id": "LAN-REC-WRT-005",
+      "title": "Read the Direction",
+      "track": "Language",
+      "subcategory": "Receptive - Written",
+      "modality": "written",
+      "instructions": "Read this instruction: place a pen between two books on your desk. Type your answer: how many books end up next to the pen?"
+    },
+    {
+      "id": "LAN-REC-WRT-006",
+      "title": "Read and Answer",
+      "track": "Language",
+      "subcategory": "Receptive - Written",
+      "modality": "written",
+      "instructions": "Read these two sentences: Tom forgot his umbrella. It started to rain on his walk home. Type your answer: what problem did Tom have?"
+    },
+    {
+      "id": "SPE-MOTOR-001",
+      "title": "Tongue Press Hold",
+      "track": "Speech",
+      "subcategory": "Motor Speech (Dysarthria)",
+      "modality": "spoken",
+      "instructions": "Press your tongue firmly against the inside of your cheek, hold for three seconds, then relax. Repeat five times on each side, then say 'la la la' out loud three times."
+    },
+    {
+      "id": "SPE-MOTOR-002",
+      "title": "Lip Round and Spread",
+      "track": "Speech",
+      "subcategory": "Motor Speech (Dysarthria)",
+      "modality": "spoken",
+      "instructions": "Say 'oo-ee-oo-ee' out loud, rounding your lips fully on 'oo' and spreading them fully on 'ee'. Repeat ten times."
+    },
+    {
+      "id": "SPE-MOTOR-003",
+      "title": "Full Jaw Open and Close",
+      "track": "Speech",
+      "subcategory": "Motor Speech (Dysarthria)",
+      "modality": "spoken",
+      "instructions": "Open your jaw slowly as wide as is comfortable, then close it slowly. Repeat five times, then say 'ah' with a fully open jaw."
+    },
+    {
+      "id": "SPE-MOTOR-004",
+      "title": "Half-Speed Sentence",
+      "track": "Speech",
+      "subcategory": "Motor Speech (Dysarthria)",
+      "modality": "spoken",
+      "instructions": "Read this sentence out loud at half your normal speed, giving every word its own clear space: I would like a glass of water, please."
+    },
+    {
+      "id": "SPE-MOTOR-005",
+      "title": "Overarticulate Every Word",
+      "track": "Speech",
+      "subcategory": "Motor Speech (Dysarthria)",
+      "modality": "spoken",
+      "instructions": "Say this sentence out loud, exaggerating every consonant more than feels natural: The big black cat sat on the mat."
+    },
+    {
+      "id": "SPE-MOTOR-006",
+      "title": "Louder Than Usual",
+      "track": "Speech",
+      "subcategory": "Motor Speech (Dysarthria)",
+      "modality": "spoken",
+      "instructions": "Say this sentence out loud at a volume noticeably louder than your normal speaking voice, without shouting: My voice is strong and clear today."
+    },
+    {
+      "id": "SPE-MOTOR-007",
+      "title": "Tap to Pace",
+      "track": "Speech",
+      "subcategory": "Motor Speech (Dysarthria)",
+      "modality": "spoken",
+      "instructions": "Tap the table once for each word while you say this sentence out loud, keeping every tap evenly spaced: I am speaking one word at a time."
+    },
+    {
+      "id": "SPE-MOTOR-008",
+      "title": "One Breath, One Phrase",
+      "track": "Speech",
+      "subcategory": "Motor Speech (Dysarthria)",
+      "modality": "spoken",
+      "instructions": "Take a breath, then say this short phrase out loud in one breath: I feel good today. Pause, take another breath, and repeat it twice more."
+    },
+    {
+      "id": "SPE-FLU-001",
+      "title": "Soft Start",
+      "track": "Speech",
+      "subcategory": "Fluency",
+      "modality": "spoken",
+      "instructions": "Say this sentence out loud, starting the very first sound gently and gradually instead of with a hard push: Amazing things can happen today."
+    },
+    {
+      "id": "SPE-FLU-002",
+      "title": "Light Touch Consonants",
+      "track": "Speech",
+      "subcategory": "Fluency",
+      "modality": "spoken",
+      "instructions": "Say these words out loud using a light, relaxed touch on the first sound instead of pressing hard: pat, bat, top, dot."
+    },
+    {
+      "id": "SPE-FLU-003",
+      "title": "Link It All Together",
+      "track": "Speech",
+      "subcategory": "Fluency",
+      "modality": "spoken",
+      "instructions": "Say this phrase out loud as one continuous flow of sound, without stopping airflow between words: I want to go outside and play."
+    },
+    {
+      "id": "SPE-FLU-004",
+      "title": "Stretch Every Syllable",
+      "track": "Speech",
+      "subcategory": "Fluency",
+      "modality": "spoken",
+      "instructions": "Say this sentence out loud, stretching each syllable slightly longer than usual: We are walking to the store together."
+    },
+    {
+      "id": "SPE-FLU-005",
+      "title": "Chunk and Breathe",
+      "track": "Speech",
+      "subcategory": "Fluency",
+      "modality": "spoken",
+      "instructions": "Say this sentence out loud in three short chunks, taking a breath between each: I woke up early / and made breakfast / before school."
+    },
+    {
+      "id": "SPE-FLU-006",
+      "title": "Slow and Smooth Passage",
+      "track": "Speech",
+      "subcategory": "Fluency",
+      "modality": "spoken",
+      "instructions": "Read this passage out loud at a deliberately slower, smoother pace than normal: The morning sun rose over the quiet hills as birds began to sing."
+    },
+    {
+      "id": "SPE-FLU-007",
+      "title": "Pause and Restart Gently",
+      "track": "Speech",
+      "subcategory": "Fluency",
+      "modality": "spoken",
+      "instructions": "If a word ever feels stuck while you talk, pause fully for one second, then restart just that word slowly and gently before continuing."
+    },
+    {
+      "id": "SPE-FLU-008",
+      "title": "One Minute Easy Talk",
+      "track": "Speech",
+      "subcategory": "Fluency",
+      "modality": "spoken",
+      "instructions": "Talk out loud for one minute about your morning, using a soft gentle start on the first word of every sentence."
+    },
+    {
+      "id": "SPE-PRAG-001",
+      "title": "Ask It Back",
+      "track": "Speech",
+      "subcategory": "Social Pragmatic",
+      "modality": "spoken",
+      "instructions": "Answer this out loud: what did you eat for breakfast? Then ask the same question back as if talking to a friend."
+    },
+    {
+      "id": "SPE-PRAG-002",
+      "title": "Stay on Topic",
+      "track": "Speech",
+      "subcategory": "Social Pragmatic",
+      "modality": "spoken",
+      "instructions": "Pick a topic, like your favorite weekend activity. Talk out loud about it for three back-and-forth exchanges without changing the subject."
+    },
+    {
+      "id": "SPE-PRAG-003",
+      "title": "How Do They Feel",
+      "track": "Speech",
+      "subcategory": "Social Pragmatic",
+      "modality": "spoken",
+      "instructions": "Imagine a coworker just found out a project they worked hard on got cancelled. Say out loud how they probably feel, and explain why you think that."
+    },
+    {
+      "id": "SPE-PRAG-004",
+      "title": "Read the Expression",
+      "track": "Speech",
+      "subcategory": "Social Pragmatic",
+      "modality": "spoken",
+      "instructions": "Think of someone smiling with their arms crossed. Say out loud what you think that expression and posture might mean."
+    },
+    {
+      "id": "SPE-PRAG-005",
+      "title": "Introduce Yourself",
+      "track": "Speech",
+      "subcategory": "Social Pragmatic",
+      "modality": "spoken",
+      "instructions": "Say out loud an introduction of yourself to someone new, including your name and one thing you enjoy doing."
+    },
+    {
+      "id": "SPE-PRAG-006",
+      "title": "Join the Game",
+      "track": "Speech",
+      "subcategory": "Social Pragmatic",
+      "modality": "spoken",
+      "instructions": "Imagine a group of coworkers are chatting in the break room. Say out loud what you would say to politely join the conversation."
+    },
+    {
+      "id": "SPE-PRAG-007",
+      "title": "Ask for a Repeat",
+      "track": "Speech",
+      "subcategory": "Social Pragmatic",
+      "modality": "spoken",
+      "instructions": "Imagine someone spoke too quietly for you to understand. Say out loud a polite way to ask them to repeat themselves."
+    },
+    {
+      "id": "SPE-PRAG-008",
+      "title": "Tell It in Order",
+      "track": "Speech",
+      "subcategory": "Social Pragmatic",
+      "modality": "spoken",
+      "instructions": "Think of three things you did this morning, in order. Tell them out loud as a short story with a clear beginning, middle, and end."
+    },
+    {
+      "id": "SPE-VOICE-001",
+      "title": "Gentle Hum Warm-Up",
+      "track": "Speech",
+      "subcategory": "Voice Disorders",
+      "modality": "spoken",
+      "instructions": "Hum gently for five seconds, feeling a light buzzing or vibration around your lips and nose."
+    },
+    {
+      "id": "SPE-VOICE-002",
+      "title": "Hum Into a Word",
+      "track": "Speech",
+      "subcategory": "Voice Disorders",
+      "modality": "spoken",
+      "instructions": "Hum gently, then let the hum flow directly into the word 'hello' out loud, keeping that same forward, buzzy feeling."
+    },
+    {
+      "id": "SPE-VOICE-003",
+      "title": "Sustain the Sound",
+      "track": "Speech",
+      "subcategory": "Voice Disorders",
+      "modality": "spoken",
+      "instructions": "Take a comfortable breath, then hold a steady 'ee' sound out loud for as long as you comfortably can, without straining."
+    },
+    {
+      "id": "SPE-VOICE-004",
+      "title": "Pitch Glide Up",
+      "track": "Speech",
+      "subcategory": "Voice Disorders",
+      "modality": "spoken",
+      "instructions": "Say 'ee' out loud, sliding your pitch smoothly from low to high like a gentle siren going up."
+    },
+    {
+      "id": "SPE-VOICE-005",
+      "title": "Pitch Glide Down",
+      "track": "Speech",
+      "subcategory": "Voice Disorders",
+      "modality": "spoken",
+      "instructions": "Say 'oh' out loud, sliding your pitch smoothly from high to low like a gentle siren going down."
+    },
+    {
+      "id": "SPE-VOICE-006",
+      "title": "Strong Short Bursts",
+      "track": "Speech",
+      "subcategory": "Voice Disorders",
+      "modality": "spoken",
+      "instructions": "Say short, firm 'ee' sounds out loud at a few different comfortable pitches, keeping each one clear and easy, not strained."
+    },
+    {
+      "id": "SPE-VOICE-007",
+      "title": "Vocal Habits Check-In",
+      "track": "Speech",
+      "subcategory": "Voice Disorders",
+      "modality": "spoken",
+      "instructions": "Say out loud how much water you drank today and whether you did any shouting or a lot of throat-clearing."
+    },
+    {
+      "id": "SPE-VOICE-008",
+      "title": "Carry the Buzz Into a Sentence",
+      "track": "Speech",
+      "subcategory": "Voice Disorders",
+      "modality": "spoken",
+      "instructions": "Hum briefly, then say this full sentence out loud keeping that same easy, forward, buzzy voice feeling the whole time: My voice feels easy and comfortable."
+    }
+  ]
+}
