@@ -1,5 +1,0 @@
-.env
-.env.backup
-__pycache__/
-*.pyc
-rag/chroma_db/
