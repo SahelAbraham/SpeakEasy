@@ -5,7 +5,7 @@ import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useStreak } from '../context/StreakContext';
 import { PLACEHOLDER_EXERCISES } from '../data/placeholderExercises';
 import { HomeStackParamList } from '../navigation/types';
-import { colors } from '../theme/colors';
+import { cardAccents, colors } from '../theme/colors';
 import { Exercise } from '../types/exercise';
 
 type Navigation = NativeStackNavigationProp<HomeStackParamList, 'Dashboard'>;
@@ -34,22 +34,24 @@ export function DashboardScreen() {
       <View style={styles.streakCard}>
         <Text style={styles.streakLabel}>Daily streak</Text>
         <Text style={styles.streakValue}>{streak} day{streak === 1 ? '' : 's'}</Text>
-        <Text style={styles.streakHint}>Complete a visit each day to grow your streak.</Text>
+        <Text style={styles.streakHint}>Practice every day to grow your streak!</Text>
       </View>
 
-      <Text style={styles.sectionTitle}>Today&apos;s flight (10 exercises)</Text>
-      <Text style={styles.sectionSubtitle}>
-        Placeholder set — the backend will replace this with a personalized batch later.
-      </Text>
+      <Text style={styles.sectionTitle}>Today&apos;s exercises</Text>
 
       <FlatList
         data={PLACEHOLDER_EXERCISES}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
-        renderItem={({ item, index }) => (
-          <Pressable style={styles.card} onPress={() => openExercise(item)}>
-            <View style={styles.cardBadge}>
-              <Text style={styles.cardBadgeText}>{index + 1}</Text>
+        renderItem={({ item, index }) => {
+          const accent = cardAccents[index % cardAccents.length];
+          return (
+          <Pressable
+            style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+            onPress={() => openExercise(item)}
+          >
+            <View style={[styles.cardBadge, { backgroundColor: accent.bg }]}>
+              <Text style={[styles.cardBadgeText, { color: accent.text }]}>{index + 1}</Text>
             </View>
             <View style={styles.cardBody}>
               <Text style={styles.cardTitle}>{item.title}</Text>
@@ -59,7 +61,8 @@ export function DashboardScreen() {
             </View>
             <Text style={styles.chevron}>›</Text>
           </Pressable>
-        )}
+          );
+        }}
       />
     </View>
   );
@@ -73,12 +76,12 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   streakCard: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.yellow,
     borderRadius: 14,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.yellowMuted,
   },
   streakLabel: {
     fontSize: 14,
@@ -91,7 +94,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontSize: 32,
     fontWeight: '700',
-    color: colors.text,
+    color: colors.primaryDark,
   },
   streakHint: {
     marginTop: 6,
@@ -102,13 +105,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: colors.text,
-  },
-  sectionSubtitle: {
-    marginTop: 4,
     marginBottom: 12,
-    fontSize: 14,
-    color: colors.textMuted,
-    lineHeight: 20,
   },
   listContent: {
     paddingBottom: 24,
@@ -124,16 +121,17 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     gap: 12,
   },
+  cardPressed: {
+    backgroundColor: colors.sageLight,
+  },
   cardBadge: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#EBF4FF',
     alignItems: 'center',
     justifyContent: 'center',
   },
   cardBadgeText: {
-    color: colors.primary,
     fontWeight: '700',
   },
   cardBody: {
@@ -152,7 +150,7 @@ const styles = StyleSheet.create({
   },
   chevron: {
     fontSize: 24,
-    color: colors.textMuted,
+    color: colors.sage,
     marginTop: -2,
   },
 });

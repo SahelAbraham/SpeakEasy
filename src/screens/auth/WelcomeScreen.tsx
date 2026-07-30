@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
+import { AppLogo } from '../../components/AppLogo';
 import { AuthStackParamList } from '../../navigation/types';
 import { colors } from '../../theme/colors';
 
@@ -13,8 +14,9 @@ export function WelcomeScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.hero}>
+        <AppLogo size={96} style={styles.logo} />
         <Text style={styles.brand}>SpeakEasy</Text>
-        <Text style={styles.tagline}>Speech therapy practice, one exercise at a time.</Text>
+        <Text style={styles.tagline}>Speech Therapy made Accessible.</Text>
       </View>
 
       <View style={styles.actions}>
@@ -39,7 +41,11 @@ const styles = StyleSheet.create({
   },
   hero: {
     marginTop: 48,
-    gap: 12,
+    alignItems: 'center',
+    gap: 16,
+  },
+  logo: {
+    marginBottom: 8,
   },
   brand: {
     fontSize: 40,
@@ -50,6 +56,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     lineHeight: 26,
     color: colors.textMuted,
+    textAlign: 'center',
   },
   actions: {
     gap: 12,

@@ -1,25 +1,72 @@
 import { Ionicons } from '@expo/vector-icons';
-import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  RecordingPresets,
+  requestRecordingPermissionsAsync,
+  setAudioModeAsync,
+  useAudioRecorder,
+  useAudioRecorderState,
+} from 'expo-audio';
+import React, { useCallback, useEffect } from 'react';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { colors } from '../theme/colors';
 
 type MicButtonProps = {
-  onPress?: () => void;
-  label?: string;
+  onRecordingComplete?: (uri: string) => void;
 };
 
-export function MicButton({ onPress, label = 'Tap to record (coming soon)' }: MicButtonProps) {
+export function MicButton({ onRecordingComplete }: MicButtonProps) {
+  const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  const recorderState = useAudioRecorderState(audioRecorder);
+
+  useEffect(() => {
+    void (async () => {
+      const { granted } = await requestRecordingPermissionsAsync();
+      if (!granted) {
+        Alert.alert(
+          'Microphone access needed',
+          'Allow microphone access in your device settings to record your speech practice.',
+        );
+      }
+      await setAudioModeAsync({
+        allowsRecording: true,
+        playsInSilentMode: true,
+      });
+    })();
+  }, []);
+
+  const toggleRecording = useCallback(async () => {
+    try {
+      if (recorderState.isRecording) {
+        await audioRecorder.stop();
+        const uri = audioRecorder.uri;
+        if (uri) {
+          onRecordingComplete?.(uri);
+        }
+      } else {
+        await audioRecorder.prepareToRecordAsync();
+        audioRecorder.record();
+      }
+    } catch {
+      Alert.alert('Recording error', 'Could not start or stop recording. Please try again.');
+    }
+  }, [audioRecorder, onRecordingComplete, recorderState.isRecording]);
+
+  const isRecording = recorderState.isRecording;
+
   return (
     <View style={styles.wrapper}>
       <Pressable
-        style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
-        onPress={onPress}
+        style={({ pressed }) => [
+          styles.button,
+          isRecording && styles.buttonRecording,
+          pressed && styles.buttonPressed,
+        ]}
+        onPress={() => void toggleRecording()}
         accessibilityRole="button"
-        accessibilityLabel="Record voice"
+        accessibilityLabel={isRecording ? 'Stop recording' : 'Start recording'}
       >
-        <Ionicons name="mic" size={48} color="#fff" />
+        <Ionicons name={isRecording ? 'stop' : 'mic'} size={48} color="#fff" />
       </Pressable>
-      <Text style={styles.label}>{label}</Text>
     </View>
   );
 }
@@ -27,7 +74,7 @@ export function MicButton({ onPress, label = 'Tap to record (coming soon)' }: Mi
 const styles = StyleSheet.create({
   wrapper: {
     alignItems: 'center',
-    gap: 12,
+    paddingVertical: 16,
   },
   button: {
     width: 120,
@@ -36,18 +83,18 @@ const styles = StyleSheet.create({
     backgroundColor: colors.mic,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
+    shadowColor: colors.primaryDark,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.25,
     shadowRadius: 8,
-    elevation: 4,
+    elevation: 6,
+  },
+  buttonRecording: {
+    backgroundColor: colors.micRecording,
+    shadowColor: colors.micRecording,
   },
   buttonPressed: {
-    opacity: 0.85,
-  },
-  label: {
-    color: colors.textMuted,
-    fontSize: 14,
-    textAlign: 'center',
+    opacity: 0.9,
+    transform: [{ scale: 0.97 }],
   },
 });
