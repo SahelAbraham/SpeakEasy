@@ -3,17 +3,24 @@ from rag.retrieve import retrieve_exercises
 
 def build_query(profile, transcript):
     """
-    Builds a semantic search query using
-    the user's onboarding profile
-    and speech transcript.
+    Build a semantic search query using
+    the user's profile and transcript.
     """
 
     query = f"""
-    Track: {profile['track']}
-    Subcategory: {profile.get('subcategory', '')}
-    Age Group: {profile['age_group']}
+    User Track:
+    {profile['track']}
 
-    User Transcript:
+    User Subcategory:
+    {profile['subcategory']}
+
+    Modality:
+    {profile['modality']}
+
+    Age Group:
+    {profile['age_group']}
+
+    Transcript:
     {transcript}
     """
 
@@ -27,7 +34,9 @@ def rag_search(profile, transcript):
     exercises = retrieve_exercises(
         query=query,
         track=profile["track"],
-        n_results=3
+        subcategory=profile["subcategory"],
+        modality=profile["modality"],
+        n_results=3,
     )
 
     return exercises

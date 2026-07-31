@@ -3,12 +3,29 @@ from rag.vector_store import get_collection
 collection = get_collection()
 
 
-def retrieve_exercises(query, track=None, n_results=3):
+def retrieve_exercises(
+    query,
+    track=None,
+    subcategory=None,
+    modality=None,
+    n_results=3,
+):
+
+    filters = {}
 
     if track:
+        filters["track"] = track
+
+    if subcategory:
+        filters["subcategory"] = subcategory
+
+    if modality:
+        filters["modality"] = modality
+
+    if filters:
         results = collection.query(
             query_texts=[query],
-            where={"track": track},
+            where=filters,
             n_results=n_results
         )
     else:
@@ -21,10 +38,14 @@ def retrieve_exercises(query, track=None, n_results=3):
 
     for i in range(len(results["ids"][0])):
 
+        metadata = results["metadatas"][0][i]
+
         exercises.append({
-            "id": results["ids"][0][i],
-            "title": results["metadatas"][0][i]["title"],
-            "track": results["metadatas"][0][i]["track"],
+            "id": metadata["id"],
+            "title": metadata["title"],
+            "track": metadata["track"],
+            "subcategory": metadata["subcategory"],
+            "modality": metadata["modality"],
             "instructions": results["documents"][0][i]
         })
 
