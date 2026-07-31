@@ -30,12 +30,15 @@ Instructions:
 """
 
     collection.add(
-        ids=[exercise["id"]],
-        documents=[document],
-        metadatas=[{
-            "track": exercise["track"],
-            "title": exercise["title"]
-        }]
-    )
+    ids=[exercise["id"]],
+    documents=[document],
+    metadatas=[{
+        "id": exercise["id"],
+        "title": exercise["title"],
+        "track": exercise["track"],
+        "subcategory": exercise["subcategory"],
+        "modality": exercise["modality"]
+    }]
+)
 
 print("Done!")
