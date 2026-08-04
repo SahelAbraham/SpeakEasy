@@ -1,9 +1,9 @@
 SKILL_AREAS = (
-    "cognition",
-    "expressive_language",
-    "receptive_language",
+    "language",
     "speech",
 )
 
 NUM_AREAS = len(SKILL_AREAS)
 TOTAL_EXERCISES = 10
+FEATURES_PER_AREA = 4
+STATE_DIM = NUM_AREAS * FEATURES_PER_AREA

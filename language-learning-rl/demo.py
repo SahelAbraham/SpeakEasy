@@ -21,20 +21,16 @@ def main() -> None:
 
     agent = LanguageLearningAgent(model_path=model_path)
 
-    # Example learner: weak expressive language/speech, stronger cognition
+    # Example learner: weaker speech, stronger language
     proficiencies = {
-        "cognition": 0.72,
-        "expressive_language": 0.41,
-        "receptive_language": 0.58,
-        "speech": 0.35,
+        "language": 0.58,
+        "speech": 0.41,
     }
 
     # Scores from the 10 exercises they just completed
     exercise_scores = [
-        [0.78, 0.81, 0.74],           # cognition (3 exercises)
-        [0.38, 0.42],                 # expressive_language (2)
-        [0.55, 0.60, 0.58],           # receptive_language (3)
-        [0.40, 0.45],                 # speech (2)
+        [0.55, 0.60, 0.58, 0.62, 0.57],  # language (5 exercises)
+        [0.38, 0.42, 0.40, 0.45, 0.41],  # speech (5)
     ]
 
     prof_list = [proficiencies[name] for name in SKILL_AREAS]

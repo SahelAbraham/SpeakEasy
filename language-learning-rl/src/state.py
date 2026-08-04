@@ -14,10 +14,11 @@ def build_state_vector(
     """
     Encode user state for the policy network.
 
-    Features per area (4 areas -> 16 features total):
+    Features per area (NUM_AREAS * 4 features total):
       - current proficiency
       - mean exercise score (0 if none completed)
       - normalized exercise count
+      - weakness (1 - proficiency)
     """
     prof = np.asarray(proficiencies, dtype=np.float32)
     if prof.shape != (NUM_AREAS,):

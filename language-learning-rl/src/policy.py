@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .areas import NUM_AREAS, TOTAL_EXERCISES
+from .areas import NUM_AREAS, STATE_DIM, TOTAL_EXERCISES
 
 
 class ExerciseAllocationPolicy(nn.Module):
@@ -14,7 +14,7 @@ class ExerciseAllocationPolicy(nn.Module):
     skill areas, then allocates exactly TOTAL_EXERCISES exercises.
     """
 
-    def __init__(self, state_dim: int = 16, hidden_dim: int = 64):
+    def __init__(self, state_dim: int = STATE_DIM, hidden_dim: int = 64):
         super().__init__()
         self.network = nn.Sequential(
             nn.Linear(state_dim, hidden_dim),

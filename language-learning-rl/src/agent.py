@@ -33,7 +33,14 @@ class LanguageLearningAgent:
         self.policy = ExerciseAllocationPolicy().to(self.device)
 
         if model_path and Path(model_path).exists():
-            self.policy.load_state_dict(torch.load(model_path, map_location=self.device))
+            checkpoint = torch.load(model_path, map_location=self.device)
+            try:
+                self.policy.load_state_dict(checkpoint)
+            except RuntimeError:
+                print(
+                    f"Warning: ignoring incompatible checkpoint at {model_path} "
+                    "(retrain with train.py or delete the file)."
+                )
         self.policy.eval()
 
     def update_track(
