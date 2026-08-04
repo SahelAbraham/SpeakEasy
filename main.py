@@ -1,21 +1,55 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import Response
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+from profile_builder import build_profile
+from conversation import ConversationSession
 
 app = FastAPI()
 
-@app.post("/whatsapp")
-async def whatsapp_webhook(request: Request):
-    form = await request.form()
+# Temporary in-memory sessions
+sessions = {}
 
-    print("\n=== FULL TWILIO PAYLOAD ===")
 
-    for key, value in form.items():
-        print(f"{key}: {value}")
+class StartSessionRequest(BaseModel):
+    user_id: str
+    name: str
+    goal: str
+    therapy_history: str
+    native_language: str
+    practice_frequency: str
+    hearing_device: str
+    notes: str
+    transcript: str
 
-    return Response(
-        content="""<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-    <Message>Received!</Message>
-</Response>""",
-        media_type="application/xml"
-    )
+
+@app.post("/session/start")
+async def start_session(data: StartSessionRequest):
+
+    # Build standardized profile
+    onboarding = {
+        "user_id": data.user_id,
+        "name": data.name,
+        "goal": data.goal,
+        "therapy_history": data.therapy_history,
+        "native_language": data.native_language,
+        "practice_frequency": data.practice_frequency,
+        "hearing_device": data.hearing_device,
+        "notes": data.notes
+    }
+
+    profile = build_profile(onboarding)
+
+    # Create conversation session
+    session = ConversationSession(profile)
+
+    # Get first exercise using RAG
+    exercise = session.start(data.transcript)
+
+    # Store session
+    sessions[data.user_id] = session
+
+    return {
+        "user_id": data.user_id,
+        "profile": profile,
+        "exercise": exercise
+    }
