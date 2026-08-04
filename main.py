@@ -23,6 +23,38 @@ class StartSessionRequest(BaseModel):
 
 
 @app.post("/session/start")
+class RespondRequest(BaseModel):
+    user_id: str
+    response: str
+
+
+@app.post("/session/respond")
+async def respond_to_exercise(data: RespondRequest):
+
+    # Find the user's active session
+    session = sessions.get(data.user_id)
+
+    if session is None:
+        return {
+            "error": "No active session found for this user."
+        }
+
+    # Save response and get next exercise
+    next_exercise = session.submit_response(data.response)
+
+    # Check whether session is finished
+    if next_exercise is None:
+        return {
+            "user_id": data.user_id,
+            "session_complete": True,
+            "message": "Great job! You've completed this practice session."
+        }
+
+    return {
+        "user_id": data.user_id,
+        "session_complete": False,
+        "exercise": next_exercise
+    }
 async def start_session(data: StartSessionRequest):
 
     # Build standardized profile
