@@ -17,6 +17,7 @@ export type MainTabParamList = {
 
 export type RootStackParamList = {
   Auth: undefined;
+  Survey: undefined;
   Main: undefined;
 };
 

@@ -20,10 +20,15 @@ export const mockAuthService: AuthService = {
       id: createUserId(),
       username: trimmedUsername,
       email: `${trimmedUsername.toLowerCase().replace(/\s+/g, '.')}@speakeasy.local`,
+      completedSurvey: false,
     };
 
     if (existing) {
       user.username = trimmedUsername;
+    }
+
+    if (user.completedSurvey === undefined) {
+      user.completedSurvey = false;
     }
 
     await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
@@ -41,6 +46,7 @@ export const mockAuthService: AuthService = {
       id: createUserId(),
       username: trimmedUsername,
       email: trimmedEmail,
+      completedSurvey: false,
     };
 
     await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
@@ -57,5 +63,25 @@ export const mockAuthService: AuthService = {
       return null;
     }
     return JSON.parse(raw) as AuthUser;
+  },
+
+  async updateUser(updates: Partial<AuthUser>): Promise<AuthUser> {
+    const currentUser = await this.getCurrentUser();
+
+    if (!currentUser) {
+      throw new Error('No user logged in.');
+    }
+
+    const updatedUser: AuthUser = {
+      ...currentUser,
+      ...updates,
+    };
+
+    await AsyncStorage.setItem(
+      USER_STORAGE_KEY,
+      JSON.stringify(updatedUser)
+    );
+
+    return updatedUser;
   },
 };

@@ -2,6 +2,16 @@ export type AuthUser = {
   id: string;
   username: string;
   email: string;
+  completedSurvey: boolean;
+
+  surveyData?: {
+    name: string,
+    age: number,
+    occupation: string,
+    therapyHistory: 'current' | 'past' | 'none',
+    goals: string,
+    baselineAudioUri: string;
+  };
 };
 
 export type SignInParams = {
@@ -21,4 +31,5 @@ export interface AuthService {
   signUp(params: SignUpParams): Promise<AuthUser>;
   signOut(): Promise<void>;
   getCurrentUser(): Promise<AuthUser | null>;
+  updateUser(updates: Partial<AuthUser>): Promise<AuthUser>;
 }
