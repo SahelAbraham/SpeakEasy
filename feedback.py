@@ -1,8 +1,9 @@
-def generate_feedback(
-    pronunciation_score=None,
-    fluency_score=None,
-    weak_phonemes=None
-):
+from feedback import generate_feedback
+feedback = generate_feedback(
+    pronunciation_score=pronunciation_score,
+    fluency_score=fluency_score,
+    weak_phonemes=weak_phonemes
+)
     """
     Generate simple rule-based feedback from speech-analysis results.
     """
@@ -59,4 +60,7 @@ def generate_feedback(
             f"{phonemes}."
         )
 
-    return feedback
+   return {
+    "feedback": feedback,
+    "next_exercise": next_exercise
+}
