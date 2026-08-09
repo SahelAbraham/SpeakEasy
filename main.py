@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import Literal
 
 from profile_builder import build_profile
 from conversation import ConversationSession
@@ -15,7 +16,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-)
+)   
 
 # Temporary in-memory sessions
 sessions = {}
@@ -23,14 +24,29 @@ sessions = {}
 class MessageData(BaseModel):
     text: str
 
+class SurveyData(BaseModel):
+    name: str
+    age: int
+    occupation: str
+    therapyHistory: Literal['current', 'past', 'none']
+    goals: str
+    baselineAudioUri: str
+
 @app.get("/api/data")
 def read_data():
     return {"status": "success", "message": "Data retrieved successfully."}
 
-@app.post("/api/send")
-def receive_data(data: MessageData):
-    return {"status": "received", "your_text": f"Data received: {data.text}"}
+@app.post("/survey")
+def receive_survey(survey: SurveyData):
+    print("Received survey submission:")
+    print(f"  Name: {survey.name}")
+    print(f"  Age: {survey.age}")
+    print(f"  Occupation: {survey.occupation}")
+    print(f"  Therapy history: {survey.therapyHistory}")
+    print(f"  Goals: {survey.goals}")
+    print(f"  Audio URI: {survey.baselineAudioUri}")
 
+    return {"status": "received", "name": survey.name}
 # class StartSessionRequest(BaseModel):
 #     user_id: str
 #     name: str
@@ -42,6 +58,12 @@ def receive_data(data: MessageData):
 #     notes: str
 #     transcript: str
 
+# KG data:
+# email
+# age group
+# native language
+# timestamp (don't worry)
+# trackID
 
 # @app.post("/session/start")
 # class RespondRequest(BaseModel):
