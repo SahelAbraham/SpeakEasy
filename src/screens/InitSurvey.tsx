@@ -14,6 +14,7 @@ import {
 import { MicButton } from '../components/MicButton';
 import { useAuth } from '../context/AuthContext';
 import { colors } from '../theme/colors';
+import api from '../services/auth/api';
 
 
 export function InitSurvey() {
@@ -69,17 +70,22 @@ export function InitSurvey() {
     try {
       setSaving(true);
 
+      const surveyPayload={
+        name: name.trim(),
+        age: Number(age),
+        occupation: occupation.trim(),
+        therapyHistory,
+        goals: goals.trim(),
+        baselineAudioUri: audioUri,
+      }
+      
+      //Send to FastAPI
+      const response = await api.post('/survey', surveyPayload);
+      console.log('Survey sent to FastAPI:', response.data);
+
       await updateUser({
         completedSurvey: true,
-
-        surveyData: {
-          name: name.trim(),
-          age: Number(age),
-          occupation: occupation.trim(),
-          therapyHistory,
-          goals: goals.trim(),
-          baselineAudioUri: audioUri,
-        },
+        surveyData: surveyPayload,
       });
 
       console.log('Survey saved successfully');

@@ -8,12 +8,15 @@ import {
   Text,
   TextInput,
   View,
+  Alert,
+  Button
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
 import { AuthStackParamList } from '../../navigation/types';
 import { colors } from '../../theme/colors';
+import api from '../../services/auth/api';
 
 type Navigation = NativeStackNavigationProp<AuthStackParamList, 'SignUp'>;
 
@@ -22,7 +25,7 @@ export function SignUpScreen() {
   const { signUp } = useAuth();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState(''); 
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 

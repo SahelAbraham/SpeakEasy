@@ -6,6 +6,7 @@ import { ProgressionProvider } from './src/context/ProgressionContext';
 import { StreakProvider } from './src/context/StreakContext';
 import { RootNavigator } from './src/navigation/RootNavigator';
 
+
 export default function App() {
   return (
     <SafeAreaProvider>
