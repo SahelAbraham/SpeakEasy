@@ -7,16 +7,8 @@ def retrieve_exercises(
     query,
     track=None,
     subcategory=None,
-    modality=None,
     n_results=3,
 ):
-    # modality is accepted but unused: exercise_bank_speech_language.json no
-    # longer has spoken/written variants (the Written subcategories were cut),
-    # so there's nothing left to filter by. Kept as a no-op param so
-    # rag_pipeline.py's existing modality=profile["modality"] call doesn't
-    # break - rag_pipeline.py/profile_builder.py still compute a modality
-    # value that has no exercise-bank counterpart anymore, worth a heads up
-    # to Anvesha/Sahel rather than silently patched here.
 
     filters = {}
 
@@ -49,6 +41,7 @@ def retrieve_exercises(
             "title": metadata["title"],
             "track": metadata["track"],
             "subcategory": metadata["subcategory"],
+            "modality": metadata["modality"],
             "instructions": results["documents"][0][i]
         })
 

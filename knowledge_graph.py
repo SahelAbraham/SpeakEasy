@@ -43,10 +43,8 @@ def seed_tracks(tx):
     # exercise_bank_speech_language.json exactly, so KG and exercise bank
     # queries never need a name-translation layer between them.
     tracks = [
-        ("Cognition", "Cognitive-communication exercises"),
-        ("Speech",    "Motor speech, fluency, voice, and social pragmatic exercises"),
-        ("Language",  "Expressive and receptive language exercises"),
-        ("Confidence", "Confidence and fluency building"),
+        ("Speech",    "Motor speech, fluency and voice"),
+        ("Language",  "Expressive and receptive language exercises")
     ]
     for track_id, name in tracks:
         tx.run("""
