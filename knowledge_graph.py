@@ -70,20 +70,109 @@ def assign_tracks(driver, user_id, track_id):
             )
         )
 
-def log_session(driver, user_id, session_id, overall_score, duration_seconds):
+def log_session(driver, user_id, session_id, overall_score, duration_seconds,
+                 speech_rate_wpm=None, filler_total=None, embedding=None):
     with driver.session(database=os.getenv("NEO4J_DATABASE")) as session:
         session.execute_write(
             lambda tx: tx.run("""
                 MATCH (u:User {user_id: $user_id})
-                CREATE(s: Session{session_id: $session_id,overall_score: $overall_score,duration_seconds: $duration_seconds,timestamp: timestamp()})
+                CREATE (s:Session {
+                    session_id: $session_id,
+                    overall_score: $overall_score,
+                    duration_seconds: $duration_seconds,
+                    speech_rate_wpm: $speech_rate_wpm,
+                    filler_total: $filler_total,
+                    embedding: $embedding,
+                    timestamp: timestamp()
+                })
                 CREATE (u)-[:HAS_SESSION]->(s)
             """,
-            user_id = user_id,
-            session_id = session_id,
-            overall_score = overall_score,
-            duration_seconds = duration_seconds
+            user_id=user_id,
+            session_id=session_id,
+            overall_score=overall_score,
+            duration_seconds=duration_seconds,
+            speech_rate_wpm=speech_rate_wpm,
+            filler_total=filler_total,
+            embedding=embedding
             )
         )
+
+
+def get_recent_sessions(driver, user_id, limit=2):
+    """
+    Returns a user's most recent sessions (most recent first), each as a dict
+    with session_id, overall_score, timestamp, and embedding (or None if the
+    session predates embedding capture). Used by DTW/cosine progress comparison.
+    """
+    with driver.session(database=os.getenv("NEO4J_DATABASE")) as session:
+        result = session.run("""
+            MATCH (u:User {user_id: $user_id})-[:HAS_SESSION]->(s:Session)
+            RETURN s.session_id AS session_id,
+                   s.overall_score AS overall_score,
+                   s.timestamp AS timestamp,
+                   s.embedding AS embedding
+            ORDER BY s.timestamp DESC
+            LIMIT $limit
+        """,
+        user_id=user_id,
+        limit=limit
+        )
+        return [dict(record) for record in result]
+
+
+def list_users_with_sessions(driver):
+    """Returns user_ids that have at least one logged session, for dashboard selection."""
+    with driver.session(database=os.getenv("NEO4J_DATABASE")) as session:
+        result = session.run("""
+            MATCH (u:User)-[:HAS_SESSION]->(:Session)
+            RETURN DISTINCT u.user_id AS user_id
+            ORDER BY user_id
+        """)
+        return [record["user_id"] for record in result]
+
+
+def get_all_sessions(driver, user_id):
+    """
+    Returns every session for a user, oldest first, for plotting trends over
+    time (fluency/accuracy/consistency). Each row: session_id, overall_score,
+    duration_seconds, speech_rate_wpm, filler_total, timestamp.
+    """
+    with driver.session(database=os.getenv("NEO4J_DATABASE")) as session:
+        result = session.run("""
+            MATCH (u:User {user_id: $user_id})-[:HAS_SESSION]->(s:Session)
+            RETURN s.session_id AS session_id,
+                   s.overall_score AS overall_score,
+                   s.duration_seconds AS duration_seconds,
+                   s.speech_rate_wpm AS speech_rate_wpm,
+                   s.filler_total AS filler_total,
+                   s.timestamp AS timestamp
+            ORDER BY s.timestamp ASC
+        """,
+        user_id=user_id
+        )
+        return [dict(record) for record in result]
+
+
+def get_phoneme_scores_by_session(driver, user_id):
+    """
+    Returns every phoneme score for a user, one row per (session, phoneme),
+    oldest session first. Used to build the phoneme-level heatmap on the
+    dashboard: session_id, timestamp, phoneme_symbol, score_value.
+    """
+    with driver.session(database=os.getenv("NEO4J_DATABASE")) as session:
+        result = session.run("""
+            MATCH (u:User {user_id: $user_id})-[:HAS_SESSION]->(s:Session)
+            MATCH (s)-[:CONTAINS_SCORE]->(sc:Score)-[:FOR_PHONEME]->(p:Phoneme)
+            RETURN s.session_id AS session_id,
+                   s.timestamp AS timestamp,
+                   p.symbol AS phoneme_symbol,
+                   sc.value AS score_value
+            ORDER BY s.timestamp ASC
+        """,
+        user_id=user_id
+        )
+        return [dict(record) for record in result]
+
 
 def log_phoneme_score(driver, session_id, phoneme_symbol, score_value):
     with driver.session(database=os.getenv("NEO4J_DATABASE")) as session:
@@ -103,7 +192,7 @@ def log_phoneme_score(driver, session_id, phoneme_symbol, score_value):
 
 
 def update_weak_phonemes(driver, user_id, threshold=0.6):
-    with driver.session(database="e213fac0") as session:
+    with driver.session(database=os.getenv("NEO4J_DATABASE")) as session:
         session.execute_write(
             lambda tx: tx.run("""
                 MATCH (u:User {user_id: $user_id})

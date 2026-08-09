@@ -36,8 +36,7 @@ Instructions:
         "id": exercise["id"],
         "title": exercise["title"],
         "track": exercise["track"],
-        "subcategory": exercise["subcategory"],
-        "modality": exercise["modality"]
+        "subcategory": exercise["subcategory"]
     }]
 )
 

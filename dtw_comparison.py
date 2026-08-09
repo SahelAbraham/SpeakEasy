@@ -1,8 +1,6 @@
 import numpy as np
 from fastdtw import fastdtw
 from scipy.spatial.distance import cosine, euclidean
-from knowledge_graph import get_recent_sessions
-
 
 
 def compare_sessions(embedding_a, embedding_b):
@@ -48,6 +46,7 @@ def get_progress_between_sessions(driver, user_id):
     since it opens a live Neo4j connection on import — keeps compare_sessions()
     and the mock-embedding test below runnable with no DB connectivity.
     """
+    from knowledge_graph import get_recent_sessions
     sessions = get_recent_sessions(driver, user_id, limit=2)
 
     if len(sessions) < 2:

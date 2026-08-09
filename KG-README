@@ -61,9 +61,55 @@ The `driver` object is created once and passed into every function — do not re
 |---|---|---|
 | `User` | `user_id`, `phone_number`, `age_group`, `native_language`, `created_at` | One node per user, keyed by WhatsApp number |
 | `Track` | `track_id`, `name` | Fixed therapy tracks — seeded once at setup |
-| `Session` | `session_id`, `overall_score`, `duration_seconds`, `timestamp` | One node per practice session |
+| `Session` | `session_id`, `overall_score`, `duration_seconds`, `speech_rate_wpm`, `filler_total`, `embedding`, `timestamp` | One node per practice session |
 | `Phoneme` | `symbol` | A speech sound e.g. `/r/`, `/th/`, `/s/` |
 | `Score` | `value`, `timestamp` | A float 0–1 score for one phoneme in one session |
+
+### Full property schema
+
+Every property, its type, and whether it's guaranteed to be set. Use this when writing your own Cypher instead of the Python helpers below — `null` handling matters (e.g. `AVG()` skips nulls, but string-typed nulls or missing keys will error).
+
+**`User`**
+
+| Property | Type | Required | Notes |
+|---|---|---|---|
+| `user_id` | string | yes | Primary key. Format: `"whatsapp:+16085551234"` — always include the `whatsapp:` prefix so every layer matches on the same key |
+| `phone_number` | string | yes | Same number, without the `whatsapp:` prefix |
+| `age_group` | string | yes | e.g. `"adult"`, `"child"` |
+| `native_language` | string | yes | e.g. `"English"` |
+| `created_at` | integer | yes | Epoch millis, set automatically by `create_user()` — never pass this in yourself |
+
+**`Track`** (only 4 nodes ever exist, seeded once)
+
+| Property | Type | Required | Notes |
+|---|---|---|---|
+| `track_id` | string | yes | One of `"Cognition"`, `"Speech"`, `"Language"`, `"Confidence"` — must match `exercise_bank_speech_language.json`'s `"track"` field exactly |
+| `name` | string | yes | Human-readable description |
+
+**`Session`**
+
+| Property | Type | Required | Notes |
+|---|---|---|---|
+| `session_id` | string | yes | Unique per session — caller generates this (e.g. `uuid4()`) |
+| `overall_score` | float | yes | 0.0–1.0 |
+| `duration_seconds` | integer | yes | |
+| `speech_rate_wpm` | float | **no** | `null` on sessions logged before this field existed, or if Whisper didn't return a rate |
+| `filler_total` | integer | **no** | `null` for the same reasons as above |
+| `embedding` | list\<float\> | **no** | wav2vec vector; `null` until Rabiah's embedding extraction is wired in. DTW/cosine comparison silently skips any session pair where either side is `null` here — check for `null` before assuming it's populated |
+| `timestamp` | integer | yes | Epoch millis, set automatically by `log_session()` |
+
+**`Phoneme`**
+
+| Property | Type | Required | Notes |
+|---|---|---|---|
+| `symbol` | string | yes | e.g. `"/r/"`, `"/th/"`, `"/s/"` — one node per distinct symbol, reused (`MERGE`d) across all users/sessions |
+
+**`Score`**
+
+| Property | Type | Required | Notes |
+|---|---|---|---|
+| `value` | float | yes | 0.0–1.0. Must be numeric, not a string — `AVG()` throws a type error on strings |
+| `timestamp` | integer | yes | Epoch millis, set automatically by `log_phoneme_score()` |
 
 ### Relationships
 
@@ -99,8 +145,8 @@ with driver.session(database=os.getenv("NEO4J_DATABASE")) as session:
 ```
 
 Available tracks — these `track_id` values match the `"track"` field in
-`exercise_bank_v3.json` / `exercise_bank_speech_language.json` exactly, so
-KG queries and exercise bank queries never need a name-translation layer:
+`exercise_bank_speech_language.json` exactly, so KG queries and exercise
+bank queries never need a name-translation layer:
 
 | `track_id` | `name` |
 |---|---|
@@ -135,15 +181,48 @@ assign_tracks(driver, "whatsapp:+16085551234", "Speech")
 
 ---
 
-### `log_session(driver, user_id, session_id, overall_score, duration_seconds)`
+### `log_session(driver, user_id, session_id, overall_score, duration_seconds, speech_rate_wpm=None, filler_total=None, embedding=None)`
 
-Creates a new `Session` node and links it to the user. Call this at the start of writing session data. `overall_score` is a float 0–1.
+Creates a new `Session` node and links it to the user. Call this at the start of writing session data. `overall_score` is a float 0–1. `speech_rate_wpm`/`filler_total` come from Rabiah's Whisper analysis; `embedding` is the wav2vec vector used by DTW/cosine progress comparison — all three are optional since earlier sessions may predate that data.
 
 ```python
-log_session(driver, "whatsapp:+16085551234", "session_001", 0.65, 300)
+log_session(driver, "whatsapp:+16085551234", "session_001", 0.65, 300,
+            speech_rate_wpm=110, filler_total=3, embedding=[0.12, 0.05, -0.33, ...])
 ```
 
 **Called by:** pipeline after Rabiah's speech analysis returns an overall score (Sprint 2).
+
+---
+
+### `get_recent_sessions(driver, user_id, limit=2)`
+
+Returns a user's most recent sessions (most recent first) with `session_id`, `overall_score`, `timestamp`, `embedding`.
+
+**Used by:** `dtw_comparison.py`'s `get_progress_between_sessions()` to compare the two most recent sessions.
+
+---
+
+### `get_all_sessions(driver, user_id)`
+
+Returns every session for a user, oldest first, with `session_id`, `overall_score`, `duration_seconds`, `speech_rate_wpm`, `filler_total`, `timestamp`.
+
+**Used by:** `dashboard.py` to plot accuracy/fluency/consistency trends over time.
+
+---
+
+### `list_users_with_sessions(driver)`
+
+Returns every `user_id` that has at least one logged session.
+
+**Used by:** `dashboard.py`'s user selector.
+
+---
+
+### `get_phoneme_scores_by_session(driver, user_id)`
+
+Returns every phoneme score for a user, one row per (session, phoneme), oldest first: `session_id`, `timestamp`, `phoneme_symbol`, `score_value`.
+
+**Used by:** `dashboard.py`'s phoneme-level heatmap.
 
 ---
 
@@ -194,15 +273,76 @@ update_weak_phonemes(driver, ...)
 
 ---
 
-## Notes for teammates
+## Cypher cookbook
 
-**Rabiah (Speech Analysis):** Your CNN pipeline needs to return a dict of `{ phoneme_symbol: score_value }` floats after each session. Make sure scores are numeric (not strings) — Neo4j's `AVG()` will throw a type error on strings. The pipeline should call `log_session` then `log_phoneme_score` for each entry in that dict.
+Direct queries for the Neo4j Browser or your own driver code, when the Python helpers above don't cover what you need. All read-only unless marked otherwise.
 
-**Sahel (RL Agent + Profile Builder):** Your profile builder should call `assign_tracks(driver, user_id, track_id)` after determining the user's track from survey responses. Your RL agent can query `WEAK_AT` edges to get the current weak phonemes for a user as context:
+**Get a user's assigned track**
+```cypher
+MATCH (u:User {user_id: $user_id})-[:ASSIGNED_TO]->(t:Track)
+RETURN t.track_id, t.name
+```
 
+**Get a user's most recent N sessions**
+```cypher
+MATCH (u:User {user_id: $user_id})-[:HAS_SESSION]->(s:Session)
+RETURN s.session_id, s.overall_score, s.speech_rate_wpm, s.filler_total, s.timestamp
+ORDER BY s.timestamp DESC
+LIMIT $n
+```
+
+**Get every phoneme score for one session**
+```cypher
+MATCH (s:Session {session_id: $session_id})-[:CONTAINS_SCORE]->(sc:Score)-[:FOR_PHONEME]->(p:Phoneme)
+RETURN p.symbol, sc.value
+```
+
+**Get a user's average score per phoneme, across all sessions**
+```cypher
+MATCH (u:User {user_id: $user_id})-[:HAS_SESSION]->(:Session)-[:CONTAINS_SCORE]->(sc:Score)-[:FOR_PHONEME]->(p:Phoneme)
+RETURN p.symbol, avg(sc.value) AS avg_score
+ORDER BY avg_score ASC
+```
+
+**Get a user's current weak phonemes** (same as `WEAK_AT` edges, computed live instead of relying on `update_weak_phonemes()` having been run recently)
 ```cypher
 MATCH (u:User {user_id: $user_id})-[:WEAK_AT]->(p:Phoneme)
 RETURN p.symbol
 ```
+
+**Get a user's total session count and first/last session timestamp** (useful for streaks / consistency checks)
+```cypher
+MATCH (u:User {user_id: $user_id})-[:HAS_SESSION]->(s:Session)
+RETURN count(s) AS session_count, min(s.timestamp) AS first_session, max(s.timestamp) AS last_session
+```
+
+**Get every session that's missing an embedding** (find sessions DTW comparison will skip)
+```cypher
+MATCH (u:User {user_id: $user_id})-[:HAS_SESSION]->(s:Session)
+WHERE s.embedding IS NULL
+RETURN s.session_id, s.timestamp
+```
+
+**Check whether a user exists before writing to avoid orphaned data** (write)
+```cypher
+MATCH (u:User {user_id: $user_id})
+RETURN u IS NOT NULL AS exists
+```
+
+**Delete a test user and everything attached to them** (write, destructive — used by `test_knowledge_graph.py`'s cleanup step; never run against a real `user_id`)
+```cypher
+MATCH (u:User {user_id: $user_id})
+OPTIONAL MATCH (u)-[:HAS_SESSION]->(s:Session)
+OPTIONAL MATCH (s)-[:CONTAINS_SCORE]->(sc:Score)
+DETACH DELETE u, s, sc
+```
+
+---
+
+## Notes for teammates
+
+**Rabiah (Speech Analysis):** Your CNN pipeline needs to return a dict of `{ phoneme_symbol: score_value }` floats after each session. Make sure scores are numeric (not strings) — Neo4j's `AVG()` will throw a type error on strings. The pipeline should call `log_session` then `log_phoneme_score` for each entry in that dict.
+
+**Sahel (RL Agent + Profile Builder):** Your profile builder should call `assign_tracks(driver, user_id, track_id)` after determining the user's track from survey responses. Your RL agent can query `WEAK_AT` edges to get the current weak phonemes for a user as context — see "Get a user's current weak phonemes" in the Cypher cookbook above.
 
 **Anvesha (Conversational Layer):** The `user_id` used throughout the KG should be the WhatsApp number in the format `"whatsapp:+16085551234"` — make sure the Twilio webhook passes this consistently so all layers reference the same user.
