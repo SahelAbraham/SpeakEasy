@@ -1,34 +1,34 @@
-from rag.vector_store import get_collection
+import chromadb
 
-collection = get_collection()
+
+def get_collection():
+    client = chromadb.PersistentClient(path="./chroma_db")
+
+    collection = client.get_collection(
+        name="exercise_bank"
+    )
+
+    return collection
 
 
 def retrieve_exercises(
     query,
-    track=None,
-    subcategory=None,
-    n_results=3,
+    track,
+    subcategory,
+    n_results=3
 ):
+    collection = get_collection()
 
-    filters = {}
-
-    if track:
-        filters["track"] = track
-
-    if subcategory:
-        filters["subcategory"] = subcategory
-
-    if filters:
-        results = collection.query(
-            query_texts=[query],
-            where=filters,
-            n_results=n_results
-        )
-    else:
-        results = collection.query(
-            query_texts=[query],
-            n_results=n_results
-        )
+    results = collection.query(
+        query_texts=[query],
+        n_results=n_results,
+        where={
+            "$and": [
+                {"track": track},
+                {"subcategory": subcategory}
+            ]
+        }
+    )
 
     exercises = []
 
@@ -37,11 +37,12 @@ def retrieve_exercises(
         metadata = results["metadatas"][0][i]
 
         exercises.append({
-            "id": metadata["id"],
+            "id": results["ids"][0][i],
             "title": metadata["title"],
             "track": metadata["track"],
             "subcategory": metadata["subcategory"],
-            "modality": metadata["modality"],
+            "scoring_type": metadata["scoring_type"],
+            "expected_answer": metadata["expected_answer"],
             "instructions": results["documents"][0][i]
         })
 
