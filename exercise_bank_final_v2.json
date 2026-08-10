@@ -1,0 +1,544 @@
+{
+  "exercise_bank": [
+    {
+      "id": "LAN-EXP-SPK-001",
+      "title": "Count It Out",
+      "track": "Language",
+      "subcategory": "Expressive",
+      "instructions": "Say the numbers out loud from 1 to 20, one at a time, at a steady pace.",
+      "scoring_type": "sequence_recall",
+      "expected_answer": ["one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen","twenty"]
+    },
+    {
+      "id": "LAN-EXP-SPK-002",
+      "title": "Days in Order",
+      "track": "Language",
+      "subcategory": "Expressive",
+      "instructions": "Say the days of the week out loud in order, starting with Sunday.",
+      "scoring_type": "sequence_recall",
+      "expected_answer": ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"]
+    },
+    {
+      "id": "LAN-EXP-SPK-003",
+      "title": "Months in Order",
+      "track": "Language",
+      "subcategory": "Expressive",
+      "instructions": "Say the months of the year out loud in order, starting with January.",
+      "scoring_type": "sequence_recall",
+      "expected_answer": ["january","february","march","april","may","june","july","august","september","october","november","december"]
+    },
+    {
+      "id": "LAN-EXP-SPK-004",
+      "title": "Name What You See",
+      "track": "Language",
+      "subcategory": "Expressive",
+      "instructions": "Here is a word: toothbrush. Say out loud one sentence describing what it is or what it's used for.",
+      "scoring_type": "llm_correctness_check",
+      "expected_answer": null
+    },
+    {
+      "id": "LAN-EXP-SPK-005",
+      "title": "Picture in Your Mind",
+      "track": "Language",
+      "subcategory": "Expressive",
+      "instructions": "Picture a kitchen in your mind. Name out loud three objects you would expect to find there.",
+      "scoring_type": "category_naming",
+      "expected_answer": ["fork","spoon","knife","plate","cup","stove","oven","fridge","refrigerator","pot","pan","bowl","kettle","sink","microwave","toaster","glass","mug","tray","dishwasher","blender"]
+    },
+    {
+      "id": "LAN-EXP-SPK-006",
+      "title": "Three Words, One Sentence",
+      "track": "Language",
+      "subcategory": "Expressive",
+      "instructions": "Here are three words: dog, park, morning. Say one full sentence out loud that uses all three.",
+      "scoring_type": "word_inclusion",
+      "expected_answer": ["dog","park","morning"]
+    },
+    {
+      "id": "LAN-EXP-SPK-007",
+      "title": "Can't Find the Word",
+      "track": "Language",
+      "subcategory": "Expressive",
+      "instructions": "Name an object you use to cut paper.",
+      "scoring_type": "keyword_match",
+      "expected_answer": ["scissors"]
+    },
+    {
+      "id": "LAN-EXP-SPK-008",
+      "title": "Category Rapid Fire",
+      "track": "Language",
+      "subcategory": "Expressive",
+      "instructions": "Say out loud as many animals as you can in one minute.",
+      "scoring_type": "category_naming",
+      "expected_answer": ["dog","cat","bird","fish","lion","tiger","bear","elephant","horse","cow","pig","sheep","rabbit","mouse","snake","frog","monkey","zebra","giraffe","deer","fox","wolf","duck","goat"]
+    },
+    {
+      "id": "LAN-EXP-SPK-009",
+      "title": "Synonym Swap",
+      "track": "Language",
+      "subcategory": "Expressive",
+      "instructions": "Here is a word: happy. Say a word out loud that means almost the same thing.",
+      "scoring_type": "llm_correctness_check",
+      "expected_answer": null
+    },
+    {
+      "id": "LAN-EXP-SPK-010",
+      "title": "Opposite Day",
+      "track": "Language",
+      "subcategory": "Expressive",
+      "instructions": "Here is a word: hot. Say the opposite out loud.",
+      "scoring_type": "keyword_match",
+      "expected_answer": ["cold"]
+    },
+    {
+      "id": "LAN-EXP-SPK-011",
+      "title": "Verb Tense Shift",
+      "track": "Language",
+      "subcategory": "Expressive",
+      "instructions": "Here is a verb: run. Say it out loud in the past tense, then in the future tense.",
+      "scoring_type": "llm_correctness_check",
+      "expected_answer": null
+    },
+    {
+      "id": "LAN-EXP-SPK-012",
+      "title": "Fix the Sentence",
+      "track": "Language",
+      "subcategory": "Expressive",
+      "instructions": "Here is a sentence: She go to the store yesterday. Say the corrected version out loud.",
+      "scoring_type": "llm_correctness_check",
+      "expected_answer": null
+    },
+    {
+      "id": "LAN-REC-SPK-001",
+      "title": "One-Step Listen",
+      "track": "Language",
+      "subcategory": "Receptive",
+      "instructions": "Listen: Sam folded a piece of paper in half. Say out loud: is the paper now bigger or smaller than before?",
+      "scoring_type": "keyword_match",
+      "expected_answer": ["smaller"]
+    },
+    {
+      "id": "LAN-REC-SPK-002",
+      "title": "Two-Step Listen",
+      "track": "Language",
+      "subcategory": "Receptive",
+      "instructions": "Listen: Ben picked up his phone, then put it in his pocket. Say out loud: where did Ben put his phone?",
+      "scoring_type": "keyword_match",
+      "expected_answer": ["pocket"]
+    },
+    {
+      "id": "LAN-REC-SPK-003",
+      "title": "Three-Step Listen",
+      "track": "Language",
+      "subcategory": "Receptive",
+      "instructions": "Listen: Priya stood up, walked to the door, then sat back down. Say out loud: what did Priya do right before sitting back down?",
+      "scoring_type": "keyword_match",
+      "expected_answer": ["walked","walked to the door","door"]
+    },
+    {
+      "id": "LAN-REC-SPK-004",
+      "title": "Find the Match",
+      "track": "Language",
+      "subcategory": "Receptive",
+      "instructions": "Listen to this description: it is round, orange, and you peel it before eating it. Say out loud what is being described.",
+      "scoring_type": "keyword_match",
+      "expected_answer": ["orange"]
+    },
+    {
+      "id": "LAN-REC-SPK-005",
+      "title": "Yes or No Listen",
+      "track": "Language",
+      "subcategory": "Receptive",
+      "instructions": "Listen: \"The sun shines at night.\" Say out loud whether that is true or false.",
+      "scoring_type": "yes_no",
+      "expected_answer": "false"
+    },
+    {
+      "id": "LAN-REC-SPK-006",
+      "title": "Where Is It",
+      "track": "Language",
+      "subcategory": "Receptive",
+      "instructions": "Listen: Alex placed the keys under a book. Say out loud: which object ends up on top, the keys or the book?",
+      "scoring_type": "keyword_match",
+      "expected_answer": ["book"]
+    },
+    {
+      "id": "LAN-REC-SPK-007",
+      "title": "Between and Behind",
+      "track": "Language",
+      "subcategory": "Receptive",
+      "instructions": "Listen: a cup is placed behind a plate. Say out loud: which object is in front?",
+      "scoring_type": "keyword_match",
+      "expected_answer": ["plate"]
+    },
+    {
+      "id": "LAN-REC-SPK-008",
+      "title": "Listen and Answer",
+      "track": "Language",
+      "subcategory": "Receptive",
+      "instructions": "Listen: Maria packed her bag. She is going on a trip. Answer out loud: what was Maria doing?",
+      "scoring_type": "keyword_match",
+      "expected_answer": ["trip","traveling","travel","packing","going on a trip","journey"]
+    },
+    {
+      "id": "LAN-REC-SPK-009",
+      "title": "How Many Are Left",
+      "track": "Language",
+      "subcategory": "Receptive",
+      "instructions": "Listen: Jamie has three apples and gives one to a friend. Say out loud: how many apples does Jamie have left?",
+      "scoring_type": "keyword_match",
+      "expected_answer": ["two"]
+    },
+    {
+      "id": "LAN-REC-SPK-010",
+      "title": "Bigger or Smaller",
+      "track": "Language",
+      "subcategory": "Receptive",
+      "instructions": "Listen: the red cup is bigger than the blue cup. Say out loud: which cup is smaller?",
+      "scoring_type": "keyword_match",
+      "expected_answer": ["blue"]
+    },
+    {
+      "id": "LAN-REC-SPK-011",
+      "title": "Before or After",
+      "track": "Language",
+      "subcategory": "Receptive",
+      "instructions": "Listen: Noah finished his homework before dinner. Say out loud: did Noah do his homework before or after dinner?",
+      "scoring_type": "keyword_match",
+      "expected_answer": ["before"]
+    },
+    {
+      "id": "LAN-REC-SPK-012",
+      "title": "Open or Closed",
+      "track": "Language",
+      "subcategory": "Receptive",
+      "instructions": "Listen: the store closes at 6pm. It is 6:30pm. Say out loud: is the store open or closed?",
+      "scoring_type": "keyword_match",
+      "expected_answer": ["closed"]
+    },
+    {
+      "id": "SPE-MOTOR-001",
+      "title": "Tongue Press Hold",
+      "track": "Speech",
+      "subcategory": "Motor Speech (Dysarthria)",
+      "instructions": "Press the tip of your tongue against the roof of your mouth just behind your teeth, hold for three seconds, then relax. Repeat five times, then say 'la la la' out loud three times to carry that same tongue placement into speech.",
+      "scoring_type": "audio_clarity",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-MOTOR-002",
+      "title": "Lip Round and Spread",
+      "track": "Speech",
+      "subcategory": "Motor Speech (Dysarthria)",
+      "instructions": "Say 'oo-ee-oo-ee' out loud, rounding your lips fully on 'oo' and spreading them fully on 'ee'. Repeat ten times.",
+      "scoring_type": "audio_clarity",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-MOTOR-003",
+      "title": "Full Jaw Open and Close",
+      "track": "Speech",
+      "subcategory": "Motor Speech (Dysarthria)",
+      "instructions": "Open your jaw slowly as wide as is comfortable, then close it slowly. Repeat five times, then say 'ah' with a fully open jaw.",
+      "scoring_type": "audio_clarity",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-MOTOR-004",
+      "title": "Half-Speed Sentence",
+      "track": "Speech",
+      "subcategory": "Motor Speech (Dysarthria)",
+      "instructions": "Read this sentence out loud as slowly and clearly as you can, giving every word its own clear space: I would like a glass of water, please.",
+      "scoring_type": "audio_clarity",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-MOTOR-005",
+      "title": "Overarticulate Every Word",
+      "track": "Speech",
+      "subcategory": "Motor Speech (Dysarthria)",
+      "instructions": "Say this sentence out loud using big, exaggerated mouth movements on every sound, not just some: The big black cat sat on the mat.",
+      "scoring_type": "audio_clarity",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-MOTOR-006",
+      "title": "Louder Than Usual",
+      "track": "Speech",
+      "subcategory": "Motor Speech (Dysarthria)",
+      "instructions": "Take a full breath, then say this sentence out loud as loudly and clearly as you comfortably can, without straining your throat: My voice is strong and clear today.",
+      "scoring_type": "audio_clarity",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-MOTOR-007",
+      "title": "Tap to Pace",
+      "track": "Speech",
+      "subcategory": "Motor Speech (Dysarthria)",
+      "instructions": "Tap the table once for each word while you say this sentence out loud, keeping every tap evenly spaced: I am speaking one word at a time.",
+      "scoring_type": "audio_clarity",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-MOTOR-008",
+      "title": "One Breath, One Phrase",
+      "track": "Speech",
+      "subcategory": "Motor Speech (Dysarthria)",
+      "instructions": "Take a breath, then say this short phrase out loud in one breath: I feel good today. Pause, take another breath, and repeat it twice more.",
+      "scoring_type": "audio_clarity",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-MOTOR-009",
+      "title": "Pa-Ta-Ka",
+      "track": "Speech",
+      "subcategory": "Motor Speech (Dysarthria)",
+      "instructions": "Say \"pa-ta-ka\" out loud as quickly and clearly as you can, five times in a row.",
+      "scoring_type": "audio_clarity",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-MOTOR-010",
+      "title": "Cheek Puff Hold",
+      "track": "Speech",
+      "subcategory": "Motor Speech (Dysarthria)",
+      "instructions": "Puff out your cheeks with air and hold for three seconds without letting any air escape, then release. Repeat five times, then say \"boom boom boom\" out loud.",
+      "scoring_type": "audio_clarity",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-MOTOR-011",
+      "title": "Sharpen the S and Sh",
+      "track": "Speech",
+      "subcategory": "Motor Speech (Dysarthria)",
+      "instructions": "Say this sentence out loud, giving extra clear emphasis to every 's' and 'sh' sound: She sells seashells by the seashore.",
+      "scoring_type": "audio_clarity",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-MOTOR-012",
+      "title": "Three Phrase Chunks",
+      "track": "Speech",
+      "subcategory": "Motor Speech (Dysarthria)",
+      "instructions": "Say this sentence out loud in three short phrases, pausing briefly between each: I need to go to the store / before it closes / so I should leave soon.",
+      "scoring_type": "audio_clarity",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-FLU-001",
+      "title": "Soft Start",
+      "track": "Speech",
+      "subcategory": "Fluency",
+      "instructions": "Say this sentence out loud, starting the very first sound gently and gradually instead of with a hard push: Amazing things can happen today.",
+      "scoring_type": "audio_clarity",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-FLU-002",
+      "title": "Light Touch Consonants",
+      "track": "Speech",
+      "subcategory": "Fluency",
+      "instructions": "Say these words out loud using a light, relaxed touch on the first sound instead of pressing hard: pat, bat, top, dot.",
+      "scoring_type": "audio_clarity",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-FLU-003",
+      "title": "Link It All Together",
+      "track": "Speech",
+      "subcategory": "Fluency",
+      "instructions": "Say this phrase out loud as one continuous flow of sound, without stopping airflow between words: I want to go outside and play.",
+      "scoring_type": "audio_clarity",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-FLU-004",
+      "title": "Stretch Every Syllable",
+      "track": "Speech",
+      "subcategory": "Fluency",
+      "instructions": "Say this sentence out loud, stretching each syllable slightly longer than usual: We are walking to the store together.",
+      "scoring_type": "audio_clarity",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-FLU-005",
+      "title": "Chunk and Breathe",
+      "track": "Speech",
+      "subcategory": "Fluency",
+      "instructions": "Say this sentence out loud in three short chunks, taking a breath between each: I woke up early / and made breakfast / before school.",
+      "scoring_type": "audio_clarity",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-FLU-006",
+      "title": "Slow and Smooth Passage",
+      "track": "Speech",
+      "subcategory": "Fluency",
+      "instructions": "Read this passage out loud at a deliberately slower, smoother pace than normal: The morning sun rose over the quiet hills as birds began to sing.",
+      "scoring_type": "audio_clarity",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-FLU-007",
+      "title": "Pause and Restart Gently",
+      "track": "Speech",
+      "subcategory": "Fluency",
+      "instructions": "If a word ever feels stuck while you talk, pause fully for one second, then restart just that word slowly and gently before continuing.",
+      "scoring_type": "audio_clarity",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-FLU-008",
+      "title": "One Minute Easy Talk",
+      "track": "Speech",
+      "subcategory": "Fluency",
+      "instructions": "Talk out loud for one minute about your morning, using a soft gentle start on the first word of every sentence.",
+      "scoring_type": "audio_clarity",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-FLU-009",
+      "title": "Ease Out of It",
+      "track": "Speech",
+      "subcategory": "Fluency",
+      "instructions": "If you feel a stutter happening while you're talking, ease out of it slowly and smoothly instead of pushing through, then keep going.",
+      "scoring_type": "audio_clarity",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-FLU-010",
+      "title": "Plan the Hard Word",
+      "track": "Speech",
+      "subcategory": "Fluency",
+      "instructions": "Think of a word that's often hard for you to start. Before saying it out loud, take a breath and plan a slow, easy first sound, then say the word.",
+      "scoring_type": "audio_clarity",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-FLU-011",
+      "title": "Even Steady Pace",
+      "track": "Speech",
+      "subcategory": "Fluency",
+      "instructions": "Read this sentence out loud at a slow, steady pace, giving each word equal, even timing: Slow and steady speech can feel more comfortable and controlled.",
+      "scoring_type": "audio_clarity",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-FLU-012",
+      "title": "Notice the Smooth Spots",
+      "track": "Speech",
+      "subcategory": "Fluency",
+      "instructions": "Talk out loud for thirty seconds about your favorite hobby. Afterward, say one moment that felt smooth and one that felt effortful.",
+      "scoring_type": "audio_clarity",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-VOICE-001",
+      "title": "Gentle Hum Warm-Up",
+      "track": "Speech",
+      "subcategory": "Voice Disorders",
+      "instructions": "Hum gently for five seconds, feeling a light buzzing or vibration around your lips and nose.",
+      "scoring_type": "needs_pitch_tracking",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-VOICE-002",
+      "title": "Hum Into a Word",
+      "track": "Speech",
+      "subcategory": "Voice Disorders",
+      "instructions": "Hum gently, then let the hum flow directly into the word 'hello' out loud, keeping that same forward, buzzy feeling.",
+      "scoring_type": "needs_pitch_tracking",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-VOICE-003",
+      "title": "Sustain the Sound",
+      "track": "Speech",
+      "subcategory": "Voice Disorders",
+      "instructions": "Take a comfortable breath, then hold a steady 'ee' sound out loud for as long as you comfortably can, without straining.",
+      "scoring_type": "needs_pitch_tracking",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-VOICE-004",
+      "title": "Pitch Glide Up",
+      "track": "Speech",
+      "subcategory": "Voice Disorders",
+      "instructions": "Say 'ee' out loud, sliding your pitch smoothly from low to high like a gentle siren going up.",
+      "scoring_type": "needs_pitch_tracking",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-VOICE-005",
+      "title": "Pitch Glide Down",
+      "track": "Speech",
+      "subcategory": "Voice Disorders",
+      "instructions": "Say 'oh' out loud, sliding your pitch smoothly from high to low like a gentle siren going down.",
+      "scoring_type": "needs_pitch_tracking",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-VOICE-006",
+      "title": "Strong Short Bursts",
+      "track": "Speech",
+      "subcategory": "Voice Disorders",
+      "instructions": "Say short, firm 'ee' sounds out loud at a few different comfortable pitches, keeping each one clear and easy, not strained.",
+      "scoring_type": "needs_pitch_tracking",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-VOICE-007",
+      "title": "Vocal Habits Check-In",
+      "track": "Speech",
+      "subcategory": "Voice Disorders",
+      "instructions": "Say out loud how much water you drank today and whether you did any shouting or a lot of throat-clearing.",
+      "scoring_type": "needs_pitch_tracking",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-VOICE-008",
+      "title": "Carry the Buzz Into a Sentence",
+      "track": "Speech",
+      "subcategory": "Voice Disorders",
+      "instructions": "Hum briefly, then say this full sentence out loud keeping that same easy, forward, buzzy voice feeling the whole time: My voice feels easy and comfortable.",
+      "scoring_type": "needs_pitch_tracking",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-VOICE-009",
+      "title": "Yawn Sigh",
+      "track": "Speech",
+      "subcategory": "Voice Disorders",
+      "instructions": "Take a big yawn, and as you breathe out, let out a relaxed \"ahh\" sound, letting your voice glide gently downward.",
+      "scoring_type": "needs_pitch_tracking",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-VOICE-010",
+      "title": "Lip Trill",
+      "track": "Speech",
+      "subcategory": "Voice Disorders",
+      "instructions": "Relax your lips and blow air gently through them to make a motorboat-like trill sound (\"brrr\"), then let the trill turn into a hum.",
+      "scoring_type": "needs_pitch_tracking",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-VOICE-011",
+      "title": "Soft Start Sentence",
+      "track": "Speech",
+      "subcategory": "Voice Disorders",
+      "instructions": "Say this sentence out loud, starting every word with a soft, easy voice instead of a hard push: We can take it easy today.",
+      "scoring_type": "needs_pitch_tracking",
+      "expected_answer": null
+    },
+    {
+      "id": "SPE-VOICE-012",
+      "title": "Natural Pitch Variation",
+      "track": "Speech",
+      "subcategory": "Voice Disorders",
+      "instructions": "Read this sentence out loud, letting your pitch rise and fall naturally like you're telling an interesting story: I couldn't believe what happened next!",
+      "scoring_type": "needs_pitch_tracking",
+      "expected_answer": null
+    }
+  ]
+}
