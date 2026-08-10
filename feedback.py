@@ -1,66 +1,178 @@
-from feedback import generate_feedback
-feedback = generate_feedback(
-    pronunciation_score=pronunciation_score,
-    fluency_score=fluency_score,
-    weak_phonemes=weak_phonemes
-)
+# feedback.py
+
+import os
+import json
+import google.generativeai as genai
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Configure Gemini
+genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
+
+_llm_model = genai.GenerativeModel("gemini-3.5-flash-lite")
+
+
+def _format_weak_phonemes(weak_phonemes):
     """
-    Generate simple rule-based feedback from speech-analysis results.
+    Convert Rabiah's weak phoneme dictionaries
+    into something easier for the LLM to understand.
     """
 
-    if weak_phonemes is None:
-        weak_phonemes = []
+    if not weak_phonemes:
+        return []
 
-    # If no scores are available yet
-    if pronunciation_score is None and fluency_score is None:
+    formatted = []
+
+    for item in weak_phonemes:
+        formatted.append({
+            "word": item.get("word"),
+            "phoneme": item.get("weakest_phoneme"),
+            "confidence": item.get("confidence"),
+            "start": item.get("start"),
+            "end": item.get("end")
+        })
+
+    return formatted
+
+
+def generate_feedback(
+    analysis_result,
+    exercise=None,
+    user_profile=None,
+    previous_performance=None
+):
+    """
+    Generate personalized feedback using the speech-analysis
+    results produced by Rabiah's pipeline.
+
+    Rabiah's pipeline is responsible for analysis.
+    This function is responsible for explaining those
+    results to the user.
+    """
+
+    if analysis_result is None:
         return "Nice work completing the exercise! Let's keep practicing."
 
-    # Use whichever scores are available
-    scores = []
+    weak_phonemes = _format_weak_phonemes(
+        analysis_result.get("weak_phonemes", [])
+    )
 
-    if pronunciation_score is not None:
-        scores.append(pronunciation_score)
+    feedback_input = {
+        "exercise": exercise or {},
+        "user_profile": user_profile or {},
+        "current_result": {
+            "transcription": analysis_result.get("transcription"),
+            "score": analysis_result.get("score"),
+            "scoring_method": analysis_result.get("scoring_method"),
+            "scoring_details": analysis_result.get("scoring_details", {}),
+            "pronunciation_score": analysis_result.get("pronunciation_score"),
+            "speech_rate_wpm": analysis_result.get("speech_rate_wpm"),
+            "filler_words": analysis_result.get("filler_words", {}),
+            "filler_total": analysis_result.get("filler_total", 0),
+            "weak_phonemes": weak_phonemes
+        },
+        "previous_performance": previous_performance or {}
+    }
 
-    if fluency_score is not None:
-        scores.append(fluency_score)
+    prompt = f"""
+You are the feedback assistant for SpeakEasy, an AI speech
+practice application.
 
-    overall_score = sum(scores) / len(scores)
+Your job is to turn objective speech-analysis results into
+short, encouraging, personalized feedback.
 
-    # Generate feedback based on performance
-    if overall_score >= 0.90:
-        feedback = (
-            "Great job! Your speech was very clear. "
-            "You're doing really well."
-        )
+IMPORTANT:
+- Do NOT perform your own speech analysis.
+- Do NOT invent errors that are not present in the analysis.
+- Use the provided scores and detected weak phonemes.
+- Be encouraging rather than judgmental.
+- Give ONE or TWO specific suggestions when appropriate.
+- Do not overwhelm the user with technical terminology.
+- Do not diagnose medical conditions.
+- Do not mention that an AI or language model generated the feedback.
+- Keep the feedback concise enough for WhatsApp.
+- Focus on what the user can do next.
 
-    elif overall_score >= 0.75:
-        feedback = (
-            "Nice work! You did well overall. "
-            "Keep practicing to make your speech even clearer."
-        )
+Exercise:
+{json.dumps(feedback_input["exercise"], indent=2)}
 
-    elif overall_score >= 0.60:
-        feedback = (
-            "Good effort! You're making progress. "
-            "Let's keep practicing this skill."
-        )
+User profile:
+{json.dumps(feedback_input["user_profile"], indent=2)}
 
-    else:
-        feedback = (
-            "Nice attempt! This is a skill we're still working on. "
-            "Let's try another exercise and keep practicing."
-        )
+Current result:
+{json.dumps(feedback_input["current_result"], indent=2)}
 
-    # Add phoneme-specific information if available
-    if weak_phonemes:
-        phonemes = ", ".join(weak_phonemes)
+Previous performance:
+{json.dumps(feedback_input["previous_performance"], indent=2)}
 
-        feedback += (
-            f" We can spend a little more time practicing "
-            f"{phonemes}."
-        )
+Return ONLY valid JSON:
 
-   return {
-    "feedback": feedback,
-    "next_exercise": next_exercise
-}
+{{
+    "feedback": "short personalized feedback for the user",
+    "suggestion": "one specific practice suggestion",
+    "encouragement": "short encouraging closing"
+}}
+"""
+
+    try:
+        response = _llm_model.generate_content(prompt)
+
+        text = response.text.strip()
+
+        # Remove markdown code fences if Gemini adds them
+        text = text.replace("```json", "")
+        text = text.replace("```", "")
+        text = text.strip()
+
+        result = json.loads(text)
+
+        return {
+            "feedback": result.get("feedback", ""),
+            "suggestion": result.get("suggestion", ""),
+            "encouragement": result.get("encouragement", "")
+        }
+
+    except Exception as e:
+
+        # Safe fallback if Gemini fails
+        score = analysis_result.get("score")
+
+        if score is not None and score >= 85:
+            fallback = "Great job! You did really well on this exercise."
+        elif score is not None and score >= 70:
+            fallback = "Nice work! You're making good progress."
+        elif score is not None:
+            fallback = "Good effort! Keep practicing and you'll improve."
+
+        else:
+            fallback = "Nice work completing the exercise! Let's keep practicing."
+
+        return {
+            "feedback": fallback,
+            "suggestion": "Keep practicing this skill.",
+            "encouragement": "You've got this!"
+        }
+
+
+def format_feedback_message(feedback_result):
+    """
+    Turn the structured LLM response into the actual
+    WhatsApp message.
+    """
+
+    if not feedback_result:
+        return "Nice work completing the exercise! Let's keep practicing."
+
+    parts = []
+
+    if feedback_result.get("feedback"):
+        parts.append(feedback_result["feedback"])
+
+    if feedback_result.get("suggestion"):
+        parts.append(feedback_result["suggestion"])
+
+    if feedback_result.get("encouragement"):
+        parts.append(feedback_result["encouragement"])
+
+    return " ".join(parts)
