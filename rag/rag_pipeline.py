@@ -14,12 +14,6 @@ def build_query(profile, transcript):
     User Subcategory:
     {profile['subcategory']}
 
-    Modality:
-    {profile['modality']}
-
-    Age Group:
-    {profile['age_group']}
-
     Transcript:
     {transcript}
     """
@@ -27,7 +21,7 @@ def build_query(profile, transcript):
     return query
 
 
-def rag_search(profile, transcript):
+def rag_search(profile, transcript, n_results=3):
 
     query = build_query(profile, transcript)
 
@@ -35,8 +29,9 @@ def rag_search(profile, transcript):
         query=query,
         track=profile["track"],
         subcategory=profile["subcategory"],
-        modality=profile["modality"],
-        n_results=3,
+        n_results=n_results
     )
 
     return exercises
+
+
