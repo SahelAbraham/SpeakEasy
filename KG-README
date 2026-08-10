@@ -1,15 +1,17 @@
 # SpeakEasy — Knowledge Graph Schema
 
-**Owner:** Tiana  
-**Layer:** Progress & Intelligence  
-**Sprint:** 1 (Weeks 1–2)  
+**Owner:** Tiana
+**Layer:** Progress & Intelligence
+**Sprint:** 3 (Weeks 5–6)
 **Database:** Neo4j Aura (free tier)
 
 ---
 
 ## Overview
 
-This file defines the Knowledge Graph (KG) layer for SpeakEasy. The KG is the backbone of all personalization — it stores every user's session history, phoneme-level scores, and weak areas. Sahel's RL agent reads from this graph to decide which exercises to prioritize each session, and Tiana's dashboard reads from it to surface progress over time.
+This file defines the Knowledge Graph (KG) layer for SpeakEasy. The KG is the backbone of all personalization — it stores every user's session history, question-by-question scores, and weak areas. Sahel's RL agent reads from this graph to decide which exercises to prioritize next, and Tiana's dashboard reads from it to surface progress over time.
+
+**Sprint 3 schema change:** scoring and weak-phoneme tracking moved from the whole session down to each individual question/exercise response. Previously a session had one `overall_score` and the user's weak phonemes were computed by averaging scores across a whole session. Now every question a user answers within a session — each one an `Attempt` node — gets its own score and its own weak-phoneme flags, so a teammate's code can compare how a user did question-to-question within a single session and pick the next exercise to better match their actual weak points, instead of only reacting after a whole session is over.
 
 ---
 
@@ -61,9 +63,10 @@ The `driver` object is created once and passed into every function — do not re
 |---|---|---|
 | `User` | `user_id`, `phone_number`, `age_group`, `native_language`, `created_at` | One node per user, keyed by WhatsApp number |
 | `Track` | `track_id`, `name` | Fixed therapy tracks — seeded once at setup |
-| `Session` | `session_id`, `overall_score`, `duration_seconds`, `speech_rate_wpm`, `filler_total`, `embedding`, `timestamp` | One node per practice session |
+| `Session` | `session_id`, `overall_score`, `duration_seconds`, `speech_rate_wpm`, `filler_total`, `embedding`, `timestamp` | One node per practice session — a container for its `Attempt`s. The score/rate/filler/embedding fields here are legacy, from before question-level tracking existed; new code should read those off `Attempt` instead (see below) |
+| `Attempt` | `attempt_id`, `user_id`, `session_id`, `exercise_id`, `subcategory`, `transcription`, `speech_rate_wpm`, `filler_words`, `filler_total`, `total_duration_s`, `score`, `scoring_method`, `scoring_details`, `weak_phonemes`, `embedding`, `timestamp` | **New in Sprint 3.** One node per question/exercise response within a session — this is where score, weak phonemes, and embeddings actually live now |
 | `Phoneme` | `symbol` | A speech sound e.g. `/r/`, `/th/`, `/s/` |
-| `Score` | `value`, `timestamp` | A float 0–1 score for one phoneme in one session |
+| `Score` | `value`, `timestamp` | **Legacy** — a float 0–1 score for one phoneme in one session, from before Sprint 3. Nothing in the current pipeline writes these anymore; kept for backward compatibility, not part of the primary flow |
 
 ### Full property schema
 
@@ -74,16 +77,16 @@ Every property, its type, and whether it's guaranteed to be set. Use this when w
 | Property | Type | Required | Notes |
 |---|---|---|---|
 | `user_id` | string | yes | Primary key. Format: `"whatsapp:+16085551234"` — always include the `whatsapp:` prefix so every layer matches on the same key |
-| `phone_number` | string | yes | Same number, without the `whatsapp:` prefix |
-| `age_group` | string | yes | e.g. `"adult"`, `"child"` |
+| `phone_number` | string | yes | Same number, without the `whatsapp:` prefix. (There's an open TODO in `knowledge_graph.py` — `#change phone to email, remove agegroup` — not yet applied. If you make that change, `onboarding_survey.py`'s `create_user(phone_number=..., age_group=...)` call and this doc both need updating in the same commit, or onboarding breaks immediately.) |
+| `age_group` | string | yes | e.g. `"adult"`, `"child"` — see the TODO note above |
 | `native_language` | string | yes | e.g. `"English"` |
 | `created_at` | integer | yes | Epoch millis, set automatically by `create_user()` — never pass this in yourself |
 
-**`Track`** (only 4 nodes ever exist, seeded once)
+**`Track`** (only as many nodes as `seed_tracks()` defines — currently 2, see below)
 
 | Property | Type | Required | Notes |
 |---|---|---|---|
-| `track_id` | string | yes | One of `"Cognition"`, `"Speech"`, `"Language"`, `"Confidence"` — must match `exercise_bank_speech_language.json`'s `"track"` field exactly |
+| `track_id` | string | yes | Must match `exercise_bank_speech_language.json`'s `"track"` field exactly |
 | `name` | string | yes | Human-readable description |
 
 **`Session`**
@@ -91,20 +94,41 @@ Every property, its type, and whether it's guaranteed to be set. Use this when w
 | Property | Type | Required | Notes |
 |---|---|---|---|
 | `session_id` | string | yes | Unique per session — caller generates this (e.g. `uuid4()`) |
-| `overall_score` | float | yes | 0.0–1.0 |
-| `duration_seconds` | integer | yes | |
-| `speech_rate_wpm` | float | **no** | `null` on sessions logged before this field existed, or if Whisper didn't return a rate |
-| `filler_total` | integer | **no** | `null` for the same reasons as above |
-| `embedding` | list\<float\> | **no** | wav2vec vector; `null` until Rabiah's embedding extraction is wired in. DTW/cosine comparison silently skips any session pair where either side is `null` here — check for `null` before assuming it's populated |
+| `overall_score` | float | **no** | Legacy pre-Sprint-3 field. Pass `None`/omit for new sessions — read `Attempt.score` per question instead, or average them yourself if you need a session-level number |
+| `duration_seconds` | integer | yes | Total session length |
+| `speech_rate_wpm` | float | **no** | Legacy — per-question rate now lives on `Attempt` |
+| `filler_total` | integer | **no** | Legacy — per-question filler count now lives on `Attempt` |
+| `embedding` | list\<float\> | **no** | Legacy — embeddings now live on `Attempt`, one per question response, not one per session |
 | `timestamp` | integer | yes | Epoch millis, set automatically by `log_session()` |
+
+**`Attempt`** (new in Sprint 3 — one per question/exercise response)
+
+| Property | Type | Required | Notes |
+|---|---|---|---|
+| `attempt_id` | string | yes | Unique per attempt. Auto-generated by `log_attempt()` if you don't pass one (`{session_id}_attempt_{random}`) |
+| `user_id` | string | yes | Duplicated from the parent session/user for query convenience — you can filter attempts by user without a graph traversal |
+| `session_id` | string | yes | Which session this question was answered in |
+| `exercise_id` | string | yes | Matches an `"id"` in `exercise_bank_speech_language.json`, e.g. `"LAN-EXP-SPK-001"` |
+| `subcategory` | string | yes | Matches that exercise's `"subcategory"`, e.g. `"Expressive - Spoken"` |
+| `transcription` | string | yes | Whisper's transcription of the response |
+| `speech_rate_wpm` | float | **no** | From Whisper analysis |
+| `filler_words` | string (JSON) | **no** | **Stored as a JSON string, not a native map** — Neo4j node properties can only be primitives or arrays of primitives, never nested objects. Originally a dict like `{"um": 2, "uh": 1}`; read it back with `json.loads(...)` |
+| `filler_total` | integer | **no** | From Whisper analysis |
+| `total_duration_s` | float | **no** | Length of this one response, in seconds |
+| `score` | float | yes | 0.0–1.0, from the track-specific scorer (`track_result["score"]`) |
+| `scoring_method` | string | yes | Which scorer produced `score`, e.g. `"cnn_phoneme_v1"` — tracks can use different scoring methods, so don't assume they're comparable across `subcategory` values |
+| `scoring_details` | string (JSON) | **no** | **Also JSON-serialized**, same reason as `filler_words`. Whatever extra detail the scorer returned (`track_result.get("details", {})`) |
+| `weak_phonemes` | list\<string\> | **no** | Phonemes flagged weak in this specific response, e.g. `["/r/", "/th/"]`. Stored as a plain list property (cheap direct read) **and** as `Attempt-[:WEAK_AT]->Phoneme` edges (graph traversal) — both represent the same data, use whichever is more convenient |
+| `embedding` | list\<float\> | **no** | wav2vec vector for this one response. This is where DTW/cosine comparison now reads embeddings from — `Session.embedding` is legacy and no longer populated by the current pipeline |
+| `timestamp` | integer | yes | Epoch millis, set automatically by `log_attempt()` |
 
 **`Phoneme`**
 
 | Property | Type | Required | Notes |
 |---|---|---|---|
-| `symbol` | string | yes | e.g. `"/r/"`, `"/th/"`, `"/s/"` — one node per distinct symbol, reused (`MERGE`d) across all users/sessions |
+| `symbol` | string | yes | e.g. `"/r/"`, `"/th/"`, `"/s/"` — one node per distinct symbol, reused (`MERGE`d) across all users/attempts |
 
-**`Score`**
+**`Score`** (legacy — see Node types table above)
 
 | Property | Type | Required | Notes |
 |---|---|---|---|
@@ -117,18 +141,24 @@ Every property, its type, and whether it's guaranteed to be set. Use this when w
 |---|---|---|
 | `ASSIGNED_TO` | `User → Track` | Which therapy track this user is on |
 | `HAS_SESSION` | `User → Session` | Links a user to all their sessions |
-| `CONTAINS_SCORE` | `Session → Score` | Links a session to each phoneme score |
-| `FOR_PHONEME` | `Score → Phoneme` | Which phoneme the score belongs to |
-| `WEAK_AT` | `User → Phoneme` | Phonemes averaging below threshold across all sessions |
+| `HAS_ATTEMPT` | `Session → Attempt` | **New in Sprint 3.** Links a session to each question answered within it |
+| `WEAK_AT` (from `Attempt`) | `Attempt → Phoneme` | **New in Sprint 3.** Phonemes flagged weak in this one question response |
+| `WEAK_AT` (from `User`) | `User → Phoneme` | Phonemes flagged weak in at least `min_occurrences` of the user's attempts overall — see `update_weak_phonemes()` below. Same relationship type as the `Attempt`-level edge, different starting node — check which node your query starts from |
+| `CONTAINS_SCORE` | `Session → Score` | Legacy — links a session to an old-style averaged phoneme score |
+| `FOR_PHONEME` | `Score → Phoneme` | Legacy — which phoneme a legacy `Score` belongs to |
 
 ### Visual overview
 
 ```
 (User)-[:ASSIGNED_TO]->(Track)
 (User)-[:HAS_SESSION]->(Session)
+(Session)-[:HAS_ATTEMPT]->(Attempt)
+(Attempt)-[:WEAK_AT]->(Phoneme)
+(User)-[:WEAK_AT]->(Phoneme)                  # rolled up from Attempt-level WEAK_AT edges
+
+# legacy, pre-Sprint-3, nothing currently writes these:
 (Session)-[:CONTAINS_SCORE]->(Score)
 (Score)-[:FOR_PHONEME]->(Phoneme)
-(User)-[:WEAK_AT]->(Phoneme)
 ```
 
 ---
@@ -137,23 +167,19 @@ Every property, its type, and whether it's guaranteed to be set. Use this when w
 
 ### `seed_tracks(tx)`
 
-Populates the four fixed `Track` nodes. Call this **once** at database setup — not per user.
+Populates the fixed `Track` nodes. Call this **once** at database setup — not per user.
 
 ```python
 with driver.session(database=os.getenv("NEO4J_DATABASE")) as session:
     session.execute_write(seed_tracks)
 ```
 
-Available tracks — these `track_id` values match the `"track"` field in
-`exercise_bank_speech_language.json` exactly, so KG queries and exercise
-bank queries never need a name-translation layer:
+Available tracks — these `track_id` values match the `"track"` field in `exercise_bank_speech_language.json` exactly, so KG queries and exercise bank queries never need a name-translation layer:
 
 | `track_id` | `name` |
 |---|---|
-| `Cognition` | Cognitive-communication exercises |
-| `Speech` | Motor speech, fluency, voice, and social pragmatic exercises |
+| `Speech` | Motor speech, fluency and voice |
 | `Language` | Expressive and receptive language exercises |
-| `Confidence` | Confidence and fluency building |
 
 ---
 
@@ -183,30 +209,79 @@ assign_tracks(driver, "whatsapp:+16085551234", "Speech")
 
 ### `log_session(driver, user_id, session_id, overall_score, duration_seconds, speech_rate_wpm=None, filler_total=None, embedding=None)`
 
-Creates a new `Session` node and links it to the user. Call this at the start of writing session data. `overall_score` is a float 0–1. `speech_rate_wpm`/`filler_total` come from Rabiah's Whisper analysis; `embedding` is the wav2vec vector used by DTW/cosine progress comparison — all three are optional since earlier sessions may predate that data.
+Creates a new `Session` node and links it to the user — call this once at the start of a session, before logging any attempts. `overall_score`/`speech_rate_wpm`/`filler_total`/`embedding` are legacy pre-Sprint-3 fields; pass `None` for these on new sessions and let `log_attempt()` carry the real per-question data instead.
 
 ```python
-log_session(driver, "whatsapp:+16085551234", "session_001", 0.65, 300,
-            speech_rate_wpm=110, filler_total=3, embedding=[0.12, 0.05, -0.33, ...])
+log_session(driver, "whatsapp:+16085551234", "session_001", None, 300)
 ```
 
-**Called by:** pipeline after Rabiah's speech analysis returns an overall score (Sprint 2).
+**Called by:** pipeline at the start of a session, before the first question is asked.
 
 ---
 
-### `get_recent_sessions(driver, user_id, limit=2)`
+### `log_attempt(driver, user_id, session_id, exercise_id, subcategory, transcription, speech_rate_wpm, filler_words, filler_total, total_duration_s, score, scoring_method, scoring_details, weak_phonemes, embedding, attempt_id=None)`
 
-Returns a user's most recent sessions (most recent first) with `session_id`, `overall_score`, `timestamp`, `embedding`.
+**New in Sprint 3 — this is the core write function now.** Records one question/exercise response within a session: its own score, its own weak phonemes, its own embedding. The `Session` identified by `session_id` must already exist. Returns the `attempt_id` (auto-generated if you don't pass one).
 
-**Used by:** `dtw_comparison.py`'s `get_progress_between_sessions()` to compare the two most recent sessions.
+```python
+log_attempt(
+    driver,
+    user_id="whatsapp:+16085551234",
+    session_id="session_001",
+    exercise_id="LAN-EXP-SPK-001",
+    subcategory="Expressive - Spoken",
+    transcription=analysis["transcription"],
+    speech_rate_wpm=analysis["speech_rate_wpm"],
+    filler_words=analysis["filler_words"],
+    filler_total=analysis["filler_total"],
+    total_duration_s=analysis["total_duration_s"],
+    score=track_result["score"],
+    scoring_method=track_result["scoring_method"],
+    scoring_details=track_result.get("details", {}),
+    weak_phonemes=weak_phonemes,
+    embedding=analysis["embedding"],
+)
+```
+
+**Called by:** pipeline after each individual question response is transcribed and scored — once per question, not once per session.
+
+---
+
+### `get_attempts_for_session(driver, session_id)`
+
+Returns every attempt within one session, oldest first — `attempt_id`, `exercise_id`, `subcategory`, `score`, `scoring_method`, `weak_phonemes`, `speech_rate_wpm`, `filler_total`, `timestamp`.
+
+**Used by:** whoever needs to compare how a user did question-to-question inside a single session (this is the ticket that drove the Sprint 3 schema change).
+
+---
+
+### `get_attempts_for_user(driver, user_id, limit=None)`
+
+Returns every attempt across all of a user's sessions, oldest first. Pass `limit` for just the most recent N.
+
+**Used by:** `dashboard.py`'s attempt-level trend charts and phoneme heatmap.
+
+---
+
+### `get_recent_attempts(driver, user_id, limit=2)`
+
+Returns a user's most recent attempts, most recent first — `attempt_id`, `exercise_id`, `score`, `timestamp`, `embedding`.
+
+**Used by:** `dtw_comparison.py`'s `get_progress_between_attempts()`, which compares the two most recent attempts' embeddings.
+
+---
+
+### `get_recent_sessions(driver, user_id, limit=2)` — legacy
+
+Returns a user's most recent sessions with `session_id`, `overall_score`, `timestamp`, `embedding`. Nothing populates `Session.embedding` under the current pipeline, so this will return `null` embeddings for any session logged after Sprint 3 — use `get_recent_attempts()` instead.
 
 ---
 
 ### `get_all_sessions(driver, user_id)`
 
-Returns every session for a user, oldest first, with `session_id`, `overall_score`, `duration_seconds`, `speech_rate_wpm`, `filler_total`, `timestamp`.
+Returns every session for a user, oldest first, with `session_id`, `overall_score`, `duration_seconds`, `speech_rate_wpm`, `filler_total`, `timestamp`. Since those score/rate/filler fields are legacy and no longer populated, this is really only useful now for session *timestamps* (consistency/cadence tracking) — see `get_attempts_for_user()` for actual score/fluency data.
 
-**Used by:** `dashboard.py` to plot accuracy/fluency/consistency trends over time.
+**Used by:** `dashboard.py`'s session-consistency chart.
 
 ---
 
@@ -218,35 +293,31 @@ Returns every `user_id` that has at least one logged session.
 
 ---
 
-### `get_phoneme_scores_by_session(driver, user_id)`
+### `get_phoneme_scores_by_session(driver, user_id)` — legacy
 
-Returns every phoneme score for a user, one row per (session, phoneme), oldest first: `session_id`, `timestamp`, `phoneme_symbol`, `score_value`.
-
-**Used by:** `dashboard.py`'s phoneme-level heatmap.
+Returns rows from the legacy `Session-[:CONTAINS_SCORE]->Score-[:FOR_PHONEME]->Phoneme` chain. Nothing writes to that chain anymore (see `log_phoneme_score` below) — this will return an empty list for any session logged after Sprint 3.
 
 ---
 
-### `log_phoneme_score(driver, session_id, phoneme_symbol, score_value)`
+### `log_phoneme_score(driver, session_id, phoneme_symbol, score_value)` — legacy
 
-Creates a `Score` node for one phoneme and links it to the session and the phoneme. Call once per phoneme per session. `score_value` must be a float 0–1.
+Creates a legacy `Score` node for one phoneme, attached directly to a session (not an attempt). Kept for backward compatibility; nothing in the current pipeline calls this.
 
 ```python
 log_phoneme_score(driver, "session_001", "/r/", 0.45)
-log_phoneme_score(driver, "session_001", "/th/", 0.72)
-log_phoneme_score(driver, "session_001", "/s/", 0.38)
 ```
-
-**Called by:** pipeline after Rabiah's CNN returns phoneme-level scores (Sprint 2).
 
 ---
 
-### `update_weak_phonemes(driver, user_id, threshold=0.6)`
+### `update_weak_phonemes(driver, user_id, min_occurrences=2)`
 
-Averages each phoneme's scores across all of a user's sessions. Any phoneme averaging below `threshold` gets a `WEAK_AT` edge from the user. Run this at the end of every session after `log_phoneme_score` has written all scores.
+**Breaking change from the pre-Sprint-3 signature** (`threshold=0.6`, a float, comparing against an averaged score). Phoneme scoring moved to per-attempt weak/not-weak flags, so there's no float score left to average anymore.
+
+A phoneme becomes a user-level `WEAK_AT` edge once it's shown up in the `weak_phonemes` list of at least `min_occurrences` separate attempts, rolled up from `Attempt-[:WEAK_AT]->Phoneme` edges.
 
 ```python
-update_weak_phonemes(driver, "whatsapp:+16085551234")          # default threshold 0.6
-update_weak_phonemes(driver, "whatsapp:+16085551234", threshold=0.5)  # custom threshold
+update_weak_phonemes(driver, "whatsapp:+16085551234")                      # default min_occurrences=2
+update_weak_phonemes(driver, "whatsapp:+16085551234", min_occurrences=3)   # require 3+ flagged attempts
 ```
 
 **Read by:** Sahel's RL agent reads `WEAK_AT` edges as context for exercise prioritization.
@@ -263,12 +334,22 @@ create_user(driver, ...)
 assign_tracks(driver, ...)
 ```
 
-### End of every session
+### Start of every session
 
 ```python
-log_session(driver, ...)
-log_phoneme_score(driver, ...)   # repeat for each phoneme scored
-update_weak_phonemes(driver, ...)
+log_session(driver, user_id, session_id, None, duration_seconds)
+```
+
+### After every individual question/exercise response
+
+```python
+log_attempt(driver, user_id, session_id, exercise_id, subcategory, ...)   # once per question
+```
+
+### End of every session (after all questions in it are logged)
+
+```python
+update_weak_phonemes(driver, user_id)
 ```
 
 ---
@@ -283,25 +364,33 @@ MATCH (u:User {user_id: $user_id})-[:ASSIGNED_TO]->(t:Track)
 RETURN t.track_id, t.name
 ```
 
-**Get a user's most recent N sessions**
+**Get every attempt within one session, in order**
 ```cypher
-MATCH (u:User {user_id: $user_id})-[:HAS_SESSION]->(s:Session)
-RETURN s.session_id, s.overall_score, s.speech_rate_wpm, s.filler_total, s.timestamp
-ORDER BY s.timestamp DESC
+MATCH (s:Session {session_id: $session_id})-[:HAS_ATTEMPT]->(a:Attempt)
+RETURN a.exercise_id, a.subcategory, a.score, a.weak_phonemes, a.timestamp
+ORDER BY a.timestamp ASC
+```
+
+**Get a user's most recent N attempts across all sessions**
+```cypher
+MATCH (u:User {user_id: $user_id})-[:HAS_SESSION]->(:Session)-[:HAS_ATTEMPT]->(a:Attempt)
+RETURN a.attempt_id, a.exercise_id, a.score, a.timestamp
+ORDER BY a.timestamp DESC
 LIMIT $n
 ```
 
-**Get every phoneme score for one session**
+**Get a user's average score per subcategory** (which skill areas need more work, at a glance)
 ```cypher
-MATCH (s:Session {session_id: $session_id})-[:CONTAINS_SCORE]->(sc:Score)-[:FOR_PHONEME]->(p:Phoneme)
-RETURN p.symbol, sc.value
+MATCH (u:User {user_id: $user_id})-[:HAS_SESSION]->(:Session)-[:HAS_ATTEMPT]->(a:Attempt)
+RETURN a.subcategory, avg(a.score) AS avg_score, count(a) AS attempts
+ORDER BY avg_score ASC
 ```
 
-**Get a user's average score per phoneme, across all sessions**
+**Get how many times each phoneme was flagged weak, across all a user's attempts**
 ```cypher
-MATCH (u:User {user_id: $user_id})-[:HAS_SESSION]->(:Session)-[:CONTAINS_SCORE]->(sc:Score)-[:FOR_PHONEME]->(p:Phoneme)
-RETURN p.symbol, avg(sc.value) AS avg_score
-ORDER BY avg_score ASC
+MATCH (u:User {user_id: $user_id})-[:HAS_SESSION]->(:Session)-[:HAS_ATTEMPT]->(a:Attempt)-[:WEAK_AT]->(p:Phoneme)
+RETURN p.symbol, count(a) AS times_flagged
+ORDER BY times_flagged DESC
 ```
 
 **Get a user's current weak phonemes** (same as `WEAK_AT` edges, computed live instead of relying on `update_weak_phonemes()` having been run recently)
@@ -310,17 +399,19 @@ MATCH (u:User {user_id: $user_id})-[:WEAK_AT]->(p:Phoneme)
 RETURN p.symbol
 ```
 
-**Get a user's total session count and first/last session timestamp** (useful for streaks / consistency checks)
+**Get a user's total session and attempt counts, and first/last session timestamp** (useful for streaks / consistency checks)
 ```cypher
 MATCH (u:User {user_id: $user_id})-[:HAS_SESSION]->(s:Session)
-RETURN count(s) AS session_count, min(s.timestamp) AS first_session, max(s.timestamp) AS last_session
+OPTIONAL MATCH (s)-[:HAS_ATTEMPT]->(a:Attempt)
+RETURN count(DISTINCT s) AS session_count, count(a) AS attempt_count,
+       min(s.timestamp) AS first_session, max(s.timestamp) AS last_session
 ```
 
-**Get every session that's missing an embedding** (find sessions DTW comparison will skip)
+**Get every attempt that's missing an embedding** (find attempts DTW comparison will skip)
 ```cypher
-MATCH (u:User {user_id: $user_id})-[:HAS_SESSION]->(s:Session)
-WHERE s.embedding IS NULL
-RETURN s.session_id, s.timestamp
+MATCH (u:User {user_id: $user_id})-[:HAS_SESSION]->(:Session)-[:HAS_ATTEMPT]->(a:Attempt)
+WHERE a.embedding IS NULL
+RETURN a.attempt_id, a.timestamp
 ```
 
 **Check whether a user exists before writing to avoid orphaned data** (write)
@@ -333,16 +424,16 @@ RETURN u IS NOT NULL AS exists
 ```cypher
 MATCH (u:User {user_id: $user_id})
 OPTIONAL MATCH (u)-[:HAS_SESSION]->(s:Session)
-OPTIONAL MATCH (s)-[:CONTAINS_SCORE]->(sc:Score)
-DETACH DELETE u, s, sc
+OPTIONAL MATCH (s)-[:HAS_ATTEMPT]->(a:Attempt)
+DETACH DELETE u, s, a
 ```
 
 ---
 
 ## Notes for teammates
 
-**Rabiah (Speech Analysis):** Your CNN pipeline needs to return a dict of `{ phoneme_symbol: score_value }` floats after each session. Make sure scores are numeric (not strings) — Neo4j's `AVG()` will throw a type error on strings. The pipeline should call `log_session` then `log_phoneme_score` for each entry in that dict.
+**Rabiah (Speech Analysis):** Your pipeline should call `log_attempt(...)` once per question response, not `log_session` + `log_phoneme_score` per session like before. `filler_words` and `scoring_details` get JSON-serialized automatically inside `log_attempt` — just pass them as plain dicts, you don't need to `json.dumps()` them yourself. `weak_phonemes` should be a plain list of phoneme symbols, e.g. `["/r/", "/th/"]`.
 
-**Sahel (RL Agent + Profile Builder):** Your profile builder should call `assign_tracks(driver, user_id, track_id)` after determining the user's track from survey responses. Your RL agent can query `WEAK_AT` edges to get the current weak phonemes for a user as context — see "Get a user's current weak phonemes" in the Cypher cookbook above.
+**Sahel (RL Agent + Profile Builder):** Your profile builder should call `assign_tracks(driver, user_id, track_id)` after determining the user's track from survey responses. Your RL agent can compare scores across the questions inside a session with `get_attempts_for_session()`, or across all of a user's history with `get_attempts_for_user()` — that's the whole point of the Sprint 3 change, so the agent can react to weak points question-by-question instead of only after a full session ends. For the user's overall weak-phoneme profile, `WEAK_AT` edges off `User` still work the same way — see "Get a user's current weak phonemes" in the Cypher cookbook above.
 
-**Anvesha (Conversational Layer):** The `user_id` used throughout the KG should be the WhatsApp number in the format `"whatsapp:+16085551234"` — make sure the Twilio webhook passes this consistently so all layers reference the same user.
+**Anvesha (Conversational Layer):** The `user_id` used throughout the KG should be the WhatsApp number in the format `"whatsapp:+16085551234"` — make sure the Twilio webhook passes this consistently so all layers reference the same user. Also: `retrieve_exercises()` in `rag/retrieve.py` still accepts a `modality` parameter for backward compatibility with `rag_pipeline.py`, but it's a no-op now — `exercise_bank_speech_language.json` no longer has spoken/written variants, so there's nothing left to filter by. Worth cleaning up `profile_builder.py`/`rag_pipeline.py`'s modality handling when you get a chance.

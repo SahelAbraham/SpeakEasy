@@ -36,30 +36,36 @@ def compare_sessions(embedding_a, embedding_b):
     }
 
 
-def get_progress_between_sessions(driver, user_id):
+def get_progress_between_attempts(driver, user_id):
     """
-    Pulls the user's two most recent sessions from the Knowledge Graph and
-    compares their embeddings. Returns None if fewer than two sessions exist,
-    or if either session predates embedding capture (no embedding stored).
+    Pulls the user's two most recent attempts (question responses) from the
+    Knowledge Graph and compares their embeddings. Returns None if fewer than
+    two attempts exist, or if either attempt predates embedding capture.
+
+    Renamed from get_progress_between_sessions: embeddings now live on
+    Attempt nodes, one per question response, not on Session - each session
+    can contain several attempts with their own embeddings, so "the last two
+    sessions" no longer identifies a single embedding pair the way "the last
+    two attempts" does.
 
     Import of knowledge_graph is deferred to here (rather than module level)
     since it opens a live Neo4j connection on import — keeps compare_sessions()
     and the mock-embedding test below runnable with no DB connectivity.
     """
-    from knowledge_graph import get_recent_sessions
-    sessions = get_recent_sessions(driver, user_id, limit=2)
+    from knowledge_graph import get_recent_attempts
+    attempts = get_recent_attempts(driver, user_id, limit=2)
 
-    if len(sessions) < 2:
+    if len(attempts) < 2:
         return None
 
-    newer, older = sessions[0], sessions[1]
+    newer, older = attempts[0], attempts[1]
 
     if not older.get("embedding") or not newer.get("embedding"):
         return None
 
     comparison = compare_sessions(older["embedding"], newer["embedding"])
-    comparison["older_session_id"] = older["session_id"]
-    comparison["newer_session_id"] = newer["session_id"]
+    comparison["older_attempt_id"] = older["attempt_id"]
+    comparison["newer_attempt_id"] = newer["attempt_id"]
     return comparison
 
 
