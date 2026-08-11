@@ -6,6 +6,7 @@ import uuid
 
 from conversation import ConversationSession
 from knowledge_graph import create_user, switch_track, create_session
+from exercise_bank import get_random_exercise
 
 app = FastAPI()
 
@@ -106,6 +107,17 @@ def start_session(data: SessionStartData):
         "session_id": session_info["session_id"],
         "label": session_info["label"],
         "session_number": session_info["session_number"],
+    }
+
+@app.get("/exercise/first")
+def get_first_exercise(track: Literal['Speech', 'Language']):
+    try:
+        exercise = get_random_exercise(track)
+    except ValueError as e:
+        return {"status": "error", "message": str(e)}
+    return {
+        "status": "success",
+        "exercise": exercise
     }
         
 # class StartSessionRequest(BaseModel):
