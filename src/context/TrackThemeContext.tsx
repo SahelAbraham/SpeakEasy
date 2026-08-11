@@ -210,7 +210,7 @@ export function TrackThemeProvider({
       setSelectedTrack,
       theme,
     }),
-    [selectedTrack, theme],
+    [selectedTrack, theme, user],
   );
 
   return (
