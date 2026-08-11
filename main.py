@@ -1,12 +1,18 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Literal
 import uuid
+import os
+import shutil
 
 from conversation import ConversationSession
 from knowledge_graph import create_user, switch_track, create_session
-from exercise_bank import get_random_exercise
+from exercise_bank import get_random_exercise, get_exercise_by_id
+from speech_analysis_final import process_exercise_attempt
+
+AUDIO_UPLOAD_DIR = "uploaded_audio"
+os.makedirs(AUDIO_UPLOAD_DIR, exist_ok=True)
 
 app = FastAPI()
 
@@ -118,6 +124,48 @@ def get_first_exercise(track: Literal['Speech', 'Language']):
     return {
         "status": "success",
         "exercise": exercise
+    }
+
+@app.post("/exercise/submit")
+async def submit_exercise(
+    user_id: str = Form(...),
+    session_id: str = Form(...),
+    exercise_id: str = Form(...),
+    audio: UploadFile = File(...),
+):
+    # Save the uploaded audio to disk
+    file_extension = os.path.splitext(audio.filename)[1] or ".m4a"
+    saved_filename = f"{user_id}_{exercise_id}_{uuid.uuid4()}{file_extension}"
+    saved_path = os.path.join(AUDIO_UPLOAD_DIR, saved_filename)
+
+    with open(saved_path, "wb") as buffer:
+        shutil.copyfileobj(audio.file, buffer)
+
+    # Look up the exercise's scoring metadata from the exercise bank
+    try:
+        exercise = get_exercise_by_id(exercise_id)
+    except ValueError as e:
+        return {"status": "error", "message": str(e)}
+
+    # Run the full analysis + scoring pipeline
+    result = process_exercise_attempt(
+        audio_path=saved_path,
+        exercise_id=exercise_id,
+        subcategory=exercise["subcategory"],
+        user_id=user_id,
+        session_id=session_id,
+        scoring_type=exercise.get("scoring_type"),
+        expected_answer=exercise.get("expected_answer"),
+        exercise_instructions=exercise.get("instructions"),
+        exercise_title=exercise.get("title"),
+    )
+
+    print(f"[SpeakEasy] Exercise '{exercise['title']}' scored: {result['score']}")
+
+    return {
+        "status": "success",
+        "message": "Audio received and scored",
+        "score": result["score"],
     }
         
 # class StartSessionRequest(BaseModel):
