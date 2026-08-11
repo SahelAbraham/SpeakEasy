@@ -5,7 +5,7 @@ from typing import Literal
 import uuid
 
 from conversation import ConversationSession
-from knowledge_graph import create_user
+from knowledge_graph import create_user, switch_track
 
 app = FastAPI()
 
@@ -34,6 +34,10 @@ class SurveyData(BaseModel):
     age: int
     occupation: str
     therapyHistory: Literal['current', 'past', 'none']
+    track: Literal['Speech', 'Language']
+
+class TrackSwitchData(BaseModel):
+    user_id: str
     track: Literal['Speech', 'Language']
 
 @app.get("/api/data")
@@ -74,6 +78,19 @@ def build_profile(survey: SurveyData):
         "name": survey.name,
         "track": survey.track,
     }
+    
+@app.post("/track/switch")
+def switch_user_track(data: TrackSwitchData):
+    try:
+        switch_track(user_id=data.user_id, new_track=data.track)
+    except RuntimeError as e:
+        return {"status": "error", "message": str(e)}
+    return {
+        "status": "success",
+        "user_id": data.user_id,
+        "new_track": data.track,
+    }
+    
 # class StartSessionRequest(BaseModel):
 #     user_id: str
 #     name: str
