@@ -2,9 +2,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Literal
+import uuid
 
-from profile_builder import build_profile
 from conversation import ConversationSession
+from knowledge_graph import create_user
 
 app = FastAPI()
 
@@ -25,28 +26,54 @@ class MessageData(BaseModel):
     text: str
 
 class SurveyData(BaseModel):
+    username: str
+    email: str
+    password: str
+    
     name: str
     age: int
     occupation: str
     therapyHistory: Literal['current', 'past', 'none']
-    goals: str
-    baselineAudioUri: str
+    track: Literal['Speech', 'Language']
 
 @app.get("/api/data")
 def read_data():
     return {"status": "success", "message": "Data retrieved successfully."}
 
 @app.post("/survey")
-def receive_survey(survey: SurveyData):
+def build_profile(survey: SurveyData):
+    
+    # Generate an ID for the user for the knowledge graph
+    user_id = str(uuid.uuid4())
+    
     print("Received survey submission:")
-    print(f"  Name: {survey.name}")
-    print(f"  Age: {survey.age}")
-    print(f"  Occupation: {survey.occupation}")
-    print(f"  Therapy history: {survey.therapyHistory}")
-    print(f"  Goals: {survey.goals}")
-    print(f"  Audio URI: {survey.baselineAudioUri}")
+    print(f"User ID: {user_id}")
+    print(f"Name: {survey.name}")
+    print(f"Age: {survey.age}")
+    print(f"Occupation: {survey.occupation}")
+    print(f"Therapy History: {survey.therapyHistory}")
+    print(f"Track: {survey.track}")
+    
+    # Create the user in the knowledge graph
 
-    return {"status": "received", "name": survey.name}
+    create_user(
+        user_id=user_id,
+        username=survey.username,
+        email=survey.email,
+        password=survey.password,
+        name=survey.name,
+        age=survey.age,
+        occupation=survey.occupation,
+        therapy_history=survey.therapyHistory,
+        track=survey.track
+    )
+
+    return {
+        "status": "success",
+        "user_id": user_id,
+        "name": survey.name,
+        "track": survey.track,
+    }
 # class StartSessionRequest(BaseModel):
 #     user_id: str
 #     name: str

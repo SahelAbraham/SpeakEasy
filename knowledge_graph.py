@@ -6,39 +6,208 @@ import uuid
 
 load_dotenv()
 
+NEO4J_URI = os.getenv("NEO4J_URI")
+NEO4J_USER = os.getenv("NEO4J_USER")
+NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD")
+NEO4J_DATABASE = os.getenv("NEO4J_DATABASE", "neo4j")
+
 driver = GraphDatabase.driver(
-    os.getenv("NEO4J_URI"),
-    auth=(os.getenv("NEO4J_USER"), os.getenv("NEO4J_PASSWORD"))
+    NEO4J_URI,
+    auth=(NEO4J_USER, NEO4J_PASSWORD),
 )
 
 driver.verify_connectivity()
 
 def user_exists(driver, user_id):
-    with driver.session(database=os.getenv("NEO4J_DATABASE")) as session:
+    with driver.session(
+        database=NEO4J_DATABASE
+    ) as session:
+
         result = session.run(
-            "MATCH (u:User {user_id: $user_id}) RETURN u LIMIT 1",
-            user_id=user_id
-        )
-        return result.single() is not None
-
-#change phone to email, remove agegroup
-
-def create_user(driver, user_id, phone_number, age_group, native_language):
-    with driver.session(database=os.getenv("NEO4J_DATABASE")) as session:
-        session.execute_write(
-            lambda tx: tx.run("""
-                MERGE (u:User {user_id: $user_id})
-                SET u.phone_number = $phone_number, 
-                    u.age_group = $age_group,
-                    u.native_language = $native_language,
-                    u.created_at = timestamp()
+            """
+            MATCH (u:User {user_id: $user_id})
+            RETURN u
+            LIMIT 1
             """,
             user_id=user_id,
-            phone_number=phone_number,
-            age_group=age_group,
-            native_language=native_language
-            )
         )
+
+        return result.single() is not None
+
+
+def create_user(user_id:str, username:str, email:str, password:str,name:str, age:int, occupation:str, therapy_history:str, track:str):
+    with driver.session(database=NEO4J_DATABASE) as session:
+        session.execute_write(
+            _create_user_transaction,
+            user_id,
+            username,
+            email,
+            password,
+            name,
+            age,
+            occupation,
+            therapy_history,
+            track
+        )
+
+def _create_user_transaction(
+    tx,
+    user_id: str,
+    username: str,
+    email: str,
+    password: str,
+    name: str,
+    age: int,
+    occupation: str,
+    therapy_history: str,
+    track: str,
+):
+    result = tx.run(
+        """
+        // ---------------------------------------------------------
+        // Create/update the User
+        // ---------------------------------------------------------
+
+        MERGE (u:User {user_id: $user_id})
+
+        SET u.username = $username,
+            u.email = $email,
+            u.password = $password,
+            u.name = $name,
+            u.age = $age,
+            u.occupation = $occupation,
+            u.therapy_history = $therapy_history,
+            u.track = $track,
+            u.created_at = timestamp()
+
+
+        // ---------------------------------------------------------
+        // Create both Tracks, link enrolled vs not-enrolled
+        // ---------------------------------------------------------
+
+        MERGE (speech:Track {name: 'Speech'})
+        MERGE (language:Track {name: 'Language'})
+
+        WITH u, speech, language,
+             CASE WHEN $track = 'Speech' THEN speech ELSE language END AS enrolledTrack,
+             CASE WHEN $track = 'Speech' THEN language ELSE speech END AS otherTrack
+
+        MERGE (u)-[:ENROLLED_IN]->(enrolledTrack)
+        MERGE (u)-[:NOT_ENROLLED_IN]->(otherTrack)
+
+
+        // ---------------------------------------------------------
+        // Expressive Language
+        // ---------------------------------------------------------
+
+        MERGE (expressive:Subtrack {
+            user_id: $user_id,
+            track_id: 'Language_Expressive'
+        })
+
+        ON CREATE SET
+            expressive.name = 'Expressive Language',
+            expressive.score = 0.5
+
+        MERGE (u)-[:HAS_SUBTRACK]->(expressive)
+
+
+        // ---------------------------------------------------------
+        // Receptive Language
+        // ---------------------------------------------------------
+
+        MERGE (receptive:Subtrack {
+            user_id: $user_id,
+            track_id: 'Language_Receptive'
+        })
+
+        ON CREATE SET
+            receptive.name = 'Receptive Language',
+            receptive.score = 0.5
+
+        MERGE (u)-[:HAS_SUBTRACK]->(receptive)
+
+
+        // ---------------------------------------------------------
+        // Motor Speech
+        // ---------------------------------------------------------
+
+        MERGE (motor:Subtrack {
+            user_id: $user_id,
+            track_id: 'Speech_Motor'
+        })
+
+        ON CREATE SET
+            motor.name = 'Motor Speech (Disarthria)',
+            motor.score = 0.5
+
+        MERGE (u)-[:HAS_SUBTRACK]->(motor)
+
+
+        // ---------------------------------------------------------
+        // Fluency
+        // ---------------------------------------------------------
+
+        MERGE (fluency:Subtrack {
+            user_id: $user_id,
+            track_id: 'Speech_Fluency'
+        })
+
+        ON CREATE SET
+            fluency.name = 'Fluency',
+            fluency.score = 0.5
+
+        MERGE (u)-[:HAS_SUBTRACK]->(fluency)
+
+
+        // ---------------------------------------------------------
+        // Voice Disorders
+        // ---------------------------------------------------------
+
+        MERGE (voice:Subtrack {
+            user_id: $user_id,
+            track_id: 'Speech_Disorders'
+        })
+
+        ON CREATE SET
+            voice.name = 'Voice Disorders',
+            voice.score = 0.5
+
+        MERGE (u)-[:HAS_SUBTRACK]->(voice)
+
+
+        // ---------------------------------------------------------
+        // Return useful information for verification
+        // ---------------------------------------------------------
+
+        RETURN
+            u.user_id AS user_id,
+            count(expressive) AS expressive_created,
+            count(receptive) AS receptive_created,
+            count(motor) AS motor_created,
+            count(fluency) AS fluency_created,
+            count(voice) AS voice_created
+        """,
+        user_id=user_id,
+        username=username,
+        email=email,
+        password=password,
+        name=name,
+        age=age,
+        occupation=occupation,
+        therapy_history=therapy_history,
+        track=track,
+    )
+
+    record = result.single()
+
+    if record is None:
+        raise RuntimeError("Failed to create user and subtracks in Neo4j.")
+
+    return record["user_id"]
+
+def close_driver():
+    driver.close()
 
 def seed_tracks(tx):
     # track_id matches the "track" field in exercise_bank_v3.json /
