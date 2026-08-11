@@ -622,6 +622,7 @@ def process_exercise_attempt(audio_path, exercise_id, subcategory, user_id, sess
         "filler_words": analysis["filler_words"],
         "filler_total": analysis["filler_total"],
         "total_duration_s": analysis["total_duration_s"],
+        "pronunciation_score": analysis["pronunciation_score"],  # ← added
         "score": track_result["score"],
         "scoring_method": track_result["scoring_method"],
         "scoring_details": track_result.get("details", {}),

@@ -6,12 +6,12 @@ import uuid
 import os
 import shutil
 
-#from conversation import ConversationSession not using this, but idk if this will be used in the future
 from knowledge_graph import create_user, switch_track, create_session, get_enrolled_track
 from exercise_bank import get_exercise_by_id
 from speech_analysis_final import process_exercise_attempt
 from rag.rag_pipeline import rag_search
 from subtrack_selector import choose_initial_subcategory, choose_next_subcategory
+from feedback import generate_feedback, format_feedback_message
 
 AUDIO_UPLOAD_DIR = "uploaded_audio"
 os.makedirs(AUDIO_UPLOAD_DIR, exist_ok=True)
@@ -26,10 +26,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Temporary in-memory session state — tracks which exercise IDs
-# have already been served this session, to avoid repeats.
+# Temporary in-memory session state — tracks seen exercise IDs and
+# recent attempts (for feedback personalization) per session.
 # Move into the knowledge graph later.
-session_state = {}  # session_id -> {"seen_ids": set()}
+session_state = {}  # session_id -> {"seen_ids": set(), "recent_attempts": []}
 
 class MessageData(BaseModel):
     text: str
@@ -158,9 +158,30 @@ async def submit_exercise(
 
         print(f"[SpeakEasy] Exercise '{exercise['title']}' scored: {result['score']}")
 
-        state = session_state.setdefault(session_id, {"seen_ids": set()})
+        state = session_state.setdefault(session_id, {"seen_ids": set(), "recent_attempts": []})
         state["seen_ids"].add(exercise_id)
 
+        # ── generate user-facing feedback ───────────────────────────
+        previous_performance = (
+            {"recent_attempts": state["recent_attempts"][-5:]}
+            if state["recent_attempts"] else {}
+        )
+
+        feedback_result = generate_feedback(
+            analysis_result=result,
+            exercise=exercise,
+            user_profile={"track": exercise["track"], "subcategory": exercise["subcategory"]},
+            previous_performance=previous_performance,
+        )
+        feedback_message = format_feedback_message(feedback_result)
+
+        state["recent_attempts"].append({
+            "exercise_id": exercise_id,
+            "score": result["score"],
+            "weak_phonemes": result.get("weak_phonemes", []),
+        })
+
+        # ── pick next exercise via RAG ──────────────────────────────
         try:
             next_subcategory = choose_next_subcategory(
                 user_id=user_id,
@@ -184,6 +205,8 @@ async def submit_exercise(
             "status": "success",
             "message": "Audio received and scored",
             "score": result["score"],
+            "feedback": feedback_message,
+            "feedback_details": feedback_result,
             "next_exercise": next_exercise,
         }
 
