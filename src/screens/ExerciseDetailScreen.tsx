@@ -12,7 +12,7 @@ import {
 import { MicButton } from '../components/MicButton';
 import { RecordingPlayback } from '../components/RecordingPlayback';
 import { useTrackTheme } from '../context/TrackThemeContext';
-import { useExercise } from '../context/ExerciseContext';
+import { useExercise, Exercise } from '../context/ExerciseContext';
 import { useAuth } from '../context/AuthContext';
 import { useSession } from '../context/SessionContext';
 import api from '../services/auth/api';
@@ -22,13 +22,15 @@ type Props = NativeStackScreenProps<HomeStackParamList, 'ExerciseDetail'>;
 
 export function ExerciseDetailScreen({ navigation }: Props) {
   const { theme } = useTrackTheme();
-  const { currentExercise, isLoadingExercise } = useExercise();
+  const { currentExercise, isLoadingExercise, setCurrentExercise } = useExercise();
   const { user } = useAuth();
   const { sessionId } = useSession();
 
   const [recordingUri, setRecordingUri] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submittedScore, setSubmittedScore] = useState<number | null>(null);
+  const [pendingNextExercise, setPendingNextExercise] = useState<Exercise | null>(null);
+  const [sessionComplete, setSessionComplete] = useState(false);
 
   useEffect(() => {
     if (currentExercise) {
@@ -38,7 +40,8 @@ export function ExerciseDetailScreen({ navigation }: Props) {
 
   const handleRecordingComplete = useCallback((uri: string) => {
     setRecordingUri(uri);
-    setSubmittedScore(null); // clear any previous result on a new recording
+    setSubmittedScore(null);
+    setPendingNextExercise(null);
   }, []);
 
   const submitRecording = useCallback(async () => {
@@ -77,6 +80,12 @@ export function ExerciseDetailScreen({ navigation }: Props) {
 
       if (response.data.status === 'success') {
         setSubmittedScore(response.data.score);
+
+        if (response.data.next_exercise) {
+          setPendingNextExercise(response.data.next_exercise);
+        } else {
+          setPendingNextExercise(null);
+        }
       } else {
         console.error('Submission failed:', response.data.message);
       }
@@ -87,7 +96,18 @@ export function ExerciseDetailScreen({ navigation }: Props) {
     }
   }, [recordingUri, user?.user_Id, sessionId, currentExercise]);
 
-  if (isLoadingExercise || !currentExercise) {
+  const goToNextExercise = useCallback(() => {
+    if (pendingNextExercise) {
+      setCurrentExercise(pendingNextExercise);
+      setRecordingUri(null);
+      setSubmittedScore(null);
+      setPendingNextExercise(null);
+    } else {
+      setSessionComplete(true);
+    }
+  }, [pendingNextExercise, setCurrentExercise]);
+
+  if (isLoadingExercise || (!currentExercise && !sessionComplete)) {
     return (
       <View
         style={[
@@ -96,6 +116,24 @@ export function ExerciseDetailScreen({ navigation }: Props) {
         ]}
       >
         <ActivityIndicator color={theme.primary} />
+      </View>
+    );
+  }
+
+  if (sessionComplete) {
+    return (
+      <View
+        style={[
+          styles.loadingContainer,
+          { backgroundColor: theme.background },
+        ]}
+      >
+        <Text style={[styles.bodyLabel, { color: theme.primary }]}>
+          Great work!
+        </Text>
+        <Text style={[styles.bodyText, { color: theme.text }]}>
+          You've completed this practice session.
+        </Text>
       </View>
     );
   }
@@ -127,7 +165,7 @@ export function ExerciseDetailScreen({ navigation }: Props) {
             },
           ]}
         >
-          {currentExercise.title}
+          {currentExercise!.title}
         </Text>
 
         <Text
@@ -138,44 +176,57 @@ export function ExerciseDetailScreen({ navigation }: Props) {
             },
           ]}
         >
-          {currentExercise.instructions}
+          {currentExercise!.instructions}
         </Text>
       </View>
 
       <View style={styles.micSection}>
-        <MicButton
-          onRecordingComplete={handleRecordingComplete}
-        />
+        {submittedScore === null ? (
+          <>
+            <MicButton
+              onRecordingComplete={handleRecordingComplete}
+            />
 
-        {recordingUri ? (
-          <RecordingPlayback uri={recordingUri} />
-        ) : null}
+            {recordingUri ? (
+              <RecordingPlayback uri={recordingUri} />
+            ) : null}
 
-        {recordingUri ? (
-          <Pressable
-            style={[
-              styles.submitButton,
-              { backgroundColor: theme.buttonBackground },
-              submitting && styles.submitButtonDisabled,
-            ]}
-            onPress={submitRecording}
-            disabled={submitting}
-          >
-            {submitting ? (
-              <ActivityIndicator color={theme.buttonText} />
-            ) : (
+            {recordingUri ? (
+              <Pressable
+                style={[
+                  styles.submitButton,
+                  { backgroundColor: theme.buttonBackground },
+                  submitting && styles.submitButtonDisabled,
+                ]}
+                onPress={submitRecording}
+                disabled={submitting}
+              >
+                {submitting ? (
+                  <ActivityIndicator color={theme.buttonText} />
+                ) : (
+                  <Text style={[styles.submitButtonText, { color: theme.buttonText }]}>
+                    Submit answer
+                  </Text>
+                )}
+              </Pressable>
+            ) : null}
+          </>
+        ) : (
+          <>
+            <Text style={[styles.scoreText, { color: theme.primaryDark }]}>
+              Score: {submittedScore}
+            </Text>
+
+            <Pressable
+              style={[styles.submitButton, { backgroundColor: theme.buttonBackground }]}
+              onPress={goToNextExercise}
+            >
               <Text style={[styles.submitButtonText, { color: theme.buttonText }]}>
-                Submit answer
+                {pendingNextExercise ? 'Next question' : 'Finish session'}
               </Text>
-            )}
-          </Pressable>
-        ) : null}
-
-        {submittedScore !== null ? (
-          <Text style={[styles.scoreText, { color: theme.primaryDark }]}>
-            Score: {submittedScore}
-          </Text>
-        ) : null}
+            </Pressable>
+          </>
+        )}
       </View>
     </ScrollView>
   );
@@ -186,6 +237,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 8,
+    padding: 24,
   },
 
   container: {

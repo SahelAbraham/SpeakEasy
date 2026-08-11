@@ -22,6 +22,7 @@ export type Exercise = {
 type ExerciseContextValue = {
   currentExercise: Exercise | null;
   isLoadingExercise: boolean;
+  setCurrentExercise: (exercise: Exercise | null) => void;
 };
 
 const ExerciseContext = createContext<ExerciseContextValue | undefined>(undefined);
@@ -43,7 +44,7 @@ export function ExerciseProvider({ children }: { children: ReactNode }) {
     setIsLoadingExercise(true);
 
     api
-      .get('/exercise/first', { params: { track: selectedTrack } })
+      .get('/exercise/first', { params: { user_id: user.user_Id } })
       .then((response) => {
         if (cancelled) return;
 
@@ -67,10 +68,12 @@ export function ExerciseProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
+    // selectedTrack is kept as a dependency so switching tracks
+    // (via /track/switch elsewhere) triggers a fresh fetch here too.
   }, [selectedTrack, isAuthLoading, user?.user_Id]);
 
   return (
-    <ExerciseContext.Provider value={{ currentExercise, isLoadingExercise }}>
+    <ExerciseContext.Provider value={{ currentExercise, isLoadingExercise, setCurrentExercise }}>
       {children}
     </ExerciseContext.Provider>
   );
