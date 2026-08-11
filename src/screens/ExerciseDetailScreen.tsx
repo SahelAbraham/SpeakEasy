@@ -29,6 +29,7 @@ export function ExerciseDetailScreen({ navigation }: Props) {
   const [recordingUri, setRecordingUri] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submittedScore, setSubmittedScore] = useState<number | null>(null);
+  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [pendingNextExercise, setPendingNextExercise] = useState<Exercise | null>(null);
   const [sessionComplete, setSessionComplete] = useState(false);
 
@@ -41,6 +42,7 @@ export function ExerciseDetailScreen({ navigation }: Props) {
   const handleRecordingComplete = useCallback((uri: string) => {
     setRecordingUri(uri);
     setSubmittedScore(null);
+    setFeedbackMessage(null);
     setPendingNextExercise(null);
   }, []);
 
@@ -80,6 +82,7 @@ export function ExerciseDetailScreen({ navigation }: Props) {
 
       if (response.data.status === 'success') {
         setSubmittedScore(response.data.score);
+        setFeedbackMessage(response.data.feedback ?? null);
 
         if (response.data.next_exercise) {
           setPendingNextExercise(response.data.next_exercise);
@@ -101,6 +104,7 @@ export function ExerciseDetailScreen({ navigation }: Props) {
       setCurrentExercise(pendingNextExercise);
       setRecordingUri(null);
       setSubmittedScore(null);
+      setFeedbackMessage(null);
       setPendingNextExercise(null);
     } else {
       setSessionComplete(true);
@@ -217,6 +221,23 @@ export function ExerciseDetailScreen({ navigation }: Props) {
               Score: {submittedScore}
             </Text>
 
+            {feedbackMessage ? (
+              <View
+                style={[
+                  styles.feedbackCard,
+                  {
+                    backgroundColor: theme.surface,
+                    borderColor: theme.border,
+                    borderLeftColor: theme.primary,
+                  },
+                ]}
+              >
+                <Text style={[styles.feedbackText, { color: theme.text }]}>
+                  {feedbackMessage}
+                </Text>
+              </View>
+            ) : null}
+
             <Pressable
               style={[styles.submitButton, { backgroundColor: theme.buttonBackground }]}
               onPress={goToNextExercise}
@@ -296,5 +317,18 @@ const styles = StyleSheet.create({
   scoreText: {
     fontSize: 18,
     fontWeight: '800',
+  },
+
+  feedbackCard: {
+    borderRadius: 14,
+    padding: 16,
+    borderWidth: 1,
+    borderLeftWidth: 4,
+    width: '100%',
+  },
+
+  feedbackText: {
+    fontSize: 15,
+    lineHeight: 22,
   },
 });
