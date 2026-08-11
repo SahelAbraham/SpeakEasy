@@ -298,7 +298,75 @@ def _create_session_transaction(tx, user_id: str):
         "label": record["label"],
         "session_number": record["session_number"],
     }
-    
+
+def get_subtrack_scores(user_id: str, track: str):
+    """Returns {track_id: score} for every subtrack under the given track."""
+    with driver.session(database=NEO4J_DATABASE) as session:
+        return session.execute_read(_get_subtrack_scores_transaction, user_id, track)
+
+
+def _get_subtrack_scores_transaction(tx, user_id: str, track: str):
+    result = tx.run(
+        """
+        MATCH (u:User {user_id: $user_id})-[:HAS_SUBTRACK]->(s:Subtrack)
+        WHERE s.track_id STARTS WITH $track
+        RETURN s.track_id AS track_id, s.score AS score
+        """,
+        user_id=user_id,
+        track=track,
+    )
+    return {record["track_id"]: record["score"] for record in result}
+
+
+def update_subtrack_score(user_id: str, track_id: str, new_observed_score: float, alpha: float = 0.3):
+    """
+    Blends the subtrack's running score with the latest exercise result
+    via exponential moving average, clamped to [0, 1].
+    """
+    with driver.session(database=NEO4J_DATABASE) as session:
+        return session.execute_write(
+            _update_subtrack_score_transaction, user_id, track_id, new_observed_score, alpha
+        )
+
+
+def _update_subtrack_score_transaction(tx, user_id: str, track_id: str, new_observed_score: float, alpha: float):
+    result = tx.run(
+        """
+        MATCH (u:User {user_id: $user_id})-[:HAS_SUBTRACK]->(s:Subtrack {track_id: $track_id})
+        SET s.score = CASE
+            WHEN (s.score * (1 - $alpha) + $new_score * $alpha) > 1.0 THEN 1.0
+            WHEN (s.score * (1 - $alpha) + $new_score * $alpha) < 0.0 THEN 0.0
+            ELSE s.score * (1 - $alpha) + $new_score * $alpha
+        END
+        RETURN s.score AS updated_score
+        """,
+        user_id=user_id,
+        track_id=track_id,
+        new_score=new_observed_score,
+        alpha=alpha,
+    )
+    record = result.single()
+    if record is None:
+        raise RuntimeError(f"Failed to update subtrack score — no Subtrack {track_id} for user {user_id}")
+    return record["updated_score"]
+
+def get_enrolled_track(user_id: str) -> str:
+    with driver.session(database=NEO4J_DATABASE) as session:
+        return session.execute_read(_get_enrolled_track_transaction, user_id)
+
+
+def _get_enrolled_track_transaction(tx, user_id: str):
+    result = tx.run(
+        """
+        MATCH (u:User {user_id: $user_id})-[:ENROLLED_IN]->(t:Track)
+        RETURN t.name AS track
+        """,
+        user_id=user_id,
+    )
+    record = result.single()
+    if record is None:
+        raise RuntimeError(f"No enrolled track found for user {user_id}")
+    return record["track"]
 
 def close_driver():
     driver.close()

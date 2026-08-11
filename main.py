@@ -6,17 +6,17 @@ import uuid
 import os
 import shutil
 
-from conversation import ConversationSession
-from knowledge_graph import create_user, switch_track, create_session
-from exercise_bank import get_random_exercise, get_exercise_by_id
+#from conversation import ConversationSession not using this, but idk if this will be used in the future
+from knowledge_graph import create_user, switch_track, create_session, get_enrolled_track
+from exercise_bank import get_exercise_by_id
 from speech_analysis_final import process_exercise_attempt
+from rag.rag_pipeline import rag_search
+from subtrack_selector import choose_initial_subcategory, choose_next_subcategory
 
 AUDIO_UPLOAD_DIR = "uploaded_audio"
 os.makedirs(AUDIO_UPLOAD_DIR, exist_ok=True)
 
 app = FastAPI()
-
-# CORS Configuration
 
 app.add_middleware(
     CORSMiddleware,
@@ -24,10 +24,12 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-)   
+)
 
-# Temporary in-memory sessions
-sessions = {}
+# Temporary in-memory session state — tracks which exercise IDs
+# have already been served this session, to avoid repeats.
+# Move into the knowledge graph later.
+session_state = {}  # session_id -> {"seen_ids": set()}
 
 class MessageData(BaseModel):
     text: str
@@ -36,7 +38,6 @@ class SurveyData(BaseModel):
     username: str
     email: str
     password: str
-    
     name: str
     age: int
     occupation: str
@@ -56,19 +57,7 @@ def read_data():
 
 @app.post("/survey")
 def build_profile(survey: SurveyData):
-    
-    # Generate an ID for the user for the knowledge graph
     user_id = str(uuid.uuid4())
-    
-    print("Received survey submission:")
-    print(f"User ID: {user_id}")
-    print(f"Name: {survey.name}")
-    print(f"Age: {survey.age}")
-    print(f"Occupation: {survey.occupation}")
-    print(f"Therapy History: {survey.therapyHistory}")
-    print(f"Track: {survey.track}")
-    
-    # Create the user in the knowledge graph
 
     create_user(
         user_id=user_id,
@@ -88,7 +77,7 @@ def build_profile(survey: SurveyData):
         "name": survey.name,
         "track": survey.track,
     }
-    
+
 @app.post("/track/switch")
 def switch_user_track(data: TrackSwitchData):
     try:
@@ -107,7 +96,7 @@ def start_session(data: SessionStartData):
         session_info = create_session(user_id=data.user_id)
     except RuntimeError as e:
         return {"status": "error", "message": str(e)}
-    
+
     return {
         "status": "success",
         "session_id": session_info["session_id"],
@@ -116,15 +105,22 @@ def start_session(data: SessionStartData):
     }
 
 @app.get("/exercise/first")
-def get_first_exercise(track: Literal['Speech', 'Language']):
+def get_first_exercise(user_id: str):
     try:
-        exercise = get_random_exercise(track)
-    except ValueError as e:
+        track = get_enrolled_track(user_id)
+        subcategory = choose_initial_subcategory(user_id, track)
+        candidates = rag_search(
+            profile={"track": track, "subcategory": subcategory},
+            transcript="",
+            n_results=5,
+        )
+        exercise = candidates[0] if candidates else None
+        if exercise is None:
+            return {"status": "error", "message": "No exercises found for this subcategory."}
+    except RuntimeError as e:
         return {"status": "error", "message": str(e)}
-    return {
-        "status": "success",
-        "exercise": exercise
-    }
+
+    return {"status": "success", "exercise": exercise}
 
 @app.post("/exercise/submit")
 async def submit_exercise(
@@ -133,7 +129,6 @@ async def submit_exercise(
     exercise_id: str = Form(...),
     audio: UploadFile = File(...),
 ):
-    # Save the uploaded audio to disk
     file_extension = os.path.splitext(audio.filename)[1] or ".m4a"
     saved_filename = f"{user_id}_{exercise_id}_{uuid.uuid4()}{file_extension}"
     saved_path = os.path.join(AUDIO_UPLOAD_DIR, saved_filename)
@@ -141,17 +136,14 @@ async def submit_exercise(
     with open(saved_path, "wb") as buffer:
         shutil.copyfileobj(audio.file, buffer)
 
-    # The converted .wav file that speech_analysis.py's convert_to_wav will create
     converted_path = os.path.splitext(saved_path)[0] + "_converted.wav"
 
     try:
-        # Look up the exercise's scoring metadata from the exercise bank
         try:
             exercise = get_exercise_by_id(exercise_id)
         except ValueError as e:
             return {"status": "error", "message": str(e)}
 
-        # Run the full analysis + scoring pipeline
         result = process_exercise_attempt(
             audio_path=saved_path,
             exercise_id=exercise_id,
@@ -166,97 +158,36 @@ async def submit_exercise(
 
         print(f"[SpeakEasy] Exercise '{exercise['title']}' scored: {result['score']}")
 
+        state = session_state.setdefault(session_id, {"seen_ids": set()})
+        state["seen_ids"].add(exercise_id)
+
+        try:
+            next_subcategory = choose_next_subcategory(
+                user_id=user_id,
+                track=exercise["track"],
+                last_subcategory=exercise["subcategory"],
+                score_0_100=result["score"],
+            )
+            candidates = rag_search(
+                profile={"track": exercise["track"], "subcategory": next_subcategory},
+                transcript=result["transcription"],
+                n_results=5,
+            )
+            next_exercise = next(
+                (c for c in candidates if c["id"] not in state["seen_ids"]), None
+            )
+        except RuntimeError as e:
+            print(f"[SpeakEasy] Failed to select next exercise: {e}")
+            next_exercise = None
+
         return {
             "status": "success",
             "message": "Audio received and scored",
             "score": result["score"],
+            "next_exercise": next_exercise,
         }
 
     finally:
-        # Clean up both the original upload and the converted .wav copy,
-        # regardless of whether scoring succeeded or failed
         for path in (saved_path, converted_path):
             if os.path.exists(path):
                 os.remove(path)
-        
-# class StartSessionRequest(BaseModel):
-#     user_id: str
-#     name: str
-#     goal: str
-#     therapy_history: str
-#     native_language: str
-#     practice_frequency: str
-#     hearing_device: str
-#     notes: str
-#     transcript: str
-
-# KG data:
-# email
-# age group
-# native language
-# timestamp (don't worry)
-# trackID
-
-# @app.post("/session/start")
-# class RespondRequest(BaseModel):
-#     user_id: str
-#     response: str
-
-
-# @app.post("/session/respond")
-# async def respond_to_exercise(data: RespondRequest):
-
-#     # Find the user's active session
-#     session = sessions.get(data.user_id)
-
-#     if session is None:
-#         return {
-#             "error": "No active session found for this user."
-#         }
-
-#     # Save response and get next exercise
-#     next_exercise = session.submit_response(data.response)
-
-#     # Check whether session is finished
-#     if next_exercise is None:
-#         return {
-#             "user_id": data.user_id,
-#             "session_complete": True,
-#             "message": "Great job! You've completed this practice session."
-#         }
-
-#     return {
-#         "user_id": data.user_id,
-#         "session_complete": False,
-#         "exercise": next_exercise
-#     }
-# async def start_session(data: StartSessionRequest):
-
-#     # Build standardized profile
-#     onboarding = {
-#         "user_id": data.user_id,
-#         "name": data.name,
-#         "goal": data.goal,
-#         "therapy_history": data.therapy_history,
-#         "native_language": data.native_language,
-#         "practice_frequency": data.practice_frequency,
-#         "hearing_device": data.hearing_device,
-#         "notes": data.notes
-#     }
-
-#     profile = build_profile(onboarding)
-
-#     # Create conversation session
-#     session = ConversationSession(profile)
-
-#     # Get first exercise using RAG
-#     exercise = session.start(data.transcript)
-
-#     # Store session
-#     sessions[data.user_id] = session
-
-#     return {
-#         "user_id": data.user_id,
-#         "profile": profile,
-#         "exercise": exercise
-#     }
