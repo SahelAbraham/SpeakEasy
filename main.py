@@ -141,32 +141,43 @@ async def submit_exercise(
     with open(saved_path, "wb") as buffer:
         shutil.copyfileobj(audio.file, buffer)
 
-    # Look up the exercise's scoring metadata from the exercise bank
+    # The converted .wav file that speech_analysis.py's convert_to_wav will create
+    converted_path = os.path.splitext(saved_path)[0] + "_converted.wav"
+
     try:
-        exercise = get_exercise_by_id(exercise_id)
-    except ValueError as e:
-        return {"status": "error", "message": str(e)}
+        # Look up the exercise's scoring metadata from the exercise bank
+        try:
+            exercise = get_exercise_by_id(exercise_id)
+        except ValueError as e:
+            return {"status": "error", "message": str(e)}
 
-    # Run the full analysis + scoring pipeline
-    result = process_exercise_attempt(
-        audio_path=saved_path,
-        exercise_id=exercise_id,
-        subcategory=exercise["subcategory"],
-        user_id=user_id,
-        session_id=session_id,
-        scoring_type=exercise.get("scoring_type"),
-        expected_answer=exercise.get("expected_answer"),
-        exercise_instructions=exercise.get("instructions"),
-        exercise_title=exercise.get("title"),
-    )
+        # Run the full analysis + scoring pipeline
+        result = process_exercise_attempt(
+            audio_path=saved_path,
+            exercise_id=exercise_id,
+            subcategory=exercise["subcategory"],
+            user_id=user_id,
+            session_id=session_id,
+            scoring_type=exercise.get("scoring_type"),
+            expected_answer=exercise.get("expected_answer"),
+            exercise_instructions=exercise.get("instructions"),
+            exercise_title=exercise.get("title"),
+        )
 
-    print(f"[SpeakEasy] Exercise '{exercise['title']}' scored: {result['score']}")
+        print(f"[SpeakEasy] Exercise '{exercise['title']}' scored: {result['score']}")
 
-    return {
-        "status": "success",
-        "message": "Audio received and scored",
-        "score": result["score"],
-    }
+        return {
+            "status": "success",
+            "message": "Audio received and scored",
+            "score": result["score"],
+        }
+
+    finally:
+        # Clean up both the original upload and the converted .wav copy,
+        # regardless of whether scoring succeeded or failed
+        for path in (saved_path, converted_path):
+            if os.path.exists(path):
+                os.remove(path)
         
 # class StartSessionRequest(BaseModel):
 #     user_id: str
