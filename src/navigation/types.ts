@@ -11,6 +11,7 @@ export type HomeStackParamList = {
 
 export type MainTabParamList = {
   Home: undefined;
+  LearningPath: undefined;
   Progression: undefined;
   Profile: undefined;
 };

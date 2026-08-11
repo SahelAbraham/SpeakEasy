@@ -1,22 +1,39 @@
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import React, { useCallback, useEffect } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+
 import { useStreak } from '../context/StreakContext';
+import { useTrackTheme } from '../context/TrackThemeContext';
+
 import { PLACEHOLDER_EXERCISES } from '../data/placeholderExercises';
 import { HomeStackParamList } from '../navigation/types';
-import { cardAccents, colors } from '../theme/colors';
 import { Exercise } from '../types/exercise';
 
-type Navigation = NativeStackNavigationProp<HomeStackParamList, 'Dashboard'>;
+type Navigation = NativeStackNavigationProp<
+  HomeStackParamList,
+  'Dashboard'
+>;
 
 export function DashboardScreen() {
   const navigation = useNavigation<Navigation>();
+
   const { streak, recordDailyVisit } = useStreak();
+
+  const { theme, selectedTrack } =
+    useTrackTheme();
 
   useEffect(() => {
     void recordDailyVisit();
   }, [recordDailyVisit]);
+
+  const nextExercise = PLACEHOLDER_EXERCISES[0];
 
   const openExercise = useCallback(
     (exercise: Exercise) => {
@@ -29,128 +46,668 @@ export function DashboardScreen() {
     [navigation],
   );
 
+  if (!nextExercise) {
+    return (
+      <View
+        style={[
+          styles.emptyContainer,
+          {
+            backgroundColor: theme.background,
+          },
+        ]}
+      >
+        <Text
+          style={[
+            styles.emptyTitle,
+            {
+              color: theme.text,
+            },
+          ]}
+        >
+          You&apos;re all caught up!
+        </Text>
+
+        <Text
+          style={[
+            styles.emptyText,
+            {
+              color: theme.textMuted,
+            },
+          ]}
+        >
+          Check back later for your next exercise.
+        </Text>
+      </View>
+    );
+  }
+
   return (
-    <View style={styles.container}>
-      <View style={styles.streakCard}>
-        <Text style={styles.streakLabel}>Daily streak</Text>
-        <Text style={styles.streakValue}>{streak} day{streak === 1 ? '' : 's'}</Text>
-        <Text style={styles.streakHint}>Practice every day to grow your streak!</Text>
+    <ScrollView
+      style={[
+        styles.container,
+        {
+          backgroundColor: theme.background,
+        },
+      ]}
+      contentContainerStyle={styles.content}
+      showsVerticalScrollIndicator={false}
+    >
+      {/* Streak */}
+
+      <View
+        style={[
+          styles.streakCard,
+          {
+            backgroundColor: theme.surfaceAlt,
+            borderColor: theme.border,
+          },
+        ]}
+      >
+        <View>
+          <Text
+            style={[
+              styles.streakLabel,
+              {
+                color: theme.primary,
+              },
+            ]}
+          >
+            Daily streak
+          </Text>
+
+          <Text
+            style={[
+              styles.streakValue,
+              {
+                color: theme.primaryDark,
+              },
+            ]}
+          >
+            {streak} day{streak === 1 ? '' : 's'}
+          </Text>
+
+          <Text
+            style={[
+              styles.streakHint,
+              {
+                color: theme.textMuted,
+              },
+            ]}
+          >
+            Practice every day to grow your streak!
+          </Text>
+        </View>
+
+        <View
+          style={[
+            styles.streakIcon,
+            {
+              backgroundColor:
+                theme.iconBackgroundStrong,
+            },
+          ]}
+        >
+          <Text style={styles.streakIconText}>
+            🔥
+          </Text>
+        </View>
       </View>
 
-      <Text style={styles.sectionTitle}>Today&apos;s exercises</Text>
+      {/* Next Exercise */}
 
-      <FlatList
-        data={PLACEHOLDER_EXERCISES}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContent}
-        renderItem={({ item, index }) => {
-          const accent = cardAccents[index % cardAccents.length];
-          return (
-          <Pressable
-            style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
-            onPress={() => openExercise(item)}
+      <Text
+        style={[
+          styles.sectionLabel,
+          {
+            color: theme.textMuted,
+          },
+        ]}
+      >
+        UP NEXT
+      </Text>
+
+      <View
+        style={[
+          styles.nextCard,
+          {
+            backgroundColor: theme.cardBackground,
+            borderColor: theme.cardBorder,
+          },
+        ]}
+      >
+        <View style={styles.nextHeader}>
+          <View
+            style={[
+              styles.nextBadge,
+              {
+                backgroundColor:
+                  theme.iconBackground,
+              },
+            ]}
           >
-            <View style={[styles.cardBadge, { backgroundColor: accent.bg }]}>
-              <Text style={[styles.cardBadgeText, { color: accent.text }]}>{index + 1}</Text>
-            </View>
-            <View style={styles.cardBody}>
-              <Text style={styles.cardTitle}>{item.title}</Text>
-              <Text style={styles.cardPreview} numberOfLines={2}>
-                {item.body}
-              </Text>
-            </View>
-            <Text style={styles.chevron}>›</Text>
-          </Pressable>
-          );
-        }}
-      />
-    </View>
+            <Text
+              style={[
+                styles.nextBadgeText,
+                {
+                  color: theme.primaryDark,
+                },
+              ]}
+            >
+              1
+            </Text>
+          </View>
+
+          <View style={styles.nextHeaderText}>
+            <Text
+              style={[
+                styles.nextLabel,
+                {
+                  color: theme.text,
+                },
+              ]}
+            >
+              Your next question
+            </Text>
+
+            <Text
+              style={[
+                styles.nextSubtext,
+                {
+                  color: theme.textMuted,
+                },
+              ]}
+            >
+              Complete one question at a time
+            </Text>
+          </View>
+        </View>
+
+        <View
+          style={[
+            styles.divider,
+            {
+              backgroundColor: theme.border,
+            },
+          ]}
+        />
+
+        <Text
+          style={[
+            styles.questionTitle,
+            {
+              color: theme.text,
+            },
+          ]}
+        >
+          {nextExercise.title}
+        </Text>
+
+        <Text
+          style={[
+            styles.questionPreview,
+            {
+              color: theme.textMuted,
+            },
+          ]}
+        >
+          {nextExercise.body}
+        </Text>
+
+        <Pressable
+          style={({ pressed }) => [
+            styles.startButton,
+            {
+              backgroundColor: pressed
+                ? theme.buttonPressed
+                : theme.buttonBackground,
+            },
+          ]}
+          onPress={() =>
+            openExercise(nextExercise)
+          }
+        >
+          <Text
+            style={[
+              styles.startButtonText,
+              {
+                color: theme.buttonText,
+              },
+            ]}
+          >
+            Start question
+          </Text>
+
+          <Text
+            style={[
+              styles.startButtonArrow,
+              {
+                color: theme.buttonText,
+              },
+            ]}
+          >
+            →
+          </Text>
+        </Pressable>
+      </View>
+
+      {/* Progress */}
+
+      <View
+        style={[
+          styles.progressCard,
+          {
+            backgroundColor: theme.cardBackground,
+            borderColor: theme.cardBorder,
+          },
+        ]}
+      >
+        <View style={styles.progressHeader}>
+          <View>
+            <Text
+              style={[
+                styles.progressTitle,
+                {
+                  color: theme.text,
+                },
+              ]}
+            >
+              Your progress
+            </Text>
+
+            <Text
+              style={[
+                styles.progressSubtitle,
+                {
+                  color: theme.textMuted,
+                },
+              ]}
+            >
+              Keep building your skills
+            </Text>
+          </View>
+
+          <Text
+            style={[
+              styles.progressCount,
+              {
+                color: theme.primary,
+              },
+            ]}
+          >
+            Ready
+          </Text>
+        </View>
+
+        <View
+          style={[
+            styles.progressTrack,
+            {
+              backgroundColor:
+                theme.progressTrack,
+            },
+          ]}
+        >
+          <View
+            style={[
+              styles.progressFill,
+              {
+                backgroundColor:
+                  theme.progressFill,
+              },
+            ]}
+          />
+        </View>
+
+        <Text
+          style={[
+            styles.progressHint,
+            {
+              color: theme.textMuted,
+            },
+          ]}
+        >
+          Answer a question to update your progress.
+        </Text>
+      </View>
+
+      {/* Recent activity */}
+
+      <Text
+        style={[
+          styles.sectionLabel,
+          {
+            color: theme.textMuted,
+          },
+        ]}
+      >
+        YOUR PRACTICE
+      </Text>
+
+      <View
+        style={[
+          styles.practiceCard,
+          {
+            backgroundColor: theme.cardBackground,
+            borderColor: theme.cardBorder,
+          },
+        ]}
+      >
+        <View
+          style={[
+            styles.practiceIcon,
+            {
+              backgroundColor:
+                theme.iconBackground,
+            },
+          ]}
+        >
+          <Text
+            style={[
+              styles.practiceIconText,
+              {
+                color: theme.primary,
+              },
+            ]}
+          >
+            ✓
+          </Text>
+        </View>
+
+        <View style={styles.practiceContent}>
+          <Text
+            style={[
+              styles.practiceTitle,
+              {
+                color: theme.text,
+              },
+            ]}
+          >
+            One question at a time
+          </Text>
+
+          <Text
+            style={[
+              styles.practiceText,
+              {
+                color: theme.textMuted,
+              },
+            ]}
+          >
+            Your performance is evaluated after each
+            question and used to personalize what
+            comes next.
+          </Text>
+        </View>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+  },
+
+  content: {
     paddingHorizontal: 16,
-    paddingTop: 8,
+    paddingTop: 12,
+    paddingBottom: 32,
   },
+
+  /* Streak */
+
   streakCard: {
-    backgroundColor: colors.yellow,
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: colors.yellowMuted,
-  },
-  streakLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.streak,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  streakValue: {
-    marginTop: 4,
-    fontSize: 32,
-    fontWeight: '700',
-    color: colors.primaryDark,
-  },
-  streakHint: {
-    marginTop: 6,
-    fontSize: 13,
-    color: colors.textMuted,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: 12,
-  },
-  listContent: {
-    paddingBottom: 24,
-    gap: 10,
-  },
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: colors.border,
-    gap: 12,
-  },
-  cardPressed: {
-    backgroundColor: colors.sageLight,
-  },
-  cardBadge: {
-    width: 36,
-    height: 36,
     borderRadius: 18,
+    padding: 18,
+    marginBottom: 26,
+    borderWidth: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+
+  streakLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.7,
+  },
+
+  streakValue: {
+    marginTop: 3,
+    fontSize: 32,
+    fontWeight: '800',
+  },
+
+  streakHint: {
+    marginTop: 4,
+    fontSize: 13,
+  },
+
+  streakIcon: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  cardBadgeText: {
+
+  streakIconText: {
+    fontSize: 27,
+  },
+
+  /* Section labels */
+
+  sectionLabel: {
+    fontSize: 12,
+    fontWeight: '800',
+    letterSpacing: 1,
+    marginBottom: 10,
+  },
+
+  /* Next question */
+
+  nextCard: {
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 18,
+    borderWidth: 1,
+
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+
+    shadowOpacity: 0.07,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+
+  nextHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  nextBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  nextBadgeText: {
+    fontSize: 18,
+    fontWeight: '800',
+  },
+
+  nextHeaderText: {
+    marginLeft: 12,
+    flex: 1,
+  },
+
+  nextLabel: {
+    fontSize: 17,
+    fontWeight: '800',
+  },
+
+  nextSubtext: {
+    marginTop: 2,
+    fontSize: 13,
+  },
+
+  divider: {
+    height: 1,
+    marginVertical: 18,
+  },
+
+  questionTitle: {
+    fontSize: 22,
+    lineHeight: 29,
+    fontWeight: '800',
+  },
+
+  questionPreview: {
+    marginTop: 9,
+    fontSize: 15,
+    lineHeight: 22,
+  },
+
+  startButton: {
+    marginTop: 20,
+    borderRadius: 13,
+    paddingVertical: 15,
+    paddingHorizontal: 18,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+
+    shadowOpacity: 0.22,
+    shadowRadius: 7,
+    elevation: 3,
+  },
+
+  startButtonText: {
+    fontSize: 16,
+    fontWeight: '800',
+  },
+
+  startButtonArrow: {
+    fontSize: 21,
+    marginLeft: 9,
+    fontWeight: '600',
+  },
+
+  /* Progress */
+
+  progressCard: {
+    borderRadius: 18,
+    padding: 18,
+    marginBottom: 26,
+    borderWidth: 1,
+  },
+
+  progressHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+
+  progressTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+  },
+
+  progressSubtitle: {
+    marginTop: 3,
+    fontSize: 13,
+  },
+
+  progressCount: {
+    fontSize: 13,
     fontWeight: '700',
   },
-  cardBody: {
+
+  progressTrack: {
+    height: 8,
+    borderRadius: 4,
+    marginTop: 16,
+    overflow: 'hidden',
+  },
+
+  progressFill: {
+    width: '12%',
+    height: '100%',
+    borderRadius: 4,
+  },
+
+  progressHint: {
+    marginTop: 9,
+    fontSize: 12,
+  },
+
+  /* Practice explanation */
+
+  practiceCard: {
+    borderRadius: 18,
+    padding: 17,
+    borderWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+
+  practiceIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+
+  practiceIconText: {
+    fontSize: 20,
+    fontWeight: '800',
+  },
+
+  practiceContent: {
     flex: 1,
-    gap: 4,
   },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
+
+  practiceTitle: {
+    fontSize: 15,
+    fontWeight: '800',
   },
-  cardPreview: {
+
+  practiceText: {
+    marginTop: 5,
     fontSize: 13,
-    color: colors.textMuted,
-    lineHeight: 18,
+    lineHeight: 19,
   },
-  chevron: {
-    fontSize: 24,
-    color: colors.sage,
-    marginTop: -2,
+
+  /* Empty state */
+
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 30,
+  },
+
+  emptyTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    textAlign: 'center',
+  },
+
+  emptyText: {
+    marginTop: 8,
+    fontSize: 15,
+    textAlign: 'center',
   },
 });

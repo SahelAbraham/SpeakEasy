@@ -11,14 +11,12 @@ import {
   View,
 } from 'react-native';
 
-import { MicButton } from '../components/MicButton';
 import { useAuth } from '../context/AuthContext';
 import { colors } from '../theme/colors';
 import api from '../services/auth/api';
 
-
 export function InitSurvey() {
-  const { updateUser } = useAuth();
+  const { user, updateUser } = useAuth();
 
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
@@ -28,26 +26,20 @@ export function InitSurvey() {
     'current' | 'past' | 'none' | null
   >(null);
 
-  const [goals, setGoals] = useState('');
-  const [audioUri, setAudioUri] = useState<string | null>(null);
+  const [track, setTrack] = useState<
+    'Language' | 'Speech' | null
+  >(null);
 
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
-
-
-  const passage =
-    'The sun was shining brightly on the quiet street. I walked outside and enjoyed the fresh morning air.';
-
 
   const handleNameChange = (text: string) => {
     setName(text.replace(/[^a-zA-Z\s]/g, ''));
   };
 
-
   const handleAgeChange = (text: string) => {
     setAge(text.replace(/[^0-9]/g, ''));
   };
-
 
   const submitSurvey = async () => {
     setError('');
@@ -57,78 +49,119 @@ export function InitSurvey() {
       !age.trim() ||
       !occupation.trim() ||
       !therapyHistory ||
-      !goals.trim() ||
-      !audioUri
+      !track
     ) {
+      setError('Please answer every question before continuing.');
+      return;
+    }
+
+    if (!user) {
+      setError('No authenticated user was found.');
+      return;
+    }
+
+    if (!user.username || !user.email || !user.password) {
       setError(
-        'Please answer every question and record your speech sample.'
+        'Your account credentials could not be found. Please sign in again.',
       );
       return;
     }
 
-
     try {
       setSaving(true);
 
-      const surveyPayload={
+      const surveyPayload = {
         name: name.trim(),
         age: Number(age),
         occupation: occupation.trim(),
         therapyHistory,
-        goals: goals.trim(),
-        baselineAudioUri: audioUri,
-      }
-      
-      //Send to FastAPI
-      const response = await api.post('/survey', surveyPayload);
-      console.log('Survey sent to FastAPI:', response.data);
+        track,
+      };
+
+      /*
+       * Send both the account information and survey information
+       * to FastAPI.
+       *
+       * Password is intentionally sent in plaintext for this
+       * development prototype only.
+       */
+      const response = await api.post('/survey', {
+        username: user.username,
+        email: user.email,
+        password: user.password,
+
+        ...surveyPayload,
+      });
+
+      console.log(
+        'Survey sent to FastAPI:',
+        response.data,
+      );
 
       await updateUser({
+        user_Id: response.data.user_id,
         completedSurvey: true,
         surveyData: surveyPayload,
       });
 
       console.log('Survey saved successfully');
-
     } catch (e) {
       console.error('Survey save failed:', e);
 
       setError(
         e instanceof Error
           ? e.message
-          : 'Failed to save survey.'
+          : 'Failed to save survey.',
       );
-
     } finally {
       setSaving(false);
     }
   };
 
-
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={
-        Platform.OS === 'ios'
-          ? 'padding'
-          : undefined
-      }
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-
       <ScrollView
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
       >
+        {/* Header */}
 
-        <Text style={styles.title}>
-          Welcome to SpeakEasy
-        </Text>
+        <View style={styles.header}>
+          <View style={styles.iconCircle}>
+            <Text style={styles.iconText}>✦</Text>
+          </View>
 
-        <Text style={styles.subtitle}>
-          Tell us about yourself so we can personalize your speech exercises.
-        </Text>
+          <Text style={styles.title}>
+            Welcome to SpeakEasy
+          </Text>
 
+          <Text style={styles.subtitle}>
+            Tell us about yourself so we can personalize
+            your exercises.
+          </Text>
+        </View>
+
+        {/* About You */}
 
         <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <View style={styles.sectionIcon}>
+              <Text style={styles.sectionIconText}>👤</Text>
+            </View>
+
+            <View>
+              <Text style={styles.cardTitle}>
+                About You
+              </Text>
+
+              <Text style={styles.cardSubtitle}>
+                A few quick details
+              </Text>
+            </View>
+          </View>
 
           <Text style={styles.label}>
             Name
@@ -138,13 +171,13 @@ export function InitSurvey() {
             value={name}
             onChangeText={handleNameChange}
             placeholder="Your name"
+            placeholderTextColor="#9AA3B2"
             style={styles.input}
             autoCapitalize="words"
             importantForAutofill="no"
             autoComplete="off"
             textContentType="none"
           />
-
 
           <Text style={styles.label}>
             Age
@@ -154,6 +187,7 @@ export function InitSurvey() {
             value={age}
             onChangeText={handleAgeChange}
             placeholder="Your age"
+            placeholderTextColor="#9AA3B2"
             keyboardType="number-pad"
             maxLength={3}
             style={styles.input}
@@ -161,7 +195,6 @@ export function InitSurvey() {
             autoComplete="off"
             textContentType="none"
           />
-
 
           <Text style={styles.label}>
             Current occupation
@@ -171,24 +204,22 @@ export function InitSurvey() {
             value={occupation}
             onChangeText={setOccupation}
             placeholder="Student, engineer, teacher..."
+            placeholderTextColor="#9AA3B2"
             style={styles.input}
             importantForAutofill="no"
             autoComplete="off"
             textContentType="none"
           />
 
-
           <Text style={styles.label}>
             Therapy history
           </Text>
 
           <Text style={styles.description}>
-            Are you currently seeing a speech therapist?
+            Are you seeing a speech therapist?
           </Text>
 
-
           <View style={styles.optionContainer}>
-
             <Pressable
               style={[
                 styles.option,
@@ -197,11 +228,22 @@ export function InitSurvey() {
               ]}
               onPress={() => setTherapyHistory('current')}
             >
-              <Text>
+              <View style={styles.radio}>
+                {therapyHistory === 'current' && (
+                  <View style={styles.radioSelected} />
+                )}
+              </View>
+
+              <Text
+                style={[
+                  styles.optionTitle,
+                  therapyHistory === 'current' &&
+                    styles.optionTitleSelected,
+                ]}
+              >
                 Yes, currently
               </Text>
             </Pressable>
-
 
             <Pressable
               style={[
@@ -211,11 +253,22 @@ export function InitSurvey() {
               ]}
               onPress={() => setTherapyHistory('past')}
             >
-              <Text>
+              <View style={styles.radio}>
+                {therapyHistory === 'past' && (
+                  <View style={styles.radioSelected} />
+                )}
+              </View>
+
+              <Text
+                style={[
+                  styles.optionTitle,
+                  therapyHistory === 'past' &&
+                    styles.optionTitleSelected,
+                ]}
+              >
                 I have before
               </Text>
             </Pressable>
-
 
             <Pressable
               style={[
@@ -225,212 +278,491 @@ export function InitSurvey() {
               ]}
               onPress={() => setTherapyHistory('none')}
             >
-              <Text>
+              <View style={styles.radio}>
+                {therapyHistory === 'none' && (
+                  <View style={styles.radioSelected} />
+                )}
+              </View>
+
+              <Text
+                style={[
+                  styles.optionTitle,
+                  therapyHistory === 'none' &&
+                    styles.optionTitleSelected,
+                ]}
+              >
                 No
               </Text>
             </Pressable>
-
           </View>
-
-
-          <Text style={styles.label}>
-            Goals for speech practice
-          </Text>
-
-          <TextInput
-            value={goals}
-            onChangeText={setGoals}
-            placeholder="Example: Improve my stutter..."
-            multiline
-            style={[
-              styles.input,
-              styles.textArea,
-            ]}
-            importantForAutofill="no"
-            autoComplete="off"
-            textContentType="none"
-          />
-
         </View>
 
-
+        {/* Program Selection */}
 
         <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <View style={styles.sectionIcon}>
+              <Text style={styles.sectionIconText}>✦</Text>
+            </View>
 
-          <Text style={styles.label}>
-            Speech baseline recording
-          </Text>
+            <View>
+              <Text style={styles.cardTitle}>
+                Choose Your Program
+              </Text>
 
-
-          <Text style={styles.description}>
-            Read this passage aloud:
-          </Text>
-
-
-          <View style={styles.passageBox}>
-            <Text style={styles.passage}>
-              {passage}
-            </Text>
+              <Text style={styles.cardSubtitle}>
+                Pick the area you'd like to focus on
+              </Text>
+            </View>
           </View>
 
+          <View style={styles.trackContainer}>
+            <Pressable
+              style={[
+                styles.trackOption,
+                track === 'Language' &&
+                  styles.languageSelected,
+              ]}
+              onPress={() => setTrack('Language')}
+            >
+              <View
+                style={[
+                  styles.trackIcon,
+                  styles.languageIcon,
+                ]}
+              >
+                <Text style={styles.trackIconText}>
+                  🧠
+                </Text>
+              </View>
 
-          <MicButton
-            onRecordingComplete={(uri) =>
-              setAudioUri(uri)
-            }
-          />
+              <View style={styles.trackContent}>
+                <Text style={styles.trackTitle}>
+                  Language
+                </Text>
 
+                <Text style={styles.trackDescription}>
+                  Improve your cognitive ability and memory
+                </Text>
+              </View>
 
-          {audioUri && (
-            <Text style={styles.recorded}>
-              ✓ Recording saved
-            </Text>
-          )}
+              <View style={styles.trackRadio}>
+                {track === 'Language' && (
+                  <View style={styles.trackRadioSelected} />
+                )}
+              </View>
+            </Pressable>
 
+            <Pressable
+              style={[
+                styles.trackOption,
+                track === 'Speech' &&
+                  styles.speechSelected,
+              ]}
+              onPress={() => setTrack('Speech')}
+            >
+              <View
+                style={[
+                  styles.trackIcon,
+                  styles.speechIcon,
+                ]}
+              >
+                <Text style={styles.trackIconText}>
+                  🎙️
+                </Text>
+              </View>
+
+              <View style={styles.trackContent}>
+                <Text style={styles.trackTitle}>
+                  Speech
+                </Text>
+
+                <Text style={styles.trackDescription}>
+                  Improve your physical motor skills,
+                  fluency, and vocal hygiene
+                </Text>
+              </View>
+
+              <View style={styles.trackRadio}>
+                {track === 'Speech' && (
+                  <View style={styles.trackRadioSelected} />
+                )}
+              </View>
+            </Pressable>
+          </View>
         </View>
 
-
-
         {error ? (
-          <Text style={styles.error}>
-            {error}
-          </Text>
+          <View style={styles.errorBox}>
+            <Text style={styles.errorIcon}>!</Text>
+
+            <Text style={styles.error}>
+              {error}
+            </Text>
+          </View>
         ) : null}
 
-
-
         <Pressable
-          style={styles.button}
+          style={[
+            styles.button,
+            saving && styles.buttonDisabled,
+          ]}
           onPress={submitSurvey}
           disabled={saving}
         >
           {saving ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.buttonText}>
-              Finish setup
-            </Text>
+            <>
+              <Text style={styles.buttonText}>
+                Finish setup
+              </Text>
+
+              <Text style={styles.buttonArrow}>
+                →
+              </Text>
+            </>
           )}
         </Pressable>
-
-
       </ScrollView>
-
     </KeyboardAvoidingView>
   );
 }
 
-
-
 const styles = StyleSheet.create({
-
   container: {
     flex: 1,
-    backgroundColor: colors.background,
-    padding: 24,
+    backgroundColor: '#F4F7FF',
+    paddingHorizontal: 20,
+  },
+
+  scrollContent: {
+    paddingBottom: 30,
+  },
+
+  /* Header */
+
+  header: {
+    alignItems: 'center',
+    paddingTop: 28,
+    paddingBottom: 24,
+  },
+
+  iconCircle: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 14,
+    shadowColor: colors.primary,
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+
+  iconText: {
+    color: '#FFFFFF',
+    fontSize: 28,
+    fontWeight: '700',
   },
 
   title: {
     fontSize: 30,
-    fontWeight: '700',
+    fontWeight: '800',
     color: colors.text,
-    marginTop: 20,
+    textAlign: 'center',
   },
 
   subtitle: {
     marginTop: 8,
     color: colors.textMuted,
     fontSize: 16,
-    marginBottom: 24,
+    lineHeight: 23,
+    textAlign: 'center',
+    maxWidth: 340,
   },
 
+  /* Cards */
+
   card: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 18,
-    marginBottom: 20,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 18,
+    borderWidth: 1,
+    borderColor: '#E7EBF5',
+    shadowColor: '#18213A',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 2,
   },
+
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+
+  sectionIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 13,
+    backgroundColor: '#EEF1FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+
+  sectionIconText: {
+    fontSize: 20,
+    color: colors.primary,
+  },
+
+  cardTitle: {
+    color: colors.text,
+    fontSize: 19,
+    fontWeight: '800',
+  },
+
+  cardSubtitle: {
+    color: colors.textMuted,
+    fontSize: 13,
+    marginTop: 2,
+  },
+
+  /* Inputs */
 
   label: {
     color: colors.text,
     fontWeight: '700',
     marginBottom: 8,
-    marginTop: 12,
+    marginTop: 18,
   },
 
   description: {
     color: colors.textMuted,
     marginBottom: 12,
+    lineHeight: 20,
   },
 
   input: {
-    backgroundColor: '#fff',
-    borderColor: colors.border,
+    backgroundColor: '#F8F9FD',
+    borderColor: '#E1E5EF',
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 12,
     padding: 14,
     fontSize: 16,
     color: colors.text,
   },
 
-  textArea: {
-    height: 110,
-    textAlignVertical: 'top',
-  },
+  /* Therapy options */
 
   optionContainer: {
     gap: 10,
   },
 
   option: {
+    flexDirection: 'row',
+    alignItems: 'center',
     borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 10,
+    borderColor: '#E1E5EF',
+    backgroundColor: '#FAFBFD',
+    borderRadius: 12,
     padding: 14,
   },
 
   optionSelected: {
     borderColor: colors.primary,
-    backgroundColor: '#e9f0ff',
+    backgroundColor: '#EEF1FF',
   },
 
-  passageBox: {
-    backgroundColor: '#fff',
-    padding: 14,
+  radio: {
+    width: 20,
+    height: 20,
     borderRadius: 10,
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderWidth: 2,
+    borderColor: '#C5CAD8',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
   },
 
-  passage: {
+  radioSelected: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: colors.primary,
+  },
+
+  optionTitle: {
     color: colors.text,
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: 15,
   },
 
-  recorded: {
+  optionTitleSelected: {
+    color: colors.primary,
+    fontWeight: '700',
+  },
+
+  /* Track selection */
+
+  trackContainer: {
+    gap: 12,
+    marginTop: 16,
+  },
+
+  trackOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#E1E5EF',
+    backgroundColor: '#FAFBFD',
+    borderRadius: 16,
+    padding: 16,
+  },
+
+  languageSelected: {
+    borderColor: '#7C6FF2',
+    backgroundColor: '#F1EFFF',
+  },
+
+  speechSelected: {
+    borderColor: '#35A7A0',
+    backgroundColor: '#EAF9F7',
+  },
+
+  trackIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 13,
+  },
+
+  languageIcon: {
+    backgroundColor: '#E5E0FF',
+  },
+
+  speechIcon: {
+    backgroundColor: '#D9F2EF',
+  },
+
+  trackIconText: {
+    fontSize: 23,
+  },
+
+  trackContent: {
+    flex: 1,
+    paddingRight: 8,
+  },
+
+  trackTitle: {
+    color: colors.text,
+    fontSize: 17,
+    fontWeight: '800',
+    marginBottom: 4,
+  },
+
+  trackDescription: {
+    color: colors.textMuted,
+    fontSize: 14,
+    lineHeight: 19,
+  },
+
+  trackRadio: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: '#C5CAD8',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  trackRadioSelected: {
+    width: 11,
+    height: 11,
+    borderRadius: 6,
+    backgroundColor: colors.primary,
+  },
+
+  /* Error */
+
+  errorBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF0F1',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#FFD5D8',
+  },
+
+  errorIcon: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#E05260',
+    color: '#FFFFFF',
     textAlign: 'center',
-    color: '#2e8b57',
-    marginTop: 8,
+    lineHeight: 22,
+    fontWeight: '800',
+    marginRight: 9,
   },
 
   error: {
-    color: colors.error,
-    marginBottom: 12,
+    color: '#C43F4D',
+    flex: 1,
+    fontSize: 14,
   },
+
+  /* Button */
 
   button: {
     backgroundColor: colors.primary,
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 14,
     alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    marginTop: 2,
     marginBottom: 30,
+    shadowColor: colors.primary,
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+
+  buttonDisabled: {
+    opacity: 0.7,
   },
 
   buttonText: {
-    color: '#fff',
-    fontWeight: '700',
+    color: '#FFFFFF',
+    fontWeight: '800',
     fontSize: 17,
   },
 
+  buttonArrow: {
+    color: '#FFFFFF',
+    fontSize: 22,
+    fontWeight: '600',
+    marginLeft: 10,
+  },
 });

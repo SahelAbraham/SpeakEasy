@@ -1,16 +1,16 @@
 export type AuthUser = {
-  id: string;
+  user_Id?: string;
   username: string;
   email: string;
+  password: string;
   completedSurvey: boolean;
 
   surveyData?: {
-    name: string,
-    age: number,
-    occupation: string,
-    therapyHistory: 'current' | 'past' | 'none',
-    goals: string,
-    baselineAudioUri: string;
+    name: string;
+    age: number;
+    occupation: string;
+    therapyHistory: 'none' | 'current' | 'past';
+    track: 'Language' | 'Speech';
   };
 };
 

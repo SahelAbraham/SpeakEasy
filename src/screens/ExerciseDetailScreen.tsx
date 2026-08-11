@@ -1,31 +1,89 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+
 import { MicButton } from '../components/MicButton';
 import { RecordingPlayback } from '../components/RecordingPlayback';
+import { useTrackTheme } from '../context/TrackThemeContext';
 import { HomeStackParamList } from '../navigation/types';
-import { colors } from '../theme/colors';
 
-type Props = NativeStackScreenProps<HomeStackParamList, 'ExerciseDetail'>;
+type Props = NativeStackScreenProps<
+  HomeStackParamList,
+  'ExerciseDetail'
+>;
 
-export function ExerciseDetailScreen({ route }: Props) {
+export function ExerciseDetailScreen({
+  route,
+}: Props) {
   const { body } = route.params;
-  const [recordingUri, setRecordingUri] = useState<string | null>(null);
 
-  const handleRecordingComplete = useCallback((uri: string) => {
-    setRecordingUri(uri);
-  }, []);
+  const { theme } = useTrackTheme();
+
+  const [recordingUri, setRecordingUri] =
+    useState<string | null>(null);
+
+  const handleRecordingComplete = useCallback(
+    (uri: string) => {
+      setRecordingUri(uri);
+    },
+    [],
+  );
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.bodyCard}>
-        <Text style={styles.bodyLabel}>Instructions</Text>
-        <Text style={styles.bodyText}>{body}</Text>
+    <ScrollView
+      contentContainerStyle={[
+        styles.container,
+        {
+          backgroundColor: theme.background,
+        },
+      ]}
+    >
+      <View
+        style={[
+          styles.bodyCard,
+          {
+            backgroundColor: theme.surface,
+            borderColor: theme.border,
+            borderLeftColor: theme.primary,
+          },
+        ]}
+      >
+        <Text
+          style={[
+            styles.bodyLabel,
+            {
+              color: theme.primary,
+            },
+          ]}
+        >
+          Instructions
+        </Text>
+
+        <Text
+          style={[
+            styles.bodyText,
+            {
+              color: theme.text,
+            },
+          ]}
+        >
+          {body}
+        </Text>
       </View>
 
       <View style={styles.micSection}>
-        <MicButton onRecordingComplete={handleRecordingComplete} />
-        {recordingUri ? <RecordingPlayback uri={recordingUri} /> : null}
+        <MicButton
+          onRecordingComplete={handleRecordingComplete}
+        />
+
+        {recordingUri ? (
+          <RecordingPlayback uri={recordingUri} />
+        ) : null}
       </View>
     </ScrollView>
   );
@@ -34,33 +92,31 @@ export function ExerciseDetailScreen({ route }: Props) {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: colors.background,
     padding: 20,
     gap: 32,
     justifyContent: 'space-between',
   },
+
   bodyCard: {
-    backgroundColor: colors.surface,
     borderRadius: 14,
     padding: 18,
     borderWidth: 1,
-    borderColor: colors.border,
     gap: 8,
     borderLeftWidth: 4,
-    borderLeftColor: colors.sage,
   },
+
   bodyLabel: {
     fontSize: 13,
     fontWeight: '600',
-    color: colors.sage,
     textTransform: 'uppercase',
     letterSpacing: 0.4,
   },
+
   bodyText: {
     fontSize: 16,
     lineHeight: 24,
-    color: colors.text,
   },
+
   micSection: {
     alignItems: 'center',
     paddingBottom: 24,
