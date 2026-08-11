@@ -11,42 +11,29 @@ import {
 
 import { useStreak } from '../context/StreakContext';
 import { useTrackTheme } from '../context/TrackThemeContext';
+import { useExercise } from '../context/ExerciseContext';
 
-import { PLACEHOLDER_EXERCISES } from '../data/placeholderExercises';
 import { HomeStackParamList } from '../navigation/types';
-import { Exercise } from '../types/exercise';
 
-type Navigation = NativeStackNavigationProp<
-  HomeStackParamList,
-  'Dashboard'
->;
+type Navigation = NativeStackNavigationProp<HomeStackParamList, 'Dashboard'>;
 
 export function DashboardScreen() {
   const navigation = useNavigation<Navigation>();
 
   const { streak, recordDailyVisit } = useStreak();
 
-  const { theme, selectedTrack } =
-    useTrackTheme();
+  const { theme } = useTrackTheme();
+  const { currentExercise, isLoadingExercise } = useExercise();
 
   useEffect(() => {
     void recordDailyVisit();
   }, [recordDailyVisit]);
 
-  const nextExercise = PLACEHOLDER_EXERCISES[0];
+  const openExercise = useCallback(() => {
+    navigation.navigate('ExerciseDetail');
+  }, [navigation]);
 
-  const openExercise = useCallback(
-    (exercise: Exercise) => {
-      navigation.navigate('ExerciseDetail', {
-        exerciseId: exercise.id,
-        title: exercise.title,
-        body: exercise.body,
-      });
-    },
-    [navigation],
-  );
-
-  if (!nextExercise) {
+  if (isLoadingExercise || !currentExercise) {
     return (
       <View
         style={[
@@ -64,7 +51,7 @@ export function DashboardScreen() {
             },
           ]}
         >
-          You&apos;re all caught up!
+          {isLoadingExercise ? 'Loading your next question…' : "You're all caught up!"}
         </Text>
 
         <Text
@@ -75,7 +62,9 @@ export function DashboardScreen() {
             },
           ]}
         >
-          Check back later for your next exercise.
+          {isLoadingExercise
+            ? 'Just a moment.'
+            : 'Check back later for your next exercise.'}
         </Text>
       </View>
     );
@@ -142,14 +131,11 @@ export function DashboardScreen() {
           style={[
             styles.streakIcon,
             {
-              backgroundColor:
-                theme.iconBackgroundStrong,
+              backgroundColor: theme.iconBackgroundStrong,
             },
           ]}
         >
-          <Text style={styles.streakIconText}>
-            🔥
-          </Text>
+          <Text style={styles.streakIconText}>🔥</Text>
         </View>
       </View>
 
@@ -176,27 +162,6 @@ export function DashboardScreen() {
         ]}
       >
         <View style={styles.nextHeader}>
-          <View
-            style={[
-              styles.nextBadge,
-              {
-                backgroundColor:
-                  theme.iconBackground,
-              },
-            ]}
-          >
-            <Text
-              style={[
-                styles.nextBadgeText,
-                {
-                  color: theme.primaryDark,
-                },
-              ]}
-            >
-              1
-            </Text>
-          </View>
-
           <View style={styles.nextHeaderText}>
             <Text
               style={[
@@ -239,7 +204,7 @@ export function DashboardScreen() {
             },
           ]}
         >
-          {nextExercise.title}
+          {currentExercise.title}
         </Text>
 
         <Text
@@ -250,7 +215,7 @@ export function DashboardScreen() {
             },
           ]}
         >
-          {nextExercise.body}
+          {currentExercise.instructions}
         </Text>
 
         <Pressable
@@ -262,9 +227,7 @@ export function DashboardScreen() {
                 : theme.buttonBackground,
             },
           ]}
-          onPress={() =>
-            openExercise(nextExercise)
-          }
+          onPress={openExercise}
         >
           <Text
             style={[
@@ -342,8 +305,7 @@ export function DashboardScreen() {
           style={[
             styles.progressTrack,
             {
-              backgroundColor:
-                theme.progressTrack,
+              backgroundColor: theme.progressTrack,
             },
           ]}
         >
@@ -351,8 +313,7 @@ export function DashboardScreen() {
             style={[
               styles.progressFill,
               {
-                backgroundColor:
-                  theme.progressFill,
+                backgroundColor: theme.progressFill,
               },
             ]}
           />
@@ -396,8 +357,7 @@ export function DashboardScreen() {
           style={[
             styles.practiceIcon,
             {
-              backgroundColor:
-                theme.iconBackground,
+              backgroundColor: theme.iconBackground,
             },
           ]}
         >
@@ -454,8 +414,6 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
 
-  /* Streak */
-
   streakCard: {
     borderRadius: 18,
     padding: 18,
@@ -496,8 +454,6 @@ const styles = StyleSheet.create({
     fontSize: 27,
   },
 
-  /* Section labels */
-
   sectionLabel: {
     fontSize: 12,
     fontWeight: '800',
@@ -505,19 +461,15 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 
-  /* Next question */
-
   nextCard: {
     borderRadius: 20,
     padding: 20,
     marginBottom: 18,
     borderWidth: 1,
-
     shadowOffset: {
       width: 0,
       height: 5,
     },
-
     shadowOpacity: 0.07,
     shadowRadius: 12,
     elevation: 3,
@@ -528,21 +480,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  nextBadge: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  nextBadgeText: {
-    fontSize: 18,
-    fontWeight: '800',
-  },
-
   nextHeaderText: {
-    marginLeft: 12,
     flex: 1,
   },
 
@@ -581,12 +519,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-
     shadowOffset: {
       width: 0,
       height: 4,
     },
-
     shadowOpacity: 0.22,
     shadowRadius: 7,
     elevation: 3,
@@ -602,8 +538,6 @@ const styles = StyleSheet.create({
     marginLeft: 9,
     fontWeight: '600',
   },
-
-  /* Progress */
 
   progressCard: {
     borderRadius: 18,
@@ -651,8 +585,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
 
-  /* Practice explanation */
-
   practiceCard: {
     borderRadius: 18,
     padding: 17,
@@ -689,8 +621,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 19,
   },
-
-  /* Empty state */
 
   emptyContainer: {
     flex: 1,

@@ -6,6 +6,7 @@ import { AuthProvider } from './src/context/AuthContext';
 import { ProgressionProvider } from './src/context/ProgressionContext';
 import { StreakProvider } from './src/context/StreakContext';
 import { TrackThemeProvider } from './src/context/TrackThemeContext';
+import { ExerciseProvider } from './src/context/ExerciseContext';
 
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { SessionProvider } from './src/context/SessionContext';
@@ -16,12 +17,14 @@ export default function App() {
       <AuthProvider>
         <SessionProvider>
           <TrackThemeProvider>
-            <StreakProvider>
-              <ProgressionProvider>
-                <RootNavigator />
-                <StatusBar style="dark" />
-              </ProgressionProvider>
-            </StreakProvider>
+            <ExerciseProvider>
+              <StreakProvider>
+                <ProgressionProvider>
+                  <RootNavigator />
+                  <StatusBar style="dark" />
+                </ProgressionProvider>
+              </StreakProvider>
+            </ExerciseProvider>
           </TrackThemeProvider>
         </SessionProvider>
       </AuthProvider>

@@ -1,6 +1,7 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import {
+  ActivityIndicator,
   ScrollView,
   StyleSheet,
   Text,
@@ -10,19 +11,16 @@ import {
 import { MicButton } from '../components/MicButton';
 import { RecordingPlayback } from '../components/RecordingPlayback';
 import { useTrackTheme } from '../context/TrackThemeContext';
+import { useExercise } from '../context/ExerciseContext';
 import { HomeStackParamList } from '../navigation/types';
 
-type Props = NativeStackScreenProps<
-  HomeStackParamList,
-  'ExerciseDetail'
->;
+type Props = NativeStackScreenProps<HomeStackParamList, 'ExerciseDetail'>;
 
-export function ExerciseDetailScreen({
-  route,
-}: Props) {
-  const { body } = route.params;
 
+
+export function ExerciseDetailScreen({ navigation }: Props) {
   const { theme } = useTrackTheme();
+  const { currentExercise, isLoadingExercise } = useExercise();
 
   const [recordingUri, setRecordingUri] =
     useState<string | null>(null);
@@ -33,6 +31,25 @@ export function ExerciseDetailScreen({
     },
     [],
   );
+
+  useEffect(() => {
+  if (currentExercise) {
+    navigation.setOptions({ title: currentExercise.title });
+  }
+}, [currentExercise, navigation]);
+
+  if (isLoadingExercise || !currentExercise) {
+    return (
+      <View
+        style={[
+          styles.loadingContainer,
+          { backgroundColor: theme.background },
+        ]}
+      >
+        <ActivityIndicator color={theme.primary} />
+      </View>
+    );
+  }
 
   return (
     <ScrollView
@@ -61,7 +78,7 @@ export function ExerciseDetailScreen({
             },
           ]}
         >
-          Instructions
+          {currentExercise.title}
         </Text>
 
         <Text
@@ -72,7 +89,7 @@ export function ExerciseDetailScreen({
             },
           ]}
         >
-          {body}
+          {currentExercise.instructions}
         </Text>
       </View>
 
@@ -90,6 +107,12 @@ export function ExerciseDetailScreen({
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
   container: {
     flexGrow: 1,
     padding: 20,

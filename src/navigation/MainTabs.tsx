@@ -50,9 +50,6 @@ function HomeStackNavigator() {
       <HomeStack.Screen
         name="ExerciseDetail"
         component={ExerciseDetailScreen}
-        options={({ route }) => ({
-          title: route.params.title,
-        })}
       />
     </HomeStack.Navigator>
   );

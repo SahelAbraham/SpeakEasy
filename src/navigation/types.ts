@@ -6,7 +6,7 @@ export type AuthStackParamList = {
 
 export type HomeStackParamList = {
   Dashboard: undefined;
-  ExerciseDetail: { exerciseId: string; title: string; body: string };
+  ExerciseDetail: undefined;
 };
 
 export type MainTabParamList = {
