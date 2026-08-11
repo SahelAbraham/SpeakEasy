@@ -1,7 +1,8 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,31 +13,79 @@ import { MicButton } from '../components/MicButton';
 import { RecordingPlayback } from '../components/RecordingPlayback';
 import { useTrackTheme } from '../context/TrackThemeContext';
 import { useExercise } from '../context/ExerciseContext';
+import { useAuth } from '../context/AuthContext';
+import { useSession } from '../context/SessionContext';
+import api from '../services/auth/api';
 import { HomeStackParamList } from '../navigation/types';
 
 type Props = NativeStackScreenProps<HomeStackParamList, 'ExerciseDetail'>;
 
-
-
 export function ExerciseDetailScreen({ navigation }: Props) {
   const { theme } = useTrackTheme();
   const { currentExercise, isLoadingExercise } = useExercise();
+  const { user } = useAuth();
+  const { sessionId } = useSession();
 
-  const [recordingUri, setRecordingUri] =
-    useState<string | null>(null);
-
-  const handleRecordingComplete = useCallback(
-    (uri: string) => {
-      setRecordingUri(uri);
-    },
-    [],
-  );
+  const [recordingUri, setRecordingUri] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submittedScore, setSubmittedScore] = useState<number | null>(null);
 
   useEffect(() => {
-  if (currentExercise) {
-    navigation.setOptions({ title: currentExercise.title });
-  }
-}, [currentExercise, navigation]);
+    if (currentExercise) {
+      navigation.setOptions({ title: currentExercise.title });
+    }
+  }, [currentExercise, navigation]);
+
+  const handleRecordingComplete = useCallback((uri: string) => {
+    setRecordingUri(uri);
+    setSubmittedScore(null); // clear any previous result on a new recording
+  }, []);
+
+  const submitRecording = useCallback(async () => {
+    if (!recordingUri || !user?.user_Id || !sessionId || !currentExercise) {
+      console.warn('Missing data — cannot submit recording.', {
+        hasRecording: !!recordingUri,
+        hasUserId: !!user?.user_Id,
+        hasSessionId: !!sessionId,
+        hasExercise: !!currentExercise,
+      });
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const formData = new FormData();
+
+      formData.append('user_id', user.user_Id);
+      formData.append('session_id', sessionId);
+      formData.append('exercise_id', currentExercise.id);
+
+      formData.append('audio', {
+        uri: recordingUri,
+        name: 'recording.m4a',
+        type: 'audio/m4a',
+      } as any);
+
+      const response = await api.post('/exercise/submit', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      console.log('Submission response:', response.data);
+
+      if (response.data.status === 'success') {
+        setSubmittedScore(response.data.score);
+      } else {
+        console.error('Submission failed:', response.data.message);
+      }
+    } catch (err) {
+      console.error('Failed to submit recording:', err);
+    } finally {
+      setSubmitting(false);
+    }
+  }, [recordingUri, user?.user_Id, sessionId, currentExercise]);
 
   if (isLoadingExercise || !currentExercise) {
     return (
@@ -101,6 +150,32 @@ export function ExerciseDetailScreen({ navigation }: Props) {
         {recordingUri ? (
           <RecordingPlayback uri={recordingUri} />
         ) : null}
+
+        {recordingUri ? (
+          <Pressable
+            style={[
+              styles.submitButton,
+              { backgroundColor: theme.buttonBackground },
+              submitting && styles.submitButtonDisabled,
+            ]}
+            onPress={submitRecording}
+            disabled={submitting}
+          >
+            {submitting ? (
+              <ActivityIndicator color={theme.buttonText} />
+            ) : (
+              <Text style={[styles.submitButtonText, { color: theme.buttonText }]}>
+                Submit answer
+              </Text>
+            )}
+          </Pressable>
+        ) : null}
+
+        {submittedScore !== null ? (
+          <Text style={[styles.scoreText, { color: theme.primaryDark }]}>
+            Score: {submittedScore}
+          </Text>
+        ) : null}
       </View>
     </ScrollView>
   );
@@ -145,5 +220,28 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
     gap: 16,
     width: '100%',
+  },
+
+  submitButton: {
+    paddingVertical: 14,
+    paddingHorizontal: 28,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 180,
+  },
+
+  submitButtonDisabled: {
+    opacity: 0.7,
+  },
+
+  submitButtonText: {
+    fontSize: 16,
+    fontWeight: '700',
+  },
+
+  scoreText: {
+    fontSize: 18,
+    fontWeight: '800',
   },
 });
