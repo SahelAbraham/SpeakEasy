@@ -258,6 +258,48 @@ def _switch_track_transaction(tx, user_id: str, new_track: str):
 
     return record["enrolled"]
 
+def create_session(user_id: str) -> str:
+    with driver.session(database=NEO4J_DATABASE) as session:
+        return session.execute_write(_create_session_transaction, user_id)
+
+def _create_session_transaction(tx, user_id: str):
+    result = tx.run(
+        """
+        MATCH (u:User {user_id: $user_id})
+
+        // Count how many sessions this user already has, to number the next one
+        OPTIONAL MATCH (u)-[:HAS_SESSION]->(existing:Session)
+        WITH u, count(existing) AS session_count
+
+        CREATE (s:Session {
+            session_id: randomUUID(),
+            session_number: session_count + 1,
+            label: 'session_' + toString(session_count + 1),
+            started_at: datetime()
+        })
+
+        MERGE (u)-[:HAS_SESSION]->(s)
+
+        RETURN
+            s.session_id AS session_id,
+            s.label AS label,
+            s.session_number AS session_number
+        """,
+        user_id=user_id,
+    )
+
+    record = result.single()
+
+    if record is None:
+        raise RuntimeError(f"Failed to create session — no user found with user_id: {user_id}")
+
+    return {
+        "session_id": record["session_id"],
+        "label": record["label"],
+        "session_number": record["session_number"],
+    }
+    
+
 def close_driver():
     driver.close()
 

@@ -5,7 +5,7 @@ from typing import Literal
 import uuid
 
 from conversation import ConversationSession
-from knowledge_graph import create_user, switch_track
+from knowledge_graph import create_user, switch_track, create_session
 
 app = FastAPI()
 
@@ -39,6 +39,9 @@ class SurveyData(BaseModel):
 class TrackSwitchData(BaseModel):
     user_id: str
     track: Literal['Speech', 'Language']
+
+class SessionStartData(BaseModel):
+    user_id: str
 
 @app.get("/api/data")
 def read_data():
@@ -90,7 +93,21 @@ def switch_user_track(data: TrackSwitchData):
         "user_id": data.user_id,
         "new_track": data.track,
     }
+
+@app.post("/session/start")
+def start_session(data: SessionStartData):
+    try:
+        session_info = create_session(user_id=data.user_id)
+    except RuntimeError as e:
+        return {"status": "error", "message": str(e)}
     
+    return {
+        "status": "success",
+        "session_id": session_info["session_id"],
+        "label": session_info["label"],
+        "session_number": session_info["session_number"],
+    }
+        
 # class StartSessionRequest(BaseModel):
 #     user_id: str
 #     name: str
