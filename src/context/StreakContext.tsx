@@ -1,7 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useAuth } from './AuthContext';
 
-const STREAK_STORAGE_KEY = '@speakeasy/streak';
+function streakStorageKey(userId: string): string {
+  return `@speakeasy/streak/${userId}`;
+}
 
 type StreakState = {
   count: number;
@@ -26,25 +29,30 @@ function yesterdayKey(): string {
   return date.toISOString().slice(0, 10);
 }
 
-async function loadStreak(): Promise<StreakState> {
-  const raw = await AsyncStorage.getItem(STREAK_STORAGE_KEY);
+async function loadStreak(userId: string): Promise<StreakState> {
+  const raw = await AsyncStorage.getItem(streakStorageKey(userId));
   if (!raw) {
     return { count: 0, lastActiveDate: null };
   }
   return JSON.parse(raw) as StreakState;
 }
 
-async function saveStreak(state: StreakState): Promise<void> {
-  await AsyncStorage.setItem(STREAK_STORAGE_KEY, JSON.stringify(state));
+async function saveStreak(userId: string, state: StreakState): Promise<void> {
+  await AsyncStorage.setItem(streakStorageKey(userId), JSON.stringify(state));
 }
 
 export function StreakProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+  const userId = user?.user_Id;
+
   const [streak, setStreak] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   const recordDailyVisit = useCallback(async () => {
+    if (!userId) return;
+
     const today = todayKey();
-    const state = await loadStreak();
+    const state = await loadStreak(userId);
 
     if (state.lastActiveDate === today) {
       setStreak(state.count);
@@ -57,15 +65,24 @@ export function StreakProvider({ children }: { children: React.ReactNode }) {
     }
 
     const nextState = { count: nextCount, lastActiveDate: today };
-    await saveStreak(nextState);
+    await saveStreak(userId, nextState);
     setStreak(nextCount);
-  }, []);
+  }, [userId]);
 
+  // Reload (or reset) streak whenever the logged-in user changes, so a
+  // freshly created account never inherits the previous user's state.
   useEffect(() => {
-    loadStreak()
+    if (!userId) {
+      setStreak(0);
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    loadStreak(userId)
       .then((state) => setStreak(state.count))
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [userId]);
 
   const value = useMemo(
     () => ({ streak, isLoading, recordDailyVisit }),

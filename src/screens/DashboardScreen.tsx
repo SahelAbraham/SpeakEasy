@@ -1,6 +1,6 @@
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useNavigation } from '@react-navigation/native';
-import React, { useCallback, useEffect } from 'react';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Pressable,
   ScrollView,
@@ -12,10 +12,19 @@ import {
 import { useStreak } from '../context/StreakContext';
 import { useTrackTheme } from '../context/TrackThemeContext';
 import { useExercise } from '../context/ExerciseContext';
+import { useAuth } from '../context/AuthContext';
+import { useSession } from '../context/SessionContext';
+import api from '../services/auth/api';
 
 import { HomeStackParamList } from '../navigation/types';
 
 type Navigation = NativeStackNavigationProp<HomeStackParamList, 'Dashboard'>;
+
+type ProgressStats = {
+  session_exercises: number;
+  total_exercises: number;
+  total_sessions: number;
+};
 
 export function DashboardScreen() {
   const navigation = useNavigation<Navigation>();
@@ -24,10 +33,37 @@ export function DashboardScreen() {
 
   const { theme } = useTrackTheme();
   const { currentExercise, isLoadingExercise } = useExercise();
+  const { user } = useAuth();
+  const { sessionId } = useSession();
+
+  const [progress, setProgress] = useState<ProgressStats | null>(null);
 
   useEffect(() => {
     void recordDailyVisit();
   }, [recordDailyVisit]);
+
+  const fetchProgress = useCallback(() => {
+    if (!user?.user_Id || !sessionId) return;
+
+    api
+      .get('/progress', { params: { user_id: user.user_Id, session_id: sessionId } })
+      .then((response) => {
+        if (response.data.status === 'success') {
+          setProgress({
+            session_exercises: response.data.session_exercises,
+            total_exercises: response.data.total_exercises,
+            total_sessions: response.data.total_sessions,
+          });
+        } else {
+          console.error('Failed to fetch progress:', response.data.message);
+        }
+      })
+      .catch((err) => console.error('Progress fetch failed:', err));
+  }, [user?.user_Id, sessionId]);
+
+  // Refetch every time the dashboard comes back into focus (e.g. after
+  // finishing an exercise), not just on first mount.
+  useFocusEffect(fetchProgress);
 
   const openExercise = useCallback(() => {
     navigation.navigate('ExerciseDetail');
@@ -264,140 +300,48 @@ export function DashboardScreen() {
           },
         ]}
       >
-        <View style={styles.progressHeader}>
-          <View>
-            <Text
-              style={[
-                styles.progressTitle,
-                {
-                  color: theme.text,
-                },
-              ]}
-            >
-              Your progress
-            </Text>
-
-            <Text
-              style={[
-                styles.progressSubtitle,
-                {
-                  color: theme.textMuted,
-                },
-              ]}
-            >
-              Keep building your skills
-            </Text>
-          </View>
-
-          <Text
-            style={[
-              styles.progressCount,
-              {
-                color: theme.primary,
-              },
-            ]}
-          >
-            Ready
-          </Text>
-        </View>
-
-        <View
+        <Text
           style={[
-            styles.progressTrack,
+            styles.progressTitle,
             {
-              backgroundColor: theme.progressTrack,
+              color: theme.text,
             },
           ]}
         >
-          <View
-            style={[
-              styles.progressFill,
-              {
-                backgroundColor: theme.progressFill,
-              },
-            ]}
-          />
-        </View>
+          Your progress
+        </Text>
 
         <Text
           style={[
-            styles.progressHint,
+            styles.progressStatText,
             {
-              color: theme.textMuted,
+              color: theme.primaryDark,
             },
           ]}
         >
-          Answer a question to update your progress.
+          {progress
+            ? `You have completed ${progress.session_exercises} exercise${
+                progress.session_exercises === 1 ? '' : 's'
+              } this session.`
+            : 'Loading this session\u2019s progress…'}
         </Text>
-      </View>
 
-      {/* Recent activity */}
-
-      <Text
-        style={[
-          styles.sectionLabel,
-          {
-            color: theme.textMuted,
-          },
-        ]}
-      >
-        YOUR PRACTICE
-      </Text>
-
-      <View
-        style={[
-          styles.practiceCard,
-          {
-            backgroundColor: theme.cardBackground,
-            borderColor: theme.cardBorder,
-          },
-        ]}
-      >
-        <View
+        <Text
           style={[
-            styles.practiceIcon,
+            styles.progressStatText,
             {
-              backgroundColor: theme.iconBackground,
+              color: theme.text,
             },
           ]}
         >
-          <Text
-            style={[
-              styles.practiceIconText,
-              {
-                color: theme.primary,
-              },
-            ]}
-          >
-            ✓
-          </Text>
-        </View>
-
-        <View style={styles.practiceContent}>
-          <Text
-            style={[
-              styles.practiceTitle,
-              {
-                color: theme.text,
-              },
-            ]}
-          >
-            One question at a time
-          </Text>
-
-          <Text
-            style={[
-              styles.practiceText,
-              {
-                color: theme.textMuted,
-              },
-            ]}
-          >
-            Your performance is evaluated after each
-            question and used to personalize what
-            comes next.
-          </Text>
-        </View>
+          {progress
+            ? `You have completed ${progress.total_exercises} total exercise${
+                progress.total_exercises === 1 ? '' : 's'
+              } across ${progress.total_sessions} total session${
+                progress.total_sessions === 1 ? '' : 's'
+              }.`
+            : 'Loading your overall progress…'}
+        </Text>
       </View>
     </ScrollView>
   );
@@ -542,84 +486,19 @@ const styles = StyleSheet.create({
   progressCard: {
     borderRadius: 18,
     padding: 18,
-    marginBottom: 26,
     borderWidth: 1,
-  },
-
-  progressHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    gap: 8,
   },
 
   progressTitle: {
     fontSize: 16,
     fontWeight: '800',
+    marginBottom: 4,
   },
 
-  progressSubtitle: {
-    marginTop: 3,
-    fontSize: 13,
-  },
-
-  progressCount: {
-    fontSize: 13,
-    fontWeight: '700',
-  },
-
-  progressTrack: {
-    height: 8,
-    borderRadius: 4,
-    marginTop: 16,
-    overflow: 'hidden',
-  },
-
-  progressFill: {
-    width: '12%',
-    height: '100%',
-    borderRadius: 4,
-  },
-
-  progressHint: {
-    marginTop: 9,
-    fontSize: 12,
-  },
-
-  practiceCard: {
-    borderRadius: 18,
-    padding: 17,
-    borderWidth: 1,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-
-  practiceIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-
-  practiceIconText: {
-    fontSize: 20,
-    fontWeight: '800',
-  },
-
-  practiceContent: {
-    flex: 1,
-  },
-
-  practiceTitle: {
-    fontSize: 15,
-    fontWeight: '800',
-  },
-
-  practiceText: {
-    marginTop: 5,
-    fontSize: 13,
-    lineHeight: 19,
+  progressStatText: {
+    fontSize: 14,
+    lineHeight: 20,
   },
 
   emptyContainer: {
