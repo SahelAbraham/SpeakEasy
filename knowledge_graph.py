@@ -202,7 +202,6 @@ def _create_session_transaction(tx, user_id: str):
         """
         MATCH (u:User {user_id: $user_id})
 
-        // Count how many sessions this user already has, to number the next one
         OPTIONAL MATCH (u)-[:HAS_SESSION]->(existing:Session)
         WITH u, count(existing) AS session_count
 
@@ -212,8 +211,17 @@ def _create_session_transaction(tx, user_id: str):
             label: 'session_' + toString(session_count + 1),
             started_at: datetime()
         })
-
         MERGE (u)-[:HAS_SESSION]->(s)
+
+        WITH u, s
+        MATCH (u)-[:HAS_SUBTRACK]->(sub:Subtrack)
+        CREATE (snap:SubtrackSnapshot {
+            track_id: sub.track_id,
+            score: sub.score,
+            taken_at: datetime()
+        })
+        CREATE (s)-[:STARTED_WITH]->(snap)
+        WITH s, count(snap) AS snapshots_created
 
         RETURN
             s.session_id AS session_id,
@@ -224,7 +232,6 @@ def _create_session_transaction(tx, user_id: str):
     )
 
     record = result.single()
-
     if record is None:
         raise RuntimeError(f"Failed to create session — no user found with user_id: {user_id}")
 
@@ -403,6 +410,63 @@ def _get_progress_stats_transaction(tx, user_id: str, session_id: str):
         "total_exercises": record["total_exercises"],
         "total_sessions": record["total_sessions"],
     }
+
+def get_subtrack_progression(user_id: str, session_limit: int = 3):
+    with driver.session(database=NEO4J_DATABASE) as session:
+        return session.execute_read(_get_subtrack_progression_transaction, user_id, session_limit)
+
+
+def _get_subtrack_progression_transaction(tx, user_id: str, session_limit: int):
+    result = tx.run(
+        """
+        MATCH (u:User {user_id: $user_id})-[:HAS_SESSION]->(s:Session)-[:STARTED_WITH]->(snap:SubtrackSnapshot)
+        RETURN s.session_id AS session_id, s.session_number AS session_number,
+               s.label AS label, s.started_at AS started_at,
+               snap.track_id AS track_id, snap.score AS score
+        ORDER BY s.session_number ASC
+        """,
+        user_id=user_id,
+    )
+
+    by_session = {}
+    for record in result:
+        num = record["session_number"]
+        entry = by_session.setdefault(num, {
+            "session_id": record["session_id"],
+            "session_number": num,
+            "label": record["label"],
+            "started_at": str(record["started_at"]),
+            "scores": {},
+        })
+        entry["scores"][record["track_id"]] = record["score"]
+
+    session_numbers = sorted(by_session.keys())
+
+    # A session counts as "completed" once the *next* session's snapshot
+    # exists — that snapshot is effectively this session's end state.
+    # The most recent (still-open) session has no successor, so it's
+    # skipped automatically here — never shown in progression.
+    completed = []
+    for i in range(len(session_numbers) - 1):
+        current = by_session[session_numbers[i]]
+        following = by_session[session_numbers[i + 1]]
+
+        deltas = {
+            track_id: round(following["scores"].get(track_id, start_score) - start_score, 4)
+            for track_id, start_score in current["scores"].items()
+        }
+
+        completed.append({
+            "session_id": current["session_id"],
+            "session_number": current["session_number"],
+            "label": current["label"],
+            "started_at": current["started_at"],
+            "completed_at": following["started_at"],
+            "subtrack_deltas": deltas,
+        })
+
+    completed.sort(key=lambda x: x["session_number"], reverse=True)
+    return completed[:session_limit]
 
 def close_driver():
     driver.close()

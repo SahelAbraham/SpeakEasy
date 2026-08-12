@@ -6,7 +6,7 @@ import uuid
 import os
 import shutil
 
-from knowledge_graph import create_user, switch_track, create_session, get_enrolled_track, record_exercise_attempt, get_progress_stats
+from knowledge_graph import create_user, switch_track, create_session, get_enrolled_track, record_exercise_attempt, get_progress_stats, get_subtrack_progression
 from exercise_bank import get_exercise_by_id
 from speech_analysis_final import process_exercise_attempt
 from rag.rag_pipeline import rag_search
@@ -280,3 +280,11 @@ def get_progress(user_id: str, session_id: str):
         "total_exercises": stats["total_exercises"],
         "total_sessions": stats["total_sessions"],
     }
+
+@app.get("/progression")
+def get_progression(user_id: str):
+    try:
+        sessions = get_subtrack_progression(user_id=user_id)
+    except RuntimeError as e:
+        return {"status": "error", "message": str(e)}
+    return {"status": "success", "sessions": sessions}
