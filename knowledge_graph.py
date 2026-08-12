@@ -64,10 +64,6 @@ def _create_user_transaction(
 ):
     result = tx.run(
         """
-        // ---------------------------------------------------------
-        // Create/update the User
-        // ---------------------------------------------------------
-
         MERGE (u:User {user_id: $user_id})
 
         SET u.username = $username,
@@ -80,105 +76,67 @@ def _create_user_transaction(
             u.track = $track,
             u.created_at = timestamp()
 
-
         // ---------------------------------------------------------
-        // Create both Tracks, link enrolled vs not-enrolled
+        // Global Track catalog nodes (shared by all users) — only
+        // an ENROLLED_IN edge is created; no NOT_ENROLLED_IN.
         // ---------------------------------------------------------
 
         MERGE (speech:Track {name: 'Speech'})
         MERGE (language:Track {name: 'Language'})
 
         WITH u, speech, language,
-             CASE WHEN $track = 'Speech' THEN speech ELSE language END AS enrolledTrack,
-             CASE WHEN $track = 'Speech' THEN language ELSE speech END AS otherTrack
+             CASE WHEN $track = 'Speech' THEN speech ELSE language END AS enrolledTrack
 
         MERGE (u)-[:ENROLLED_IN]->(enrolledTrack)
-        MERGE (u)-[:NOT_ENROLLED_IN]->(otherTrack)
-
 
         // ---------------------------------------------------------
-        // Expressive Language
+        // Per-user Subtrack nodes (unchanged)
         // ---------------------------------------------------------
 
         MERGE (expressive:Subtrack {
             user_id: $user_id,
             track_id: 'Language_Expressive'
         })
-
         ON CREATE SET
             expressive.name = 'Expressive Language',
             expressive.score = 0.5
-
         MERGE (u)-[:HAS_SUBTRACK]->(expressive)
-
-
-        // ---------------------------------------------------------
-        // Receptive Language
-        // ---------------------------------------------------------
 
         MERGE (receptive:Subtrack {
             user_id: $user_id,
             track_id: 'Language_Receptive'
         })
-
         ON CREATE SET
             receptive.name = 'Receptive Language',
             receptive.score = 0.5
-
         MERGE (u)-[:HAS_SUBTRACK]->(receptive)
-
-
-        // ---------------------------------------------------------
-        // Motor Speech
-        // ---------------------------------------------------------
 
         MERGE (motor:Subtrack {
             user_id: $user_id,
             track_id: 'Speech_Motor'
         })
-
         ON CREATE SET
-            motor.name = 'Motor Speech (Disarthria)',
+            motor.name = 'Motor Speech (Dysarthria)',
             motor.score = 0.5
-
         MERGE (u)-[:HAS_SUBTRACK]->(motor)
-
-
-        // ---------------------------------------------------------
-        // Fluency
-        // ---------------------------------------------------------
 
         MERGE (fluency:Subtrack {
             user_id: $user_id,
             track_id: 'Speech_Fluency'
         })
-
         ON CREATE SET
             fluency.name = 'Fluency',
             fluency.score = 0.5
-
         MERGE (u)-[:HAS_SUBTRACK]->(fluency)
-
-
-        // ---------------------------------------------------------
-        // Voice Disorders
-        // ---------------------------------------------------------
 
         MERGE (voice:Subtrack {
             user_id: $user_id,
             track_id: 'Speech_Disorders'
         })
-
         ON CREATE SET
             voice.name = 'Voice Disorders',
             voice.score = 0.5
-
         MERGE (u)-[:HAS_SUBTRACK]->(voice)
-
-
-        // ---------------------------------------------------------
-        // Return useful information for verification
-        // ---------------------------------------------------------
 
         RETURN
             u.user_id AS user_id,
@@ -200,10 +158,8 @@ def _create_user_transaction(
     )
 
     record = result.single()
-
     if record is None:
         raise RuntimeError("Failed to create user and subtracks in Neo4j.")
-
     return record["user_id"]
 
 def switch_track(user_id: str, new_track: str):
@@ -219,43 +175,22 @@ def _switch_track_transaction(tx, user_id: str, new_track: str):
         """
         MATCH (u:User {user_id: $user_id})
 
-        // ---------------------------------------------------------
-        // Remove the old ENROLLED_IN / NOT_ENROLLED_IN relationships
-        // ---------------------------------------------------------
-
         OPTIONAL MATCH (u)-[oldEnrolled:ENROLLED_IN]->()
         DELETE oldEnrolled
 
         WITH u
-        OPTIONAL MATCH (u)-[oldNotEnrolled:NOT_ENROLLED_IN]->()
-        DELETE oldNotEnrolled
+        MERGE (newTrack:Track {name: $new_track})
+        MERGE (u)-[:ENROLLED_IN]->(newTrack)
 
-        // ---------------------------------------------------------
-        // Re-link to both tracks with the correct direction
-        // ---------------------------------------------------------
-
-        WITH u
-        MERGE (speech:Track {name: 'Speech'})
-        MERGE (language:Track {name: 'Language'})
-
-        WITH u, speech, language,
-             CASE WHEN $new_track = 'Speech' THEN speech ELSE language END AS enrolledTrack,
-             CASE WHEN $new_track = 'Speech' THEN language ELSE speech END AS otherTrack
-
-        MERGE (u)-[:ENROLLED_IN]->(enrolledTrack)
-        MERGE (u)-[:NOT_ENROLLED_IN]->(otherTrack)
-
-        RETURN u.user_id AS user_id, enrolledTrack.name AS enrolled
+        RETURN u.user_id AS user_id, newTrack.name AS enrolled
         """,
         user_id=user_id,
         new_track=new_track,
     )
 
     record = result.single()
-
     if record is None:
         raise RuntimeError(f"Failed to switch track — no user found with user_id: {user_id}")
-
     return record["enrolled"]
 
 def create_session(user_id: str) -> str:
@@ -367,6 +302,107 @@ def _get_enrolled_track_transaction(tx, user_id: str):
     if record is None:
         raise RuntimeError(f"No enrolled track found for user {user_id}")
     return record["track"]
+
+
+def record_exercise_attempt(user_id: str, session_id: str, exercise: dict, result: dict):
+    """
+    Creates a brand-new, per-user Exercise node for this specific attempt
+    (so repeat attempts at the same bank exercise never collide), attaches
+    the score/scoring_method/transcription directly to it, and links it to
+    both the active Session and the User.
+
+    exercise.get("id") is kept as `source_id` — a pointer back to the
+    exercise_bank_v3.json / Chroma entry — but instructions and
+    expected_answer are intentionally NOT stored on this node.
+    """
+    with driver.session(database=NEO4J_DATABASE) as session:
+        return session.execute_write(
+            _record_exercise_attempt_transaction,
+            user_id,
+            session_id,
+            exercise,
+            result,
+        )
+
+
+def _record_exercise_attempt_transaction(tx, user_id: str, session_id: str, exercise: dict, result: dict):
+    query_result = tx.run(
+        """
+        MATCH (u:User {user_id: $user_id})-[:HAS_SESSION]->(s:Session {session_id: $session_id})
+
+        CREATE (ex:Exercise {
+            exercise_id: randomUUID(),
+            source_id: $source_id,
+            user_id: $user_id,
+            title: $title,
+            track: $track,
+            subcategory: $subcategory,
+            scoring_type: $scoring_type,
+            score: $score,
+            scoring_method: $scoring_method,
+            transcription: $transcription,
+            weak_phonemes: $weak_phonemes,
+            completed_at: datetime()
+        })
+
+        MERGE (s)-[:HAS_EXERCISE]->(ex)
+
+        RETURN ex.exercise_id AS exercise_id
+        """,
+        user_id=user_id,
+        session_id=session_id,
+        source_id=exercise.get("id"),
+        title=exercise.get("title"),
+        track=exercise.get("track"),
+        subcategory=exercise.get("subcategory"),
+        scoring_type=exercise.get("scoring_type"),
+        score=result.get("score"),
+        scoring_method=result.get("scoring_method"),
+        transcription=result.get("transcription"),
+        weak_phonemes=json.dumps(result.get("weak_phonemes", [])),
+    )
+
+    record = query_result.single()
+    if record is None:
+        raise RuntimeError(
+            f"Failed to record exercise attempt — no session {session_id} found for user {user_id}. "
+            f"This means the client sent a session_id that doesn't have a HAS_SESSION edge to this user "
+            f"(stale/expired session on the frontend is the most common cause)."
+        )
+    return record["exercise_id"]
+
+def get_progress_stats(user_id: str, session_id: str):
+    with driver.session(database=NEO4J_DATABASE) as session:
+        return session.execute_read(_get_progress_stats_transaction, user_id, session_id)
+
+
+def _get_progress_stats_transaction(tx, user_id: str, session_id: str):
+    result = tx.run(
+        """
+        MATCH (u:User {user_id: $user_id})
+        OPTIONAL MATCH (u)-[:HAS_SESSION]->(allSessions:Session)
+        OPTIONAL MATCH (allSessions)-[:HAS_EXERCISE]->(allEx:Exercise)
+        WITH u, count(DISTINCT allSessions) AS total_sessions, count(allEx) AS total_exercises
+        OPTIONAL MATCH (u)-[:HAS_SESSION]->(currentSession:Session {session_id: $session_id})
+        OPTIONAL MATCH (currentSession)-[:HAS_EXERCISE]->(sessionEx:Exercise)
+        RETURN
+            total_sessions AS total_sessions,
+            total_exercises AS total_exercises,
+            count(sessionEx) AS session_exercises
+        """,
+        user_id=user_id,
+        session_id=session_id,
+    )
+
+    record = result.single()
+    if record is None:
+        raise RuntimeError(f"Failed to fetch progress stats — no user found with user_id: {user_id}")
+
+    return {
+        "session_exercises": record["session_exercises"],
+        "total_exercises": record["total_exercises"],
+        "total_sessions": record["total_sessions"],
+    }
 
 def close_driver():
     driver.close()
@@ -696,4 +732,3 @@ def close_driver():
 #             min_occurrences=min_occurrences
 #             )
 #         )
-

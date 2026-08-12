@@ -6,7 +6,7 @@ import uuid
 import os
 import shutil
 
-from knowledge_graph import create_user, switch_track, create_session, get_enrolled_track
+from knowledge_graph import create_user, switch_track, create_session, get_enrolled_track, record_exercise_attempt, get_progress_stats
 from exercise_bank import get_exercise_by_id
 from speech_analysis_final import process_exercise_attempt
 from rag.rag_pipeline import rag_search
@@ -92,10 +92,17 @@ def switch_user_track(data: TrackSwitchData):
 
 @app.post("/session/start")
 def start_session(data: SessionStartData):
+    print(f"[SpeakEasy] /session/start called for user_id={data.user_id}")
     try:
         session_info = create_session(user_id=data.user_id)
     except RuntimeError as e:
+        print(f"[SpeakEasy] /session/start FAILED for user_id={data.user_id}: {e}")
         return {"status": "error", "message": str(e)}
+
+    print(
+        f"[SpeakEasy] /session/start OK — session_id={session_info['session_id']} "
+        f"label={session_info['label']} for user_id={data.user_id}"
+    )
 
     return {
         "status": "success",
@@ -109,14 +116,23 @@ def get_first_exercise(user_id: str):
     try:
         track = get_enrolled_track(user_id)
         subcategory = choose_initial_subcategory(user_id, track)
+        print(f"[SpeakEasy] /exercise/first — user_id={user_id} track={track!r} subcategory={subcategory!r}")
+
         candidates = rag_search(
             profile={"track": track, "subcategory": subcategory},
             transcript="",
             n_results=5,
         )
+        print(f"[SpeakEasy] /exercise/first — got {len(candidates)} candidates: "
+              f"{[(c['id'], c['track'], c['subcategory']) for c in candidates]}")
+
         exercise = candidates[0] if candidates else None
         if exercise is None:
             return {"status": "error", "message": "No exercises found for this subcategory."}
+
+        if exercise["track"] != track:
+            print(f"[SpeakEasy] ⚠️ TRACK MISMATCH — requested track={track!r} but got "
+                  f"exercise {exercise['id']} with track={exercise['track']!r}")
     except RuntimeError as e:
         return {"status": "error", "message": str(e)}
 
@@ -129,6 +145,11 @@ async def submit_exercise(
     exercise_id: str = Form(...),
     audio: UploadFile = File(...),
 ):
+    print(
+        f"[SpeakEasy] /exercise/submit called — user_id={user_id} "
+        f"session_id={session_id} exercise_id={exercise_id}"
+    )
+
     file_extension = os.path.splitext(audio.filename)[1] or ".m4a"
     saved_filename = f"{user_id}_{exercise_id}_{uuid.uuid4()}{file_extension}"
     saved_path = os.path.join(AUDIO_UPLOAD_DIR, saved_filename)
@@ -157,6 +178,29 @@ async def submit_exercise(
         )
 
         print(f"[SpeakEasy] Exercise '{exercise['title']}' scored: {result['score']}")
+
+        try:
+            new_exercise_node_id = record_exercise_attempt(
+                user_id=user_id,
+                session_id=session_id,
+                exercise=exercise,
+                result=result,
+            )
+            print(
+                f"[SpeakEasy] Recorded Exercise node {new_exercise_node_id} "
+                f"under session {session_id} for user {user_id}"
+            )
+        except RuntimeError as e:
+            # This is the failure to watch for: it almost always means the
+            # session_id sent from the client doesn't have a HAS_SESSION
+            # edge to this user in Neo4j (stale/expired session on the
+            # frontend). Surfacing it (instead of silently continuing)
+            # so it's visible during testing.
+            print(f"[SpeakEasy] ⚠️ FAILED to record exercise in KG: {e}")
+            return {
+                "status": "error",
+                "message": f"Could not save this attempt to your session: {e}",
+            }
 
         state = session_state.setdefault(session_id, {"seen_ids": set(), "recent_attempts": []})
         state["seen_ids"].add(exercise_id)
@@ -197,6 +241,12 @@ async def submit_exercise(
             next_exercise = next(
                 (c for c in candidates if c["id"] not in state["seen_ids"]), None
             )
+            if next_exercise and next_exercise["track"] != exercise["track"]:
+                print(
+                    f"[SpeakEasy] ⚠️ TRACK MISMATCH on next_exercise — expected "
+                    f"track={exercise['track']!r} but got {next_exercise['id']} "
+                    f"with track={next_exercise['track']!r}"
+                )
         except RuntimeError as e:
             print(f"[SpeakEasy] Failed to select next exercise: {e}")
             next_exercise = None
@@ -210,7 +260,23 @@ async def submit_exercise(
             "next_exercise": next_exercise,
         }
 
+
+
     finally:
         for path in (saved_path, converted_path):
             if os.path.exists(path):
                 os.remove(path)
+                
+@app.get("/progress")
+def get_progress(user_id: str, session_id: str):
+    try:
+        stats = get_progress_stats(user_id=user_id, session_id=session_id)
+    except RuntimeError as e:
+        return {"status": "error", "message": str(e)}
+
+    return {
+        "status": "success",
+        "session_exercises": stats["session_exercises"],
+        "total_exercises": stats["total_exercises"],
+        "total_sessions": stats["total_sessions"],
+    }
