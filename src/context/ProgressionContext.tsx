@@ -1,95 +1,81 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { CompletedExerciseSet } from '../types/progression';
-import { colors } from '../theme/colors';
+import { useAuth } from './AuthContext';
+import api from '../services/auth/api';
 
-const PROGRESSION_STORAGE_KEY = '@speakeasy/progression';
-const MAX_STORED_SETS = 20;
-const DISPLAY_SET_COUNT = 4;
+export type SubtrackDelta = {
+  trackId: string;
+  label: string;
+  delta: number; // change in subtrack score (0-1 scale) over that session
+};
 
-const SEED_SETS: CompletedExerciseSet[] = [
-  {
-    id: 'seed-1',
-    completedAt: daysAgo(1),
-    percentCorrect: 88,
-    exerciseCount: 10,
-  },
-  {
-    id: 'seed-2',
-    completedAt: daysAgo(3),
-    percentCorrect: 72,
-    exerciseCount: 10,
-  },
-  {
-    id: 'seed-3',
-    completedAt: daysAgo(5),
-    percentCorrect: 91,
-    exerciseCount: 10,
-  },
-  {
-    id: 'seed-4',
-    completedAt: daysAgo(7),
-    percentCorrect: 65,
-    exerciseCount: 10,
-  },
-];
+export type CompletedSession = {
+  id: string;
+  sessionNumber: number;
+  label: string;
+  startedAt: string;
+  completedAt: string;
+  subtrackDeltas: SubtrackDelta[];
+};
+
+const TRACK_ID_LABELS: Record<string, string> = {
+  Language_Expressive: 'Expressive Language',
+  Language_Receptive: 'Receptive Language',
+  Speech_Motor: 'Motor Speech',
+  Speech_Fluency: 'Fluency',
+  Speech_Disorders: 'Voice Disorders',
+};
 
 type ProgressionContextValue = {
-  recentSets: CompletedExerciseSet[];
+  recentSessions: CompletedSession[];
   isLoading: boolean;
-  recordCompletedSet: (percentCorrect: number, exerciseCount?: number) => Promise<void>;
+  refresh: () => void;
 };
 
 const ProgressionContext = createContext<ProgressionContextValue | undefined>(undefined);
 
-function daysAgo(n: number): string {
-  const date = new Date();
-  date.setDate(date.getDate() - n);
-  return date.toISOString();
-}
-
-async function loadSets(): Promise<CompletedExerciseSet[]> {
-  const raw = await AsyncStorage.getItem(PROGRESSION_STORAGE_KEY);
-  if (!raw) {
-    await AsyncStorage.setItem(PROGRESSION_STORAGE_KEY, JSON.stringify(SEED_SETS));
-    return SEED_SETS;
-  }
-  return JSON.parse(raw) as CompletedExerciseSet[];
-}
-
-async function saveSets(sets: CompletedExerciseSet[]): Promise<void> {
-  await AsyncStorage.setItem(PROGRESSION_STORAGE_KEY, JSON.stringify(sets));
-}
-
 export function ProgressionProvider({ children }: { children: React.ReactNode }) {
-  const [sets, setSets] = useState<CompletedExerciseSet[]>([]);
+  const { user } = useAuth();
+  const [recentSessions, setRecentSessions] = useState<CompletedSession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    loadSets()
-      .then(setSets)
+  const fetchProgression = useCallback(() => {
+    if (!user?.user_Id) return;
+
+    setIsLoading(true);
+    api
+      .get('/progression', { params: { user_id: user.user_Id } })
+      .then((response) => {
+        if (response.data.status !== 'success') {
+          console.error('Failed to fetch progression:', response.data.message);
+          return;
+        }
+
+        const sessions: CompletedSession[] = response.data.sessions.map((s: any) => ({
+          id: s.session_id,
+          sessionNumber: s.session_number,
+          label: s.label,
+          startedAt: s.started_at,
+          completedAt: s.completed_at,
+          subtrackDeltas: Object.entries(s.subtrack_deltas).map(([trackId, delta]) => ({
+            trackId,
+            label: TRACK_ID_LABELS[trackId] ?? trackId,
+            delta: delta as number,
+          })),
+        }));
+
+        setRecentSessions(sessions);
+      })
+      .catch((err) => console.error('Progression fetch failed:', err))
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [user?.user_Id]);
 
-  const recordCompletedSet = useCallback(async (percentCorrect: number, exerciseCount = 10) => {
-    const entry: CompletedExerciseSet = {
-      id: `set-${Date.now()}`,
-      completedAt: new Date().toISOString(),
-      percentCorrect: Math.round(Math.min(100, Math.max(0, percentCorrect))),
-      exerciseCount,
-    };
-
-    const current = await loadSets();
-    const next = [entry, ...current].slice(0, MAX_STORED_SETS);
-    await saveSets(next);
-    setSets(next);
-  }, []);
-
-  const recentSets = useMemo(() => sets.slice(0, DISPLAY_SET_COUNT), [sets]);
+  useEffect(() => {
+    fetchProgression();
+  }, [fetchProgression]);
 
   const value = useMemo(
-    () => ({ recentSets, isLoading, recordCompletedSet }),
-    [recentSets, isLoading, recordCompletedSet],
+    () => ({ recentSessions, isLoading, refresh: fetchProgression }),
+    [recentSessions, isLoading, fetchProgression],
   );
 
   return <ProgressionContext.Provider value={value}>{children}</ProgressionContext.Provider>;
@@ -103,8 +89,8 @@ export function useProgression(): ProgressionContextValue {
   return context;
 }
 
-export function percentColor(percent: number): string {
-  if (percent >= 80) return colors.progressHigh;
-  if (percent >= 60) return colors.progressMid;
-  return colors.progressLow;
+export function deltaColor(delta: number): string {
+  if (delta > 0.02) return '#4CAF50';
+  if (delta < -0.02) return '#E5484D';
+  return '#9AA0A6';
 }
