@@ -169,35 +169,40 @@ export function TrackThemeProvider({
   }, [user?.surveyData?.track]);
 
   const setSelectedTrack = async (track: Track) => {
-    const previousTrack = selectedTrack;
-    setSelectedTrackState(track); // optimistic UI update
+  if (!user?.user_Id) {
+    console.warn('No user_Id found — skipping backend track switch.');
+    return;
+  }
 
-    if (!user?.user_Id) {
-      console.warn('No user_Id found — skipping backend track switch.');
-      return;
+  if (track === selectedTrack) {
+    return;
+  }
+
+  try {
+    const response = await api.post('/track/switch', {
+      user_id: user.user_Id,
+      track,
+    });
+
+    if (response.data.status === 'error') {
+      throw new Error(response.data.message);
     }
 
-    try {
-      const response = await api.post('/track/switch', {
-        user_id: user.user_Id,
+    // Only flip local state once the backend switch is confirmed — this
+    // guarantees ExerciseContext's refetch (which depends on
+    // selectedTrack) never races ahead of the actual Neo4j update.
+    setSelectedTrackState(track);
+
+    await updateUser({
+      surveyData: {
+        ...(user.surveyData as NonNullable<typeof user.surveyData>),
         track,
-      });
-
-      if (response.data.status === 'error') {
-        throw new Error(response.data.message);
-      }
-
-      await updateUser({
-        surveyData: {
-          ...(user.surveyData as NonNullable<typeof user.surveyData>),
-          track,
-        },
-      });
-    } catch (err) {
-      console.error('Track switch failed:', err);
-      setSelectedTrackState(previousTrack); // revert on failure
-    }
-  };
+      },
+    });
+  } catch (err) {
+    console.error('Track switch failed:', err);
+  }
+};
 
   const theme = useMemo(
     () => TRACK_THEMES[selectedTrack],
