@@ -42,8 +42,8 @@
       "track": "Language",
       "subcategory": "Expressive",
       "instructions": "Picture a kitchen in your mind. Name out loud three objects you would expect to find there.",
-      "scoring_type": "category_naming",
-      "expected_answer": ["fork","spoon","knife","plate","cup","stove","oven","fridge","refrigerator","pot","pan","bowl","kettle","sink","microwave","toaster","glass","mug","tray","dishwasher","blender"]
+      "scoring_type": "llm_correctness_check",
+      "expected_answer": null    
     },
     {
       "id": "LAN-EXP-SPK-006",
@@ -123,8 +123,8 @@
       "track": "Language",
       "subcategory": "Receptive",
       "instructions": "Listen: Ben picked up his phone, then put it in his pocket. Say out loud: where did Ben put his phone?",
-      "scoring_type": "keyword_match",
-      "expected_answer": ["pocket"]
+      "scoring_type": "llm_correctness_check",
+      "expected_answer": null
     },
     {
       "id": "LAN-REC-SPK-003",
@@ -132,8 +132,8 @@
       "track": "Language",
       "subcategory": "Receptive",
       "instructions": "Listen: Priya stood up, walked to the door, then sat back down. Say out loud: what did Priya do right before sitting back down?",
-      "scoring_type": "keyword_match",
-      "expected_answer": ["walked","walked to the door","door"]
+      "scoring_type": "llm_correctness_check",
+      "expected_answer": null
     },
     {
       "id": "LAN-REC-SPK-004",
@@ -177,8 +177,8 @@
       "track": "Language",
       "subcategory": "Receptive",
       "instructions": "Listen: Maria packed her bag. She is going on a trip. Answer out loud: what was Maria doing?",
-      "scoring_type": "keyword_match",
-      "expected_answer": ["trip","traveling","travel","packing","going on a trip","journey"]
+      "scoring_type": "llm_correctness_check",
+      "expected_answer": null
     },
     {
       "id": "LAN-REC-SPK-009",
@@ -186,8 +186,8 @@
       "track": "Language",
       "subcategory": "Receptive",
       "instructions": "Listen: Jamie has three apples and gives one to a friend. Say out loud: how many apples does Jamie have left?",
-      "scoring_type": "keyword_match",
-      "expected_answer": ["two"]
+      "scoring_type": "llm_correctness_check",
+      "expected_answer": null
     },
     {
       "id": "LAN-REC-SPK-010",
@@ -204,8 +204,8 @@
       "track": "Language",
       "subcategory": "Receptive",
       "instructions": "Listen: Noah finished his homework before dinner. Say out loud: did Noah do his homework before or after dinner?",
-      "scoring_type": "keyword_match",
-      "expected_answer": ["before"]
+      "scoring_type": "llm_correctness_check",
+      "expected_answer": null
     },
     {
       "id": "LAN-REC-SPK-012",
@@ -492,7 +492,7 @@
       "track": "Speech",
       "subcategory": "Voice Disorders",
       "instructions": "Say out loud how much water you drank today and whether you did any shouting or a lot of throat-clearing.",
-      "scoring_type": "needs_pitch_tracking",
+      "scoring_type": "llm_correctness_check",
       "expected_answer": null
     },
     {
@@ -528,7 +528,7 @@
       "track": "Speech",
       "subcategory": "Voice Disorders",
       "instructions": "Say this sentence out loud, starting every word with a soft, easy voice instead of a hard push: We can take it easy today.",
-      "scoring_type": "needs_pitch_tracking",
+      "scoring_type": "audio_clarity",
       "expected_answer": null
     },
     {

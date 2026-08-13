@@ -440,12 +440,53 @@ def generate_clarity_report(audio_path):
         "chunks": chunks,
     }
 
+def score_voice_disorders(audio_path):
+    """
+    Scores Voice Disorders exercises using pitch tracking via librosa.pyin.
+    Measures pitch stability and voiced ratio.
+    Returns a score 0-100.
+    """
+    speech, sr = librosa.load(audio_path, sr=16000)
+
+    f0, voiced_flag, voiced_probs = librosa.pyin(
+        speech,
+        fmin=librosa.note_to_hz('C2'),
+        fmax=librosa.note_to_hz('C7'),
+        sr=sr
+    )
+
+    voiced_ratio = float(voiced_flag.mean())
+    voiced_f0 = f0[voiced_flag]
+
+    if len(voiced_f0) < 10:
+        return {
+            "score": 0,
+            "voiced_ratio": 0,
+            "pitch_stability": 0,
+            "pitch_range_hz": 0,
+            "scoring_method": "pitch_tracking",
+            "note": "Too little voiced audio detected"
+        }
+
+    pitch_stability = 1 - (voiced_f0.std() / (voiced_f0.mean() + 1e-6))
+    pitch_stability = float(max(0, min(1, pitch_stability)))
+    pitch_range = float(voiced_f0.max() - voiced_f0.min())
+
+    score = round((voiced_ratio * 0.5 + pitch_stability * 0.5) * 100, 1)
+
+    return {
+        "score": score,
+        "voiced_ratio": round(voiced_ratio, 3),
+        "pitch_stability": round(pitch_stability, 3),
+        "pitch_range_hz": round(pitch_range, 1),
+        "scoring_method": "pitch_tracking"
+    }
 
 # ── Track scoring router ────────────────────────────────────────────────
 
 def compute_track_scores(analysis_result, subcategory, scoring_type=None,
                           expected_answer=None, exercise_instructions=None,
-                          exercise_title=None):
+                          exercise_title=None, audio_path=None):
     result = {"subcategory": subcategory}
 
     if subcategory == "Fluency":
@@ -491,8 +532,10 @@ def compute_track_scores(analysis_result, subcategory, scoring_type=None,
         result["scoring_method"] = "deterministic_yes_no"
 
     elif subcategory == "Voice Disorders":
-        result["score"] = None
-        result["scoring_method"] = "needs_pitch_tracking"
+        r = score_voice_disorders(audio_path)
+        result["score"] = r["score"]
+        result["details"] = r
+        result["scoring_method"] = "pitch_tracking"
 
     else:
         # llm_correctness_check and any other unmatched scoring_type
@@ -609,6 +652,7 @@ def process_exercise_attempt(audio_path, exercise_id, subcategory, user_id, sess
         expected_answer=expected_answer,
         exercise_instructions=exercise_instructions,
         exercise_title=exercise_title,
+        audio_path=analysis["audio_path_used"]
     )
 
     return {
